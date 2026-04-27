@@ -190,27 +190,6 @@ def api_current():
     except Exception:
         pass
 
-    gpu = None
-    try:
-        r = subprocess.run(
-            ["nvidia-smi",
-             "--query-gpu=name,utilization.gpu,memory.used,memory.total,temperature.gpu",
-             "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=3,
-        )
-        if r.returncode == 0 and r.stdout.strip():
-            p = [x.strip() for x in r.stdout.strip().split(",")]
-            if len(p) >= 5:
-                gpu = {
-                    "model": p[0],
-                    "percent": float(p[1]),
-                    "vram_used_gb": round(float(p[2]) / 1024, 1),
-                    "vram_total_gb": round(float(p[3]) / 1024, 1),
-                    "temp": float(p[4]),
-                }
-    except Exception:
-        pass
-
     return {
         "cpu_percent": round(cpu, 1),
         "cpu_freq_ghz": round(freq.current / 1000, 2) if freq else None,
@@ -226,7 +205,6 @@ def api_current():
         "swap_used_gb": round(swap.used / 1e9, 1),
         "swap_total_gb": int(round(swap.total / 1e9)),
         "temp_cpu": temp,
-        "gpu": gpu,
         "net_sent_mbps": nr["sent"],
         "net_recv_mbps": nr["recv"],
         "net_iface": iface,
