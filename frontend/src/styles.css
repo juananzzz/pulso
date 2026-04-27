@@ -306,6 +306,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .overview-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
+.overview-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
 .overview-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap); }
 .gauge-center { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 0 4px; }
 .ov-card-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
