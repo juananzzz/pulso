@@ -281,43 +281,6 @@ def api_disks():
     return result
 
 
-@app.get("/api/docker")
-def api_docker():
-    try:
-        r = subprocess.run(
-            ["docker", "ps", "-a", "--format", "{{.Names}}|{{.Status}}|{{.Image}}"],
-            capture_output=True, text=True, timeout=5,
-        )
-        if r.returncode != 0:
-            return {"available": False}
-        containers = []
-        running = restarting = stopped = 0
-        for line in r.stdout.strip().splitlines():
-            if not line.strip():
-                continue
-            parts = line.split("|")
-            if len(parts) < 3:
-                continue
-            name, status_str, image = parts[0], parts[1], parts[2]
-            if "Restarting" in status_str:
-                state, restarting = "restarting", restarting + 1
-            elif status_str.startswith("Up"):
-                state, running = "running", running + 1
-            else:
-                state, stopped = "stopped", stopped + 1
-            containers.append({"name": name, "state": state, "image": image})
-        return {
-            "available": True,
-            "total": len(containers),
-            "running": running,
-            "restarting": restarting,
-            "stopped": stopped,
-            "containers": containers,
-        }
-    except Exception:
-        return {"available": False}
-
-
 @app.get("/api/cpu/cores")
 def api_cpu_cores():
     percents = psutil.cpu_percent(percpu=True, interval=0.2)

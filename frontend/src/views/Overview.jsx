@@ -199,48 +199,8 @@ function DisksCard({ disks, onClick }) {
   );
 }
 
-// ── Docker ───────────────────────────────────────────────────────
-function DockerCard({ docker, onClick }) {
-  if (!docker?.available) return (
-    <div className="card">
-      <div className="ov-card-label">Docker</div>
-      <div style={{ marginTop: 16, color: 'var(--text-dim)', fontSize: '0.9rem' }}>No disponible</div>
-    </div>
-  );
-  const hasIssues = docker.restarting > 0 || docker.stopped > 0;
-  return (
-    <div className="card clickable" onClick={onClick}>
-      <div className="ov-card-label">Docker</div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, margin: '10px 0 4px' }}>
-        <span style={{
-          fontSize: '3rem', fontWeight: 700, lineHeight: 1,
-          color: hasIssues ? 'var(--alert)' : 'var(--text)', fontFamily: 'var(--num-font)',
-        }}>{docker.running}</span>
-        <span style={{ fontSize: '1.1rem', color: 'var(--text-mid)' }}>/ {docker.total}</span>
-      </div>
-      <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 12 }}>contenedores activos</div>
-      {docker.containers?.slice(0, 5).map(c => (
-        <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
-          <span style={{
-            width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
-            background: c.state === 'running' ? 'var(--ok)' : c.state === 'restarting' ? 'orange' : 'var(--text-dim)',
-          }} />
-          <span style={{ fontSize: '0.82rem', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {c.name}
-          </span>
-          {c.state !== 'running' && (
-            <span style={{ fontSize: '0.68rem', fontWeight: 600, color: c.state === 'restarting' ? 'orange' : 'var(--text-dim)' }}>
-              {c.state}
-            </span>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 // ── Main Overview ─────────────────────────────────────────────────
-export default function Overview({ current, disks, docker, spark, onNavigate }) {
+export default function Overview({ current, disks, spark, onNavigate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--gap) * 1.5)' }}>
       {/* Top row: CPU · RAM · Network */}
@@ -250,11 +210,8 @@ export default function Overview({ current, disks, docker, spark, onNavigate }) 
         <NetworkCard data={current} spark={spark}       onClick={() => onNavigate('network')} />
       </div>
 
-      {/* Bottom row: Disks · Docker */}
-      <div className="overview-grid-2">
-        <DisksCard disks={disks}   onClick={() => onNavigate('storage')} />
-        <DockerCard docker={docker} onClick={() => onNavigate('containers')} />
-      </div>
+      {/* Bottom row: Disks */}
+      <DisksCard disks={disks} onClick={() => onNavigate('storage')} />
     </div>
   );
 }

@@ -2,12 +2,11 @@ export const ALERT_COLOR_DEFAULT = '#E63946';
 export const BUFFER_SIZE = 30;
 
 export const TABS = [
-  { id: 'home',       label: 'Overview' },
-  { id: 'cpu',        label: 'CPU' },
-  { id: 'memory',     label: 'Memory' },
-  { id: 'storage',    label: 'Disks' },
-  { id: 'network',    label: 'Network' },
-  { id: 'containers', label: 'Containers' },
+  { id: 'home',    label: 'Overview' },
+  { id: 'cpu',     label: 'CPU' },
+  { id: 'memory',  label: 'Memory' },
+  { id: 'storage', label: 'Disks' },
+  { id: 'network', label: 'Network' },
 ];
 
 export const DEMO_DATA = {
@@ -15,19 +14,19 @@ export const DEMO_DATA = {
   'high-load': {
     current: {
       cpu_percent: 92, cpu_freq_ghz: 3.4, load_1: 8.5, load_5: 7.2, load_15: 6.1,
-      ram_used_gb: 54.2, ram_total_gb: 64, ram_percent: 84.7, swap_used_gb: 1.2, swap_total_gb: 8,
-      temp_cpu: 78, gpu: { model: 'RTX 3060', percent: 45, vram_used_gb: 3.1, vram_total_gb: 12, temp: 68 },
-      net_sent_mbps: 12.3, net_recv_mbps: 8.7, net_iface: 'enp4s0', net_latency_ms: 4,
-      disk_percent: 43, uptime_seconds: 1638000,
+      ram_used_gb: 54.2, ram_total_gb: 64, ram_percent: 84.7, ram_available_gb: 9.8,
+      ram_cached_gb: 12.1, ram_buffers_gb: 1.2, swap_used_gb: 1.2, swap_total_gb: 8,
+      temp_cpu: 78, net_sent_mbps: 12.3, net_recv_mbps: 8.7, net_iface: 'enp4s0',
+      net_latency_ms: 4, disk_percent: 43, uptime_seconds: 1638000,
     },
   },
   'disk-full': {
     current: {
       cpu_percent: 18, cpu_freq_ghz: 2.1, load_1: 0.4, load_5: 0.5, load_15: 0.6,
-      ram_used_gb: 12.3, ram_total_gb: 64, ram_percent: 19, swap_used_gb: 0.1, swap_total_gb: 8,
-      temp_cpu: 42, gpu: { model: 'RTX 3060', percent: 5, vram_used_gb: 1.1, vram_total_gb: 12, temp: 38 },
-      net_sent_mbps: 0.3, net_recv_mbps: 0.1, net_iface: 'enp4s0', net_latency_ms: 2,
-      disk_percent: 43, uptime_seconds: 952000,
+      ram_used_gb: 12.3, ram_total_gb: 64, ram_percent: 19, ram_available_gb: 51.7,
+      ram_cached_gb: 8.4, ram_buffers_gb: 0.6, swap_used_gb: 0.1, swap_total_gb: 8,
+      temp_cpu: 42, net_sent_mbps: 0.3, net_recv_mbps: 0.1, net_iface: 'enp4s0',
+      net_latency_ms: 2, disk_percent: 43, uptime_seconds: 952000,
     },
     disks: [
       { mountpoint: '/', device: '/dev/nvme0n1p1', total_gb: 930, used_gb: 402, free_gb: 528, percent: 43.3, model: 'Samsung 980 Pro 1TB', temp: 44, smart_ok: true, read_mbps: 0.1, write_mbps: 0 },
@@ -35,22 +34,5 @@ export const DEMO_DATA = {
       { mountpoint: '/mnt/media', device: '/dev/sdb1', total_gb: 7280, used_gb: 7150, free_gb: 130, percent: 98.2, model: 'Seagate IronWolf 8TB', temp: 47, smart_ok: true, read_mbps: 0, write_mbps: 0 },
       { mountpoint: '/mnt/backup', device: '/dev/sdc1', total_gb: 5460, used_gb: 2730, free_gb: 2730, percent: 50.1, model: 'Toshiba N300 6TB', temp: 38, smart_ok: true, read_mbps: 0, write_mbps: 0 },
     ],
-  },
-  'docker-issues': {
-    current: {
-      cpu_percent: 29, cpu_freq_ghz: 2.92, load_1: 0.9, load_5: 1.12, load_15: 0.97,
-      ram_used_gb: 17.8, ram_total_gb: 64, ram_percent: 27.8, swap_used_gb: 0.2, swap_total_gb: 8,
-      temp_cpu: 49, gpu: { model: 'RTX 3060', percent: 16, vram_used_gb: 2.1, vram_total_gb: 12, temp: 43 },
-      net_sent_mbps: 39.4, net_recv_mbps: 57.1, net_iface: 'enp4s0', net_latency_ms: 3,
-      disk_percent: 43, uptime_seconds: 1555320,
-    },
-    docker: {
-      available: true, total: 13, running: 11, restarting: 1, stopped: 1,
-      containers: [
-        { name: 'nextcloud', state: 'restarting', image: 'nextcloud:latest' },
-        { name: 'old-radarr', state: 'stopped', image: 'linuxserver/radarr' },
-        ...Array.from({ length: 11 }, (_, i) => ({ name: `service-${i + 1}`, state: 'running', image: `img-${i + 1}` })),
-      ],
-    },
   },
 };

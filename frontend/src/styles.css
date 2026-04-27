@@ -284,20 +284,6 @@ body {
 .distrib-label { font-size: 0.88rem; flex: 1; }
 .distrib-val { font-size: 0.88rem; color: var(--text-mid); font-variant-numeric: tabular-nums; font-weight: 600; }
 
-/* CONTAINERS */
-.containers-list { margin-top: 16px; }
-.container-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 7px; margin-bottom: 6px; font-size: 0.82rem; box-shadow: var(--shadow); }
-.container-state { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-right: 8px; }
-.container-state.running { background: var(--ok); }
-.container-state.restarting { background: orange; }
-.container-state.stopped { background: var(--text-dim); }
-.container-name { font-weight: 600; flex: 1; }
-.container-image { color: var(--text-dim); font-size: 0.72rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.container-badge { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; }
-.container-badge.running { color: var(--ok); border: 1px solid var(--ok); }
-.container-badge.restarting { color: orange; border: 1px solid orange; }
-.container-badge.stopped { color: var(--text-dim); border: 1px solid var(--border-strong); }
-
 /* OVERVIEW MAIN CARDS */
 .ov-main-card { display: flex; flex-direction: column; }
 .ov-main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }

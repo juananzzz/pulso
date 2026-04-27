@@ -10,7 +10,6 @@ import CPUDetail from './views/CPUDetail';
 import MemoryDetail from './views/MemoryDetail';
 import StorageDetail from './views/StorageDetail';
 import NetworkDetail from './views/NetworkDetail';
-import ContainersView from './views/ContainersView';
 
 const ls = k => { try { return localStorage.getItem(k); } catch { return null; } };
 const lss = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
@@ -19,7 +18,6 @@ export default function App() {
   const [sysInfo, setSysInfo]   = useState(null);
   const [current, setCurrent]   = useState(null);
   const [disks, setDisks]       = useState([]);
-  const [docker, setDocker]     = useState(null);
   const [cpuCores, setCpuCores] = useState([]);
   const [spark, setSpark]       = useState({ cpu: [], temp: [], ram: [], ramGb: [], swap: [], sent: [], recv: [] });
   const [lastRefresh, setLastRefresh] = useState(null);
@@ -58,7 +56,6 @@ export default function App() {
   const demo = settings.demoScenario !== 'normal' ? DEMO_DATA[settings.demoScenario] : null;
   const effCurrent = demo?.current || current;
   const effDisks   = demo?.disks   || disks;
-  const effDocker  = demo?.docker  || docker;
 
   const pushSpark = curr => {
     setSpark(s => {
@@ -86,25 +83,20 @@ export default function App() {
     try { const r = await fetch('/api/disks'); setDisks(await r.json()); } catch {}
   }, [demo]);
 
-  const fetchDocker = useCallback(async () => {
-    if (demo?.docker) return;
-    try { const r = await fetch('/api/docker'); setDocker(await r.json()); } catch {}
-  }, [demo]);
-
   const fetchCores = useCallback(async () => {
     try { const r = await fetch('/api/cpu/cores'); setCpuCores(await r.json()); } catch {}
   }, []);
 
   useEffect(() => {
     fetch('/api/system').then(r => r.json()).then(setSysInfo).catch(() => {});
-    fetchCurrent(); fetchDisks(); fetchDocker(); fetchCores();
+    fetchCurrent(); fetchDisks(); fetchCores();
   }, []);
 
   useEffect(() => {
     const t1 = setInterval(fetchCurrent, 3000), t2 = setInterval(fetchCores, 3000);
-    const t3 = setInterval(fetchDisks, 15000),  t4 = setInterval(fetchDocker, 15000);
-    return () => [t1, t2, t3, t4].forEach(clearInterval);
-  }, [fetchCurrent, fetchCores, fetchDisks, fetchDocker]);
+    const t3 = setInterval(fetchDisks, 15000);
+    return () => [t1, t2, t3].forEach(clearInterval);
+  }, [fetchCurrent, fetchCores, fetchDisks]);
 
   const [relTimeStr, setRelTimeStr] = useState('');
   useEffect(() => {
@@ -112,7 +104,7 @@ export default function App() {
     return () => clearInterval(t);
   }, [lastRefresh]);
 
-  const alerts = computeAlerts(effCurrent, effDisks, effDocker);
+  const alerts = computeAlerts(effCurrent, effDisks);
 
   return (
     <>
@@ -126,7 +118,6 @@ export default function App() {
           <Overview
             current={effCurrent}
             disks={effDisks}
-            docker={effDocker}
             spark={spark}
             onNavigate={setView}
           />
@@ -135,7 +126,6 @@ export default function App() {
         {view === 'memory'     && <MemoryDetail   current={effCurrent} spark={spark} />}
         {view === 'storage'    && <StorageDetail  disks={effDisks} />}
         {view === 'network'    && <NetworkDetail  current={effCurrent} spark={spark} />}
-        {view === 'containers' && <ContainersView docker={effDocker} />}
       </div>
 
       <div className="footer">

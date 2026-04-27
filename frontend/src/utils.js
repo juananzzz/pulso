@@ -14,18 +14,12 @@ export function relTime(ts) {
   return `refreshed ${Math.floor(d / 60)}m ago`;
 }
 
-export function computeAlerts(current, disks, docker) {
+export function computeAlerts(current, disks) {
   const alerts = [];
   if (!current) return alerts;
   disks.forEach(d => { if (d.percent > 92) alerts.push({ text: `${d.mountpoint} almost full`, tag: `${d.percent}%` }); });
   if (current.cpu_percent > 85) alerts.push({ text: 'CPU high', tag: `${current.cpu_percent}%` });
   if (current.temp_cpu > 78) alerts.push({ text: 'CPU temp', tag: `${current.temp_cpu}°C` });
   if (current.ram_percent > 85) alerts.push({ text: 'RAM high', tag: `${current.ram_percent}%` });
-  if (docker?.available) {
-    docker.containers?.forEach(c => {
-      if (c.state === 'restarting') alerts.push({ text: c.name, tag: 'restarting' });
-      if (c.state === 'stopped') alerts.push({ text: c.name, tag: 'stopped' });
-    });
-  }
   return alerts;
 }
