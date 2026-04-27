@@ -284,8 +284,10 @@ body {
 
 /* MEMORY LAYOUT */
 .mem-stat-boxes { grid-template-columns: repeat(4, 1fr); }
-.mem-body { display: grid; grid-template-columns: 1fr minmax(220px, 280px); gap: var(--gap); min-width: 0; align-items: start; }
+.mem-body { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); min-width: 0; align-items: start; }
 .mem-body > * { min-width: 0; }
+.mem-distrib { display: flex; flex-direction: column; align-items: center; }
+.mem-distrib .distrib-legend { width: 100%; max-width: 320px; }
 .mem-distrib { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: var(--shadow); }
 .mem-distrib-title { font-size: 0.8rem; color: var(--text-mid); margin-bottom: 16px; }
 .distrib-legend { margin-top: 16px; }
@@ -451,8 +453,8 @@ function ProgressArc({ percent, size = 140 }) {
       <circle cx={cx} cy={cy} r={r} fill="none" stroke={clr} strokeWidth={sw}
         strokeDasharray={`${arc} ${circ-arc}`} strokeLinecap="round"
         style={{transform:'rotate(-90deg)', transformOrigin:`${cx}px ${cy}px`}}/>
-      <text x={cx} y={cy+6} textAnchor="middle" fontSize={20} fontWeight={700} fill="var(--text)">{percent}%</text>
-      <text x={cx} y={cy+20} textAnchor="middle" fontSize={8} letterSpacing="1.5" fill="var(--text-dim)">USADA</text>
+      <text x={cx} y={cy+size*0.05} textAnchor="middle" fontSize={size*0.15} fontWeight={700} fill="var(--text)">{percent}%</text>
+      <text x={cx} y={cy+size*0.2} textAnchor="middle" fontSize={size*0.062} letterSpacing="1.5" fill="var(--text-dim)">USADA</text>
     </svg>
   );
 }
@@ -733,7 +735,7 @@ function MemoryDetail({ current, spark }) {
               yMax={total}
               yMin={0}
               yUnit=" GB"
-              height={220}
+              height={300}
               color="var(--chart-ram)"
               xRangeSeconds={RANGE_SECS[range]}
             />
@@ -743,8 +745,8 @@ function MemoryDetail({ current, spark }) {
         {/* Distribution */}
         <div className="mem-distrib">
           <div className="mem-distrib-title">Distribución</div>
-          <div style={{display:'flex', justifyContent:'center'}}>
-            <ProgressArc percent={usedPct} size={130}/>
+          <div style={{display:'flex', justifyContent:'center', margin:'16px 0 8px'}}>
+            <ProgressArc percent={usedPct} size={210}/>
           </div>
           <div className="distrib-legend">
             {distribItems.filter(d=>d.value>0).map(seg => (
