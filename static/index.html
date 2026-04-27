@@ -31,6 +31,12 @@
   --chart-net-recv: var(--text);
   --chart-net-sent: var(--text);
   --chart-swap: var(--text);
+  /* distribution colors – minimal: neutral monochrome */
+  --distrib-apps: var(--text-mid);
+  --distrib-cached: var(--text-dim);
+  --distrib-buffers: var(--border-strong);
+  --distrib-libre: var(--border);
+  --distrib-arc: var(--text);
 }
 /* ── Minimal theme (dark) ── */
 [data-theme="dark"] {
@@ -63,6 +69,12 @@
   --chart-net-recv: #60a5fa;
   --chart-net-sent: #a78bfa;
   --chart-swap: #fb923c;
+  /* distribution colors – tech: colorful */
+  --distrib-apps: #60a5fa;
+  --distrib-cached: #34d399;
+  --distrib-buffers: #93c5fd;
+  --distrib-libre: #1e2538;
+  --distrib-arc: var(--chart-ram);
 }
 [data-vstyle="tech"] .card { border-color: rgba(80,100,200,0.18); }
 [data-vstyle="tech"] .card.clickable:hover { border-color: rgba(80,100,200,0.4); box-shadow: 0 0 12px rgba(80,100,200,0.12); }
@@ -272,7 +284,8 @@ body {
 
 /* MEMORY LAYOUT */
 .mem-stat-boxes { grid-template-columns: repeat(4, 1fr); }
-.mem-body { display: grid; grid-template-columns: 1fr 280px; gap: var(--gap); }
+.mem-body { display: grid; grid-template-columns: 1fr minmax(220px, 280px); gap: var(--gap); min-width: 0; align-items: start; }
+.mem-body > * { min-width: 0; }
 .mem-distrib { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: var(--shadow); }
 .mem-distrib-title { font-size: 0.8rem; color: var(--text-mid); margin-bottom: 16px; }
 .distrib-legend { margin-top: 16px; }
@@ -431,7 +444,7 @@ function ProgressArc({ percent, size = 140 }) {
   const cx = size/2, cy = size/2, r = size/2 - 16, sw = 13;
   const circ = 2 * Math.PI * r;
   const arc = Math.min(percent, 99.9) / 100 * circ;
-  const clr = percent > 85 ? 'var(--alert)' : percent > 70 ? '#f59e0b' : '#60a5fa';
+  const clr = percent > 85 ? 'var(--alert)' : percent > 70 ? '#f59e0b' : 'var(--distrib-arc)';
   return (
     <svg width={size} height={size}>
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border)" strokeWidth={sw}/>
@@ -678,12 +691,11 @@ function MemoryDetail({ current, spark }) {
     ? (spark?.ramGb || []).map(v => ({v}))
     : histData.map(d => ({v: d.ram != null ? +(d.ram * total / 100).toFixed(1) : 0}));
 
-  const distribColors = { apps:'#60a5fa', cached:'#34d399', buffers:'#93c5fd', libre:'var(--border-strong)' };
   const distribItems = [
-    { label:'En uso (apps)', value:used,    color:distribColors.apps },
-    { label:'Cached',        value:cached,  color:distribColors.cached },
-    { label:'Buffers',       value:buffers, color:distribColors.buffers },
-    { label:'Libre',         value:free,    color:distribColors.libre },
+    { label:'En uso (apps)', value:used,    color:'var(--distrib-apps)' },
+    { label:'Cached',        value:cached,  color:'var(--distrib-cached)' },
+    { label:'Buffers',       value:buffers, color:'var(--distrib-buffers)' },
+    { label:'Libre',         value:free,    color:'var(--distrib-libre)' },
   ];
 
   return (
