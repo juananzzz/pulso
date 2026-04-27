@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ALERT_COLOR_DEFAULT, BUFFER_SIZE, TABS, DEMO_DATA } from './constants';
+import { ALERT_COLOR_DEFAULT, BUFFER_SIZE, DEMO_DATA } from './constants';
 import { relTime, computeAlerts } from './utils';
 import Header from './components/Header';
 import TabBar from './components/TabBar';
 import AlertsStrip from './components/AlertsStrip';
 import SettingsPanel from './components/SettingsPanel';
-import { CPUCard, TempCard, MemoryCard, GpuCard, DisksCard, LoadCard, NetworkCard, DockerCard } from './cards/OverviewCards';
+import Overview from './views/Overview';
 import CPUDetail from './views/CPUDetail';
 import MemoryDetail from './views/MemoryDetail';
 import StorageDetail from './views/StorageDetail';
@@ -123,16 +123,13 @@ export default function App() {
 
       <div className="main">
         {view === 'home' && (
-          <div className="card-grid">
-            <CPUCard     data={effCurrent} spark={spark.cpu}                             onClick={() => setView('cpu')} />
-            <TempCard    data={effCurrent} />
-            <MemoryCard  data={effCurrent} spark={spark.ram}                             onClick={() => setView('memory')} />
-            <GpuCard     data={effCurrent} />
-            <DisksCard   disks={effDisks}                                                onClick={() => setView('storage')} />
-            <LoadCard    data={effCurrent} />
-            <NetworkCard data={effCurrent} spark={{ sent: spark.sent, recv: spark.recv }} onClick={() => setView('network')} />
-            <DockerCard  docker={effDocker}                                               onClick={() => setView('containers')} />
-          </div>
+          <Overview
+            current={effCurrent}
+            disks={effDisks}
+            docker={effDocker}
+            spark={spark}
+            onNavigate={setView}
+          />
         )}
         {view === 'cpu'        && <CPUDetail      sysInfo={sysInfo} current={effCurrent} spark={spark} cpuCores={cpuCores} />}
         {view === 'memory'     && <MemoryDetail   current={effCurrent} spark={spark} />}
@@ -142,17 +139,16 @@ export default function App() {
       </div>
 
       <div className="footer">
-        <div style={{ display: 'flex', gap: '16px' }}>
-          {TABS.filter(t => t.id !== 'home').map((t, i, arr) => (
-            <span key={t.id} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <span style={{ cursor: 'pointer', transition: 'color var(--transition)' }}
-                onMouseOver={e => e.target.style.color = 'var(--text)'}
-                onMouseOut={e => e.target.style.color = ''}
-                onClick={() => setView(t.id)}>{t.label}</span>
-              {i < arr.length - 1 && <span style={{ opacity: 0.3 }}>·</span>}
-            </span>
-          ))}
-        </div>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <a href="https://github.com/juananzzz/pulso" target="_blank" rel="noopener noreferrer"
+            style={{ color: 'var(--text-dim)', textDecoration: 'none', fontSize: '0.72rem' }}
+            onMouseOver={e => e.target.style.color = 'var(--text)'}
+            onMouseOut={e => e.target.style.color = 'var(--text-dim)'}>
+            github.com/juananzzz/pulso
+          </a>
+          <span style={{ opacity: 0.3 }}>·</span>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>v0.1.0</span>
+        </span>
         <span>{relTimeStr}</span>
       </div>
 
