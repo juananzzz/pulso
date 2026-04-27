@@ -1,0 +1,20 @@
+services:
+  pulso:
+    build: .
+    container_name: pulso
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - pulso_data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    network_mode: host
+    pid: host
+    privileged: true
+
+volumes:
+  pulso_data:

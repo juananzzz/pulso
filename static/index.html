@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulso</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root {
+  --bg: #ede9e3;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --text-dim: #999;
+  --text-mid: #555;
+  --border: rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.14);
+  --alert: #E63946;
+  --alert-bg: rgba(230,57,70,0.07);
+  --alert-border: rgba(230,57,70,0.25);
+  --ok: #2a9d5c;
+  --shadow: 0 1px 3px rgba(0,0,0,0.07);
+  --transition: 0.2s ease;
+}
+[data-theme="dark"] {
+  --bg: #0c0c0c;
+  --card-bg: #141414;
+  --text: #e8e8e8;
+  --text-dim: #555;
+  --text-mid: #999;
+  --border: rgba(255,255,255,0.06);
+  --border-strong: rgba(255,255,255,0.1);
+  --alert-bg: rgba(230,57,70,0.1);
+  --alert-border: rgba(230,57,70,0.3);
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+[data-density="compact"] { --pad: 16px; --gap: 10px; --card-pad: 16px; }
+[data-density="regular"] { --pad: 24px; --gap: 14px; --card-pad: 22px; }
+[data-density="comfy"]   { --pad: 32px; --gap: 18px; --card-pad: 28px; }
+[data-anim="false"] * { transition: none !important; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+}
+
+#root { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* HEADER */
+.header {
+  padding: var(--pad) var(--pad) 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.header-left { display: flex; flex-direction: column; gap: 4px; }
+.logo { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; }
+.logo-icon { color: var(--alert); font-size: 1rem; }
+.header-sub { font-size: 0.8rem; color: var(--text-dim); }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.uptime-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.8rem; color: var(--text-mid); font-variant-numeric: tabular-nums;
+}
+.uptime-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+.settings-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-dim); padding: 4px; border-radius: 6px;
+  transition: color var(--transition), background var(--transition);
+  font-size: 1rem;
+  display: flex; align-items: center;
+}
+.settings-btn:hover { color: var(--text); background: var(--border); }
+
+/* ALERTS */
+.alerts-strip {
+  margin: var(--gap) var(--pad) 0;
+  border: 1px solid var(--alert-border);
+  background: var(--alert-bg);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+.alerts-count {
+  font-size: 1.2rem; font-weight: 700; color: var(--alert);
+  flex-shrink: 0;
+}
+.alerts-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em; color: var(--alert); text-transform: uppercase; }
+.alerts-items { display: flex; gap: 16px; flex-wrap: wrap; color: var(--text-mid); }
+.alert-item { display: flex; align-items: center; gap: 5px; }
+.alert-tag {
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.03em;
+  color: var(--alert); padding: 1px 5px; border: 1px solid var(--alert-border); border-radius: 3px;
+}
+
+/* CARD GRID */
+.main { flex: 1; padding: var(--gap) var(--pad); }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+}
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: var(--card-pad);
+  box-shadow: var(--shadow);
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.card.wide { grid-column: span 2; }
+.card.clickable { cursor: pointer; }
+.card.clickable:hover { border-color: var(--border-strong); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.card.dragging { opacity: 0.5; }
+.card.drag-over { border-color: var(--text-dim); }
+.drag-handle {
+  position: absolute; top: 10px; right: 10px;
+  cursor: grab; color: var(--text-dim); font-size: 1rem; padding: 4px;
+}
+
+.card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.card-label {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.card-meta { font-size: 0.75rem; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.card-value-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 8px; margin-bottom: 8px;
+}
+.card-num {
+  font-size: 2.8rem; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+}
+.card-num-unit { font-size: 1rem; font-weight: 400; color: var(--text-dim); margin-left: 2px; }
+.card-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 6px; }
+.card-sub b { color: var(--text-mid); font-weight: 600; }
+
+/* DISK BARS */
+.disk-row { display: flex; align-items: center; gap: 8px; margin-top: 7px; font-size: 0.75rem; }
+.disk-mount { color: var(--text-dim); width: 90px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.disk-bar-wrap { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.disk-bar { height: 100%; border-radius: 2px; background: var(--text); transition: width 0.5s ease; }
+.disk-bar.warn { background: var(--alert); }
+.disk-pct { width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+.disk-pct.warn { color: var(--alert); font-weight: 600; }
+
+/* SPARKLINE */
+.sparkline-wrap { flex-shrink: 0; width: 130px; align-self: center; }
+
+/* DOCKER */
+.docker-issues { font-size: 0.72rem; color: var(--alert); margin-top: 6px; }
+
+/* DETAIL VIEWS */
+.detail { padding: var(--pad); max-width: 900px; }
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-dim); font-size: 0.85rem; padding: 6px 0;
+  transition: color var(--transition);
+  margin-bottom: 16px;
+}
+.back-btn:hover { color: var(--text); }
+.detail-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+.detail-sub { font-size: 0.8rem; color: var(--text-dim); margin-top: 3px; margin-bottom: 20px; }
+.stat-boxes { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); margin-bottom: 24px; }
+.stat-box {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.stat-box-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+.stat-box-val { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.stat-box-unit { font-size: 0.8rem; color: var(--text-dim); margin-left: 2px; }
+
+.chart-section { margin-bottom: 24px; }
+.chart-label { font-size: 0.8rem; color: var(--text-mid); margin-bottom: 8px; display: flex; justify-content: space-between; }
+.chart-unit { font-size: 0.72rem; color: var(--text-dim); }
+.chart-wrap {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+/* PER-CORE GRID */
+.cores-section { margin-bottom: 24px; }
+.cores-label { font-size: 0.8rem; color: var(--text-mid); margin-bottom: 12px; display: flex; justify-content: space-between; }
+.cores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; }
+.core-block {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 8px 6px; text-align: center;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.core-num { font-size: 0.65rem; color: var(--text-dim); margin-bottom: 6px; }
+.core-pct { font-size: 0.8rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.core-bar-wrap { height: 28px; background: var(--border); border-radius: 3px; margin-top: 6px; position: relative; overflow: hidden; }
+.core-bar-fill { position: absolute; bottom: 0; left: 0; right: 0; background: var(--text); transition: height 0.4s ease; border-radius: 3px 3px 0 0; }
+
+/* VOLUME LIST */
+.volumes-section { margin-bottom: 24px; }
+.volume-item {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px; margin-bottom: 8px;
+  box-shadow: var(--shadow);
+}
+.vol-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.vol-mount { font-size: 0.9rem; font-weight: 600; }
+.vol-device { font-size: 0.72rem; color: var(--text-dim); margin-left: 8px; }
+.vol-pct { font-size: 0.9rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.vol-pct.warn { color: var(--alert); }
+.vol-bar-wrap { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 10px; }
+.vol-bar { height: 100%; border-radius: 2px; background: var(--text); transition: width 0.5s ease; }
+.vol-bar.warn { background: var(--alert); }
+.vol-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.72rem; color: var(--text-dim); }
+.vol-meta-item { display: flex; gap: 4px; }
+.vol-meta-label { text-transform: uppercase; font-size: 0.62rem; letter-spacing: 0.05em; }
+.vol-meta-val { color: var(--text-mid); font-variant-numeric: tabular-nums; }
+.vol-meta-val.ok { color: var(--ok); }
+.vol-meta-val.warn { color: var(--alert); }
+
+/* SETTINGS PANEL */
+.settings-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.35);
+  display: flex; justify-content: flex-end;
+  backdrop-filter: blur(2px);
+}
+.settings-panel {
+  width: 320px; background: var(--card-bg);
+  height: 100vh; overflow-y: auto;
+  padding: 24px; display: flex; flex-direction: column; gap: 0;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.2);
+}
+.settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.settings-title { font-size: 1.1rem; font-weight: 700; }
+.close-btn {
+  background: var(--border); border: none; cursor: pointer;
+  color: var(--text); width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; transition: background var(--transition);
+}
+.close-btn:hover { background: var(--border-strong); }
+.settings-section-label {
+  font-size: 0.65rem; font-weight: 600; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--text-dim);
+  margin-bottom: 14px; margin-top: 20px;
+}
+.settings-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.settings-row-label { font-size: 0.85rem; }
+.settings-sub { font-size: 0.72rem; color: var(--text-dim); margin-top: 4px; }
+.seg-control { display: flex; gap: 2px; background: var(--bg); border-radius: 6px; padding: 2px; }
+.seg-btn {
+  border: none; background: none; cursor: pointer; padding: 5px 10px;
+  font-size: 0.78rem; border-radius: 5px; color: var(--text-dim);
+  transition: background var(--transition), color var(--transition);
+}
+.seg-btn.active { background: var(--card-bg); color: var(--text); box-shadow: var(--shadow); }
+.toggle-wrap { display: flex; align-items: center; }
+.toggle {
+  width: 40px; height: 22px; border-radius: 11px; border: none; cursor: pointer;
+  background: var(--border-strong); position: relative; transition: background 0.25s;
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--text); }
+.toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%; background: var(--bg);
+  transition: left 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.toggle.on::after { left: 21px; }
+.color-picker-row { display: flex; align-items: center; gap: 8px; }
+.color-swatch { width: 28px; height: 28px; border-radius: 6px; cursor: pointer; border: none; padding: 0; }
+.color-hex { font-size: 0.78rem; color: var(--text-mid); font-variant-numeric: tabular-nums; }
+.color-reset { font-size: 0.75rem; color: var(--text-dim); cursor: pointer; background: none; border: none; text-decoration: underline; }
+.color-reset:hover { color: var(--text); }
+.outline-btn {
+  border: 1px solid var(--border-strong); background: none; cursor: pointer;
+  color: var(--text); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem;
+  transition: background var(--transition), color var(--transition);
+}
+.outline-btn:hover { background: var(--bg); }
+.outline-btn.primary { background: var(--text); color: var(--card-bg); border-color: var(--text); }
+.outline-btn.primary:hover { opacity: 0.85; }
+.settings-btns { display: flex; gap: 8px; margin-bottom: 14px; }
+.settings-footer { margin-top: auto; padding-top: 24px; text-align: center; font-size: 0.72rem; color: var(--text-dim); }
+.settings-sub-text { font-size: 0.72rem; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5; }
+.demo-select {
+  background: var(--bg); border: 1px solid var(--border-strong);
+  color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem;
+  cursor: pointer; width: 100%;
+}
+.settings-divider { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
+
+/* FOOTER */
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px var(--pad);
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem; color: var(--text-dim);
+}
+.footer-links { display: flex; gap: 16px; }
+.footer-link { cursor: pointer; transition: color var(--transition); }
+.footer-link:hover { color: var(--text); }
+.footer-dot { opacity: 0.3; }
+
+/* CONTAINERS VIEW */
+.containers-list { margin-top: 16px; }
+.container-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 7px; margin-bottom: 6px; font-size: 0.82rem;
+  box-shadow: var(--shadow);
+}
+.container-state {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  margin-right: 8px;
+}
+.container-state.running { background: var(--ok); }
+.container-state.restarting { background: orange; }
+.container-state.stopped { background: var(--text-dim); }
+.container-name { font-weight: 600; flex: 1; }
+.container-image { color: var(--text-dim); font-size: 0.72rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.container-badge {
+  font-size: 0.65rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 3px;
+}
+.container-badge.running { color: var(--ok); border: 1px solid var(--ok); }
+.container-badge.restarting { color: orange; border: 1px solid orange; }
+.container-badge.stopped { color: var(--text-dim); border: 1px solid var(--border-strong); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+const DEFAULT_CARD_ORDER = ['cpu','temp','memory','gpu','disks','load','network','docker'];
+const ALERT_COLOR_DEFAULT = '#E63946';
+const BUFFER_SIZE = 30;
+
+// ─── Demo scenarios ───────────────────────────────────────────────
+const DEMO_DATA = {
+  normal: null,
+  'high-load': {
+    current: {
+      cpu_percent:92, cpu_freq_ghz:3.4, load_1:8.5, load_5:7.2, load_15:6.1,
+      ram_used_gb:54.2, ram_total_gb:64, ram_percent:84.7, swap_used_gb:1.2, swap_total_gb:8,
+      temp_cpu:78, gpu:{model:'RTX 3060',percent:45,vram_used_gb:3.1,vram_total_gb:12,temp:68},
+      net_sent_mbps:12.3, net_recv_mbps:8.7, net_iface:'enp4s0', net_latency_ms:4,
+      disk_percent:43, uptime_seconds:1638000,
+    }
+  },
+  'disk-full': {
+    current: {
+      cpu_percent:18, cpu_freq_ghz:2.1, load_1:0.4, load_5:0.5, load_15:0.6,
+      ram_used_gb:12.3, ram_total_gb:64, ram_percent:19, swap_used_gb:0.1, swap_total_gb:8,
+      temp_cpu:42, gpu:{model:'RTX 3060',percent:5,vram_used_gb:1.1,vram_total_gb:12,temp:38},
+      net_sent_mbps:0.3, net_recv_mbps:0.1, net_iface:'enp4s0', net_latency_ms:2,
+      disk_percent:43, uptime_seconds:952000,
+    },
+    disks: [
+      {mountpoint:'/', device:'/dev/nvme0n1p1', total_gb:930, used_gb:402, free_gb:528, percent:43.3, model:'Samsung 980 Pro 1TB', temp:44, smart_ok:true, read_mbps:0.1, write_mbps:0},
+      {mountpoint:'/mnt/data', device:'/dev/sda1', total_gb:3640, used_gb:3140, free_gb:500, percent:86.2, model:'WD Red 4TB', temp:41, smart_ok:true, read_mbps:0, write_mbps:0},
+      {mountpoint:'/mnt/media', device:'/dev/sdb1', total_gb:7280, used_gb:7150, free_gb:130, percent:98.2, model:'Seagate IronWolf 8TB', temp:47, smart_ok:true, read_mbps:0, write_mbps:0},
+      {mountpoint:'/mnt/backup', device:'/dev/sdc1', total_gb:5460, used_gb:2730, free_gb:2730, percent:50.1, model:'Toshiba N300 6TB', temp:38, smart_ok:true, read_mbps:0, write_mbps:0},
+    ]
+  },
+  'docker-issues': {
+    current: {
+      cpu_percent:29, cpu_freq_ghz:2.92, load_1:0.9, load_5:1.12, load_15:0.97,
+      ram_used_gb:17.8, ram_total_gb:64, ram_percent:27.8, swap_used_gb:0.2, swap_total_gb:8,
+      temp_cpu:49, gpu:{model:'RTX 3060',percent:16,vram_used_gb:2.1,vram_total_gb:12,temp:43},
+      net_sent_mbps:39.4, net_recv_mbps:57.1, net_iface:'enp4s0', net_latency_ms:3,
+      disk_percent:43, uptime_seconds:1555320,
+    },
+    docker: {
+      available:true, total:13, running:11, restarting:1, stopped:1,
+      containers:[
+        {name:'nextcloud',state:'restarting',image:'nextcloud:latest'},
+        {name:'old-radarr',state:'stopped',image:'linuxserver/radarr'},
+        ...Array.from({length:11},(_,i)=>({name:`service-${i+1}`,state:'running',image:`img-${i+1}`}))
+      ]
+    }
+  }
+};
+
+// ─── Utilities ────────────────────────────────────────────────────
+function formatUptime(s) {
+  if (!s) return '—';
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (d > 0) return `${d}d ${h}h ${m}m`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+function relTime(ts) {
+  if (!ts) return '';
+  const d = Math.floor((Date.now() - ts) / 1000);
+  if (d < 5) return 'refreshed just now';
+  if (d < 60) return `refreshed ${d}s ago`;
+  return `refreshed ${Math.floor(d/60)}m ago`;
+}
+
+// ─── SparkLine ────────────────────────────────────────────────────
+function SparkLine({ data = [], color = 'var(--text)', height = 40 }) {
+  const W = 130, H = height;
+  if (data.length < 2) return <svg width={W} height={H} />;
+  const max = Math.max(...data, 1);
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * W;
+    const y = H - (v / max) * (H - 2) - 1;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const line = `M ${pts.join(' L ')}`;
+  const fill = `${line} L ${W},${H} L 0,${H} Z`;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{display:'block'}}>
+      <path d={fill} fill={color} fillOpacity={0.12} />
+      <path d={line} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// ─── AreaChart (detail views) ─────────────────────────────────────
+function AreaChart({ data = [], height = 180, yMax = 100, color = 'var(--text)', accessor = d => d }) {
+  const W = 800, H = height;
+  const PL = 36, PR = 8, PT = 8, PB = 24;
+  const cW = W - PL - PR, cH = H - PT - PB;
+  if (data.length < 2) return (
+    <div style={{height, display:'flex', alignItems:'center', justifyContent:'center', color:'var(--text-dim)', fontSize:'0.8rem'}}>
+      Collecting data…
+    </div>
+  );
+  const ticks = [0, 25, 50, 75, 100].map(t => t * yMax / 100);
+  const pts = data.map((d, i) => {
+    const v = Math.max(0, Math.min(accessor(d), yMax));
+    return {
+      x: PL + (i / (data.length - 1)) * cW,
+      y: PT + cH - (v / yMax) * cH
+    };
+  });
+  const line = `M ${pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')}`;
+  const area = `${line} L ${pts[pts.length-1].x.toFixed(1)},${PT+cH} L ${pts[0].x.toFixed(1)},${PT+cH} Z`;
+  // X-axis labels: show ~5 time labels
+  const xLabels = [];
+  const n = data.length - 1;
+  [-60,-45,-30,-15,0].forEach(sec => {
+    const idx = n + Math.round(sec / (60 / n));
+    if (idx < 0 || idx > n) return;
+    const x = PL + (idx / n) * cW;
+    xLabels.push({x, label: sec === 0 ? 'now' : `${sec}s`});
+  });
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%', height:'auto', display:'block'}}>
+      {ticks.map(t => {
+        const y = PT + cH - (t / yMax) * cH;
+        return <g key={t}>
+          <line x1={PL} y1={y} x2={PL+cW} y2={y} stroke="var(--border)" strokeWidth={1}/>
+          <text x={PL-4} y={y+4} textAnchor="end" fontSize={10} fill="var(--text-dim)">{Math.round(t)}</text>
+        </g>;
+      })}
+      {xLabels.map(({x, label}) => (
+        <text key={label} x={x} y={PT+cH+16} textAnchor="middle" fontSize={10} fill="var(--text-dim)">{label}</text>
+      ))}
+      <path d={area} fill={color} fillOpacity={0.1} />
+      <path d={line} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// ─── Cards ────────────────────────────────────────────────────────
+function CPUCard({ data, spark, onClick, editMode, onDragStart, onDragOver, onDrop, isDragOver }) {
+  if (!data) return <div className={`card wide clickable${isDragOver?' drag-over':''}`} />;
+  const warn = data.cpu_percent > 85;
+  return (
+    <div
+      className={`card wide clickable${isDragOver?' drag-over':''}`}
+      onClick={!editMode ? onClick : undefined}
+      draggable={editMode}
+      onDragStart={e => onDragStart(e,'cpu')}
+      onDragOver={e => { e.preventDefault(); onDragOver('cpu'); }}
+      onDrop={e => onDrop(e,'cpu')}
+    >
+      {editMode && <span className="drag-handle">⠿</span>}
+      <div className="card-header">
+        <span className="card-label">CPU</span>
+        <span className="card-meta">{data.cpu_freq_ghz ? `${data.cpu_freq_ghz} GHz` : ''}</span>
+      </div>
+      <div className="card-value-row">
+        <span className="card-num" style={warn?{color:'var(--alert)'}:{}}>{Math.round(data.cpu_percent)}<span className="card-num-unit">%</span></span>
+        <div className="sparkline-wrap"><SparkLine data={spark} /></div>
+      </div>
+      <div className="card-sub">
+        <b>LOAD</b>&nbsp; {data.load_1} &nbsp;{data.load_5} &nbsp;{data.load_15}
+      </div>
+    </div>
+  );
+}
+
+function TempCard({ data, editMode, onDragStart, onDragOver, onDrop, isDragOver }) {
+  if (!data) return <div className={`card${isDragOver?' drag-over':''}`} />;
+  const warn = data.temp_cpu > 78;
+  return (
+    <div
+      className={`card${isDragOver?' drag-over':''}`}
+      draggable={editMode}
+      onDragStart={e => onDragStart(e,'temp')}
+      onDragOver={e => { e.preventDefault(); onDragOver('temp'); }}
+      onDrop={e => onDrop(e,'temp')}
+    >
+      {editMode && <span className="drag-handle">⠿</span>}
+      <div className="card-header">
+        <span className="card-label">Temp</span>
+        <span className="card-meta">cpu</span>
+      </div>
+      <div className="card-num" style={warn?{color:'var(--alert)'}:{}}>
+        {data.temp_cpu ?? '—'}<span className="card-num-unit">°C</span>
+      </div>
+      {data.gpu && <div className="card-sub"><b>GPU</b>&nbsp; {data.gpu.temp}°C</div>}
+    </div>
+  );
+}
+
+function MemoryCard({ data, spark, onClick, editMode, onDragStart, onDragOver, onDrop, isDragOver }) {
+  if (!data) return <div className={`card wide clickable${isDragOver?' drag-over':''}`} />;
+  const warn = data.ram_percent > 85;
+  return (
+    <div
+      className={`card wide clickable${isDragOver?' drag-over':''}`}
+      onClick={!editMode ? onClick : undefined}
+      draggable={editMode}
+      onDragStart={e => onDragStart(e,'memory')}
+      onDragOver={e => { e.preventDefault(); onDragOver('memory'); }}
+      onDrop={e => onDrop(e,'memory')}
+    >
+      {editMode && <span className="drag-handle">⠿</span>}
+      <div className="card-header">
+        <span className="card-label">Memory</span>
+        <span className="card-meta">{data.ram_total_gb} GB total</span>
+      </div>
+      <div className="card-value-row">
+        <span className="card-num" style={warn?{color:'var(--alert)'}:{}}>
+          {data.ram_used_gb}<span className="card-num-unit">/ {data.ram_total_gb} GB</span>
+        </span>
+        <div className="sparkline-wrap"><SparkLine data={spark} /></div>
+      </div>
+      <div className="card-sub">
+        <b>SWAP</b>&nbsp; {data.swap_used_gb} / {data.swap_total_gb} GB
+      </div>
+    </div>
+  );
+}
+
+function GpuCard({ data, editMode, onDragStart, onDragOver, onDrop, isDragOver }) {
+  const gpu = data?.gpu;
+  return (
+    <div
+      className={`card${isDragOver?' drag-over':''}`}
+      draggable={editMode}
+      onDragStart={e => onDragStart(e,'gpu')}
+      onDragOver={e => { e.preventDefault(); onDragOver('gpu'); }}
+      onDrop={e => onDrop(e,'gpu')}
+    >
+      {editMode && <span className="drag-handle">⠿</span>}
+      <div className="card-header">
+        <span className="card-label">GPU</span>
+        {gpu && <span className="card-meta">{gpu.model?.replace(/NVIDIA GeForce /,'').replace(/GeForce /,'')}</span>}
+      </div>
+      {gpu ? <>
+        <div className="card-num">{Math.round(gpu.percent)}<span className="card-num-unit">%</span></div>
+        <div className="card-sub"><b>VRAM</b>&nbsp; {gpu.vram_used_gb} / {gpu.vram_total_gb} GB</div>
+      </> : <div className="card-num" style={{color:'var(--text-dim)',fontSize:'1.5rem'}}>N/A</div>}
+    </div>
+  );
+}
+
+function DisksCard({ disks, onClick, editMode, onDragStart, onDragOver, onDrop, isDragOver }) {
+  return (
+    <div
+      className={`card wide clickable${isDragOver?' drag-over':''}`}
+      onClick={!editMode ? onClick : undefined}
+      draggable={editMode}
+      onDragStart={e => onDragStart(e,'disks')}
+      onDragOver={e => { e.preventDefault(); onDragOver('disks'); }}
+      onDrop={e => onDrop(e,'disks')}
+    >
+      {editMode && <span className="drag-handle">⠿</span>}
+      <div className="card-header">
+        <span className="card-label">Disks</span>
+        <span className="card-meta">{disks.length} mounted</span>
+      </div>
+      {disks.slice(0, 5).map(d => (
+        <div className="disk-row" key={d.mountpoint}>
+          <span className="disk-mount">{d.mountpoint}</span>
+          <div className="disk-bar-wrap">
+            <div className={`disk-bar${d.percent>90?' warn':''}`} style={{width:`${d.percent}%`}}/>
+          </div>
+          <span className={`disk-pct${d.percent>90?' warn':''}`}>{d.percent}%</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LoadCard({ data, editMode, onDragStart, onDragOver, onDrop, isDragOver }) {
+  if (!data) return <div className={`card${isDragOver?' drag-over':''}`} />;
+  return (
+    <div
+      className={`card${isDragOver?' drag-over':''}`}
+      draggable={editMode}
+      onDragStart={e => onDragStart(e,'load')}
+      onDragOver={e => { e.preventDefault(); onDragOver('load'); }}
+      onDrop={e => onDrop(e,'load')}
+    >
+      {editMode && <span className="drag-handle">⠿</span>}
+      <div className="card-header">
+        <span className="card-label">Load</span>
+        <span className="card-meta">1 · 5 · 15m</span>
+      </div>
+      <div className="card-num" style={{fontSize:'2.2rem'}}>{data.load_1}</div>
+      <div className="card-sub"><b>AVG</b>&nbsp; {data.load_5} · {data.load_15}</div>
+    </div>
+  );
+}
+
+function NetworkCard({ data, spark, onClick, editMode, onDragStart, onDragOver, onDrop, isDragOver }) {
+  if (!data) return <div className={`card wide clickable${isDragOver?' drag-over':''}`} />;
+  return (
+    <div
+      className={`card wide clickable${isDragOver?' drag-over':''}`}
+      onClick={!editMode ? onClick : undefined}
+      draggable={editMode}
+      onDragStart={e => onDragStart(e,'network')}
+      onDragOver={e => { e.preventDefault(); onDragOver('network'); }}
+      onDrop={e => onDrop(e,'network')}
+    >
+      {editMode && <span className="drag-handle">⠿</span>}
+      <div className="card-header">
+        <span className="card-label">Network</span>
+        <span className="card-meta">{data.net_iface}</span>
+      </div>
+      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'4px'}}>
+        <div>
+          <div style={{fontSize:'0.7rem', color:'var(--text-dim)', marginBottom:'2px'}}>↓ recv</div>
+          <div style={{display:'flex', alignItems:'flex-end', gap:'6px'}}>
+            <span className="card-num" style={{fontSize:'2rem'}}>{data.net_recv_mbps}<span className="card-num-unit" style={{fontSize:'0.75rem'}}>Mb/s</span></span>
+            <div className="sparkline-wrap" style={{width:100}}><SparkLine data={spark?.recv} height={32}/></div>
+          </div>
+        </div>
+        <div>
+          <div style={{fontSize:'0.7rem', color:'var(--text-dim)', marginBottom:'2px'}}>↑ sent</div>
+          <div style={{display:'flex', alignItems:'flex-end', gap:'6px'}}>
+            <span className="card-num" style={{fontSize:'2rem'}}>{data.net_sent_mbps}<span className="card-num-unit" style={{fontSize:'0.75rem'}}>Mb/s</span></span>
+            <div className="sparkline-wrap" style={{width:100}}><SparkLine data={spark?.sent} height={32}/></div>
+          </div>
+        </div>
+      </div>
+      {data.net_latency_ms != null &&
+        <div className="card-sub"><b>LATENCY</b>&nbsp; {data.net_latency_ms} ms</div>
+      }
+    </div>
+  );
+}
+
+function DockerCard({ docker, onClick, editMode, onDragStart, onDragOver, onDrop, isDragOver }) {
+  if (!docker?.available) return (
+    <div className={`card${isDragOver?' drag-over':''}`}
+      draggable={editMode}
+      onDragStart={e => onDragStart(e,'docker')}
+      onDragOver={e => { e.preventDefault(); onDragOver('docker'); }}
+      onDrop={e => onDrop(e,'docker')}
+    >
+      {editMode && <span className="drag-handle">⠿</span>}
+      <div className="card-header"><span className="card-label">Docker</span></div>
+      <div className="card-num" style={{color:'var(--text-dim)',fontSize:'1.5rem'}}>N/A</div>
+    </div>
+  );
+  const hasIssues = docker.restarting > 0 || docker.stopped > 0;
+  return (
+    <div
+      className={`card clickable${isDragOver?' drag-over':''}`}
+      onClick={!editMode ? onClick : undefined}
+      draggable={editMode}
+      onDragStart={e => onDragStart(e,'docker')}
+      onDragOver={e => { e.preventDefault(); onDragOver('docker'); }}
+      onDrop={e => onDrop(e,'docker')}
+    >
+      {editMode && <span className="drag-handle">⠿</span>}
+      <div className="card-header">
+        <span className="card-label">Docker</span>
+        <span className="card-meta">{docker.total} total</span>
+      </div>
+      <div className="card-num" style={hasIssues?{color:'var(--alert)'}:{}}>
+        {docker.running}<span className="card-num-unit">/ {docker.total}</span>
+      </div>
+      {hasIssues && <div className="docker-issues">
+        {docker.restarting > 0 && <span>{docker.restarting} restarting</span>}
+        {docker.restarting > 0 && docker.stopped > 0 && <span> · </span>}
+        {docker.stopped > 0 && <span>{docker.stopped} stopped</span>}
+      </div>}
+    </div>
+  );
+}
+
+// ─── Detail: CPU ──────────────────────────────────────────────────
+function CPUDetail({ sysInfo, current, spark, cpuCores, onBack }) {
+  return (
+    <div className="detail">
+      <button className="back-btn" onClick={onBack}>← Back</button>
+      <div className="detail-title">CPU</div>
+      <div className="detail-sub">
+        {sysInfo?.cpu_model && <span>{sysInfo.cpu_model} · </span>}
+        {sysInfo?.cpu_threads && <span>{sysInfo.cpu_threads} threads · </span>}
+        {current?.cpu_freq_ghz && <span>{current.cpu_freq_ghz} GHz</span>}
+      </div>
+      <div className="stat-boxes">
+        <div className="stat-box">
+          <div className="stat-box-label">Usage</div>
+          <div className="stat-box-val">{current?.cpu_percent ?? '—'}<span className="stat-box-unit">%</span></div>
+        </div>
+        <div className="stat-box">
+          <div className="stat-box-label">Temperature</div>
+          <div className="stat-box-val">{current?.temp_cpu ?? '—'}<span className="stat-box-unit">°C</span></div>
+        </div>
+        <div className="stat-box">
+          <div className="stat-box-label">Frequency</div>
+          <div className="stat-box-val">{current?.cpu_freq_ghz ?? '—'}<span className="stat-box-unit">GHz</span></div>
+        </div>
+        <div className="stat-box">
+          <div className="stat-box-label">Load Avg</div>
+          <div className="stat-box-val" style={{fontSize:'1rem', paddingTop:'6px'}}>
+            {current?.load_1} · {current?.load_5} · {current?.load_15}
+          </div>
+        </div>
+      </div>
+      <div className="chart-section">
+        <div className="chart-label">Usage · last 60s <span className="chart-unit">%</span></div>
+        <div className="chart-wrap">
+          <AreaChart data={spark?.cpu?.map(v=>({v}))} accessor={d=>d.v} yMax={100} height={160}/>
+        </div>
+      </div>
+      <div className="chart-section">
+        <div className="chart-label">Temperature · last 60s <span className="chart-unit">°C</span></div>
+        <div className="chart-wrap">
+          <AreaChart data={spark?.temp?.map(v=>({v}))} accessor={d=>d.v} yMax={100} height={160}/>
+        </div>
+      </div>
+      {cpuCores.length > 0 && (
+        <div className="cores-section">
+          <div className="cores-label">Per core <span style={{color:'var(--text-dim)'}}>{cpuCores.length} cores</span></div>
+          <div className="cores-grid">
+            {cpuCores.map(c => (
+              <div className="core-block" key={c.core}>
+                <div className="core-num">{String(c.core).padStart(2,'0')}</div>
+                <div className="core-pct">{c.percent}%</div>
+                <div className="core-bar-wrap">
+                  <div className="core-bar-fill" style={{height:`${c.percent}%`}}/>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Detail: Storage ──────────────────────────────────────────────
+function StorageDetail({ disks, onBack }) {
+  const total = disks.reduce((s,d)=>s+d.total_gb,0);
+  const used = disks.reduce((s,d)=>s+d.used_gb,0);
+  const free = disks.reduce((s,d)=>s+d.free_gb,0);
+  const readSum = disks.reduce((s,d)=>s+(d.read_mbps||0),0);
+  const writeSum = disks.reduce((s,d)=>s+(d.write_mbps||0),0);
+  const fmt = gb => gb >= 1000 ? `${(gb/1000).toFixed(2)} TB` : `${gb.toFixed(0)} GB`;
+  return (
+    <div className="detail">
+      <button className="back-btn" onClick={onBack}>← Back</button>
+      <div className="detail-title">Storage</div>
+      <div className="detail-sub">{disks.length} disks · {fmt(total)} total</div>
+      <div className="stat-boxes">
+        <div className="stat-box">
+          <div className="stat-box-label">Used</div>
+          <div className="stat-box-val" style={{fontSize:'1.3rem'}}>{fmt(used)}</div>
+        </div>
+        <div className="stat-box">
+          <div className="stat-box-label">Free</div>
+          <div className="stat-box-val" style={{fontSize:'1.3rem'}}>{fmt(free)}</div>
+        </div>
+        <div className="stat-box">
+          <div className="stat-box-label">Read</div>
+          <div className="stat-box-val">{readSum.toFixed(1)}<span className="stat-box-unit">MB/s</span></div>
+        </div>
+        <div className="stat-box">
+          <div className="stat-box-label">Write</div>
+          <div className="stat-box-val">{writeSum.toFixed(1)}<span className="stat-box-unit">MB/s</span></div>
+        </div>
+      </div>
+      <div className="volumes-section">
+        <div style={{fontSize:'0.8rem', color:'var(--text-mid)', marginBottom:'10px'}}>Volumes</div>
+        {disks.map(d => {
+          const warn = d.percent > 90;
+          return (
+            <div className="volume-item" key={d.mountpoint}>
+              <div className="vol-header">
+                <div style={{display:'flex', alignItems:'center'}}>
+                  <span style={{width:8,height:8,borderRadius:'50%',background:warn?'var(--alert)':'var(--text-dim)',display:'inline-block',marginRight:10,flexShrink:0}}/>
+                  <span className="vol-mount">{d.mountpoint}</span>
+                  <span className="vol-device">{d.device}</span>
+                </div>
+                <span className={`vol-pct${warn?' warn':''}`}>{d.percent}%</span>
+              </div>
+              <div className="vol-bar-wrap">
+                <div className={`vol-bar${warn?' warn':''}`} style={{width:`${d.percent}%`}}/>
+              </div>
+              <div className="vol-meta">
+                {d.model && <div className="vol-meta-item"><span className="vol-meta-label">MODEL</span><span className="vol-meta-val">{d.model}</span></div>}
+                <div className="vol-meta-item"><span className="vol-meta-label">USED</span><span className="vol-meta-val">{fmt(d.used_gb)} / {fmt(d.total_gb)}</span></div>
+                {d.temp != null && <div className="vol-meta-item"><span className="vol-meta-label">TEMP</span><span className="vol-meta-val">{d.temp}°C</span></div>}
+                {d.smart_ok != null && <div className="vol-meta-item"><span className="vol-meta-label">SMART</span><span className={`vol-meta-val ${d.smart_ok?'ok':'warn'}`}>{d.smart_ok?'ok':'fail'}</span></div>}
+                <div className="vol-meta-item"><span className="vol-meta-label">I/O</span><span className="vol-meta-val">↓ {d.read_mbps} · ↑ {d.write_mbps} MB/s</span></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Detail: Containers ───────────────────────────────────────────
+function ContainersView({ docker, onBack }) {
+  return (
+    <div className="detail">
+      <button className="back-btn" onClick={onBack}>← Back</button>
+      <div className="detail-title">Containers</div>
+      <div className="detail-sub">{docker?.total ?? 0} total</div>
+      <div className="containers-list">
+        {(docker?.containers || []).map(c => (
+          <div className="container-row" key={c.name}>
+            <span className={`container-state ${c.state}`}/>
+            <span className="container-name">{c.name}</span>
+            <span className="container-image">{c.image}</span>
+            <span className={`container-badge ${c.state}`}>{c.state}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Settings Panel ───────────────────────────────────────────────
+function SettingsPanel({ settings, onChange, onClose, hostname, onEnterEdit, onResetOrder }) {
+  const { theme, density, alertColor, animations, demoScenario } = settings;
+  return (
+    <div className="settings-overlay" onClick={e => { if(e.target===e.currentTarget) onClose(); }}>
+      <div className="settings-panel">
+        <div className="settings-header">
+          <span className="settings-title">Settings</span>
+          <button className="close-btn" onClick={onClose}>×</button>
+        </div>
+
+        <div className="settings-section-label">Appearance</div>
+        <div className="settings-row">
+          <span className="settings-row-label">Theme</span>
+          <div className="seg-control">
+            <button className={`seg-btn${theme==='light'?' active':''}`} onClick={()=>onChange('theme','light')}>Light</button>
+            <button className={`seg-btn${theme==='dark'?' active':''}`} onClick={()=>onChange('theme','dark')}>Dark</button>
+          </div>
+        </div>
+        <div className="settings-row">
+          <span className="settings-row-label">Density</span>
+          <div className="seg-control">
+            {['compact','regular','comfy'].map(d => (
+              <button key={d} className={`seg-btn${density===d?' active':''}`} onClick={()=>onChange('density',d)}>
+                {d.charAt(0).toUpperCase()+d.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="settings-row">
+          <span className="settings-row-label">Alert color</span>
+          <div className="color-picker-row">
+            <input type="color" className="color-swatch" value={alertColor}
+              onChange={e=>onChange('alertColor',e.target.value)}
+              style={{background:alertColor}} />
+            <span className="color-hex">{alertColor.toUpperCase()}</span>
+            <button className="color-reset" onClick={()=>onChange('alertColor',ALERT_COLOR_DEFAULT)}>Reset</button>
+          </div>
+        </div>
+        <div className="settings-row">
+          <span className="settings-row-label">Animations</span>
+          <div className="toggle-wrap">
+            <button className={`toggle${animations?' on':''}`} onClick={()=>onChange('animations',!animations)}/>
+          </div>
+        </div>
+
+        <hr className="settings-divider"/>
+        <div className="settings-section-label">Layout</div>
+        <div className="settings-row-label">Reorder cards</div>
+        <div className="settings-sub-text">Turn on edit mode and drag cards on the home screen to rearrange them.</div>
+        <div className="settings-btns">
+          <button className="outline-btn primary" onClick={()=>{ onEnterEdit(); onClose(); }}>Enter edit mode</button>
+          <button className="outline-btn" onClick={onResetOrder}>Reset order</button>
+        </div>
+
+        <hr className="settings-divider"/>
+        <div className="settings-section-label">Demo State</div>
+        <div className="settings-row">
+          <span className="settings-row-label">Scenario</span>
+        </div>
+        <select className="demo-select" value={demoScenario} onChange={e=>onChange('demoScenario',e.target.value)}>
+          <option value="normal">Normal — everything healthy</option>
+          <option value="high-load">High load</option>
+          <option value="disk-full">Disk almost full</option>
+          <option value="docker-issues">Docker issues</option>
+        </select>
+
+        <div className="settings-footer">Pulso · {hostname || '—'}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Alerts ───────────────────────────────────────────────────────
+function computeAlerts(current, disks, docker) {
+  const alerts = [];
+  if (!current) return alerts;
+  disks.forEach(d => {
+    if (d.percent > 92) alerts.push({ text: `${d.mountpoint} almost full`, tag: `${d.percent}%` });
+  });
+  if (current.cpu_percent > 85) alerts.push({ text: 'CPU high', tag: `${current.cpu_percent}%` });
+  if (current.temp_cpu > 78) alerts.push({ text: 'CPU temp', tag: `${current.temp_cpu}°C` });
+  if (current.ram_percent > 85) alerts.push({ text: 'RAM high', tag: `${current.ram_percent}%` });
+  if (docker?.available) {
+    docker.containers?.forEach(c => {
+      if (c.state === 'restarting') alerts.push({ text: c.name, tag: 'restarting' });
+      if (c.state === 'stopped') alerts.push({ text: c.name, tag: 'stopped' });
+    });
+  }
+  return alerts;
+}
+
+// ─── Main App ─────────────────────────────────────────────────────
+function App() {
+  const [sysInfo, setSysInfo] = useState(null);
+  const [current, setCurrent] = useState(null);
+  const [disks, setDisks] = useState([]);
+  const [docker, setDocker] = useState(null);
+  const [cpuCores, setCpuCores] = useState([]);
+  const [spark, setSpark] = useState({ cpu:[], temp:[], ram:[], sent:[], recv:[] });
+  const [lastRefresh, setLastRefresh] = useState(null);
+  const [view, setView] = useState('home');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [dragOver, setDragOver] = useState(null);
+
+  const ls = k => { try { return localStorage.getItem(k); } catch { return null; } };
+  const lss = (k,v) => { try { localStorage.setItem(k,v); } catch {} };
+
+  const [settings, setSettings] = useState({
+    theme: ls('p-theme') || 'light',
+    density: ls('p-density') || 'regular',
+    alertColor: ls('p-alert') || ALERT_COLOR_DEFAULT,
+    animations: ls('p-anim') !== 'false',
+    demoScenario: 'normal',
+    cardOrder: (() => { try { return JSON.parse(ls('p-order')) || DEFAULT_CARD_ORDER; } catch { return DEFAULT_CARD_ORDER; } })()
+  });
+
+  const changeSetting = (key, val) => {
+    setSettings(s => ({ ...s, [key]: val }));
+    if (key === 'theme') lss('p-theme', val);
+    if (key === 'density') lss('p-density', val);
+    if (key === 'alertColor') lss('p-alert', val);
+    if (key === 'animations') lss('p-anim', val);
+    if (key === 'cardOrder') lss('p-order', JSON.stringify(val));
+  };
+
+  // Apply settings to DOM
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', settings.theme);
+    document.documentElement.setAttribute('data-density', settings.density);
+    document.documentElement.setAttribute('data-anim', settings.animations ? 'true' : 'false');
+    document.documentElement.style.setProperty('--alert', settings.alertColor);
+    document.documentElement.style.setProperty('--alert-bg', settings.alertColor + '12');
+    document.documentElement.style.setProperty('--alert-border', settings.alertColor + '40');
+  }, [settings.theme, settings.density, settings.animations, settings.alertColor]);
+
+  // Demo data override
+  const demo = settings.demoScenario !== 'normal' ? DEMO_DATA[settings.demoScenario] : null;
+  const effCurrent = demo?.current || current;
+  const effDisks = demo?.disks || disks;
+  const effDocker = demo?.docker || docker;
+
+  const pushSpark = (curr) => {
+    setSpark(s => {
+      const push = (arr, v) => v != null ? [...arr.slice(-BUFFER_SIZE+1), v] : arr;
+      return {
+        cpu: push(s.cpu, curr.cpu_percent),
+        temp: push(s.temp, curr.temp_cpu),
+        ram: push(s.ram, curr.ram_percent),
+        sent: push(s.sent, curr.net_sent_mbps),
+        recv: push(s.recv, curr.net_recv_mbps),
+      };
+    });
+  };
+
+  const fetchCurrent = useCallback(async () => {
+    if (demo) return;
+    try {
+      const r = await fetch('/api/current');
+      const d = await r.json();
+      setCurrent(d);
+      pushSpark(d);
+      setLastRefresh(Date.now());
+    } catch {}
+  }, [demo]);
+
+  const fetchDisks = useCallback(async () => {
+    if (demo?.disks) return;
+    try {
+      const r = await fetch('/api/disks');
+      setDisks(await r.json());
+    } catch {}
+  }, [demo]);
+
+  const fetchDocker = useCallback(async () => {
+    if (demo?.docker) return;
+    try {
+      const r = await fetch('/api/docker');
+      setDocker(await r.json());
+    } catch {}
+  }, [demo]);
+
+  const fetchCores = useCallback(async () => {
+    try {
+      const r = await fetch('/api/cpu/cores');
+      setCpuCores(await r.json());
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/system').then(r=>r.json()).then(setSysInfo).catch(()=>{});
+    fetchCurrent();
+    fetchDisks();
+    fetchDocker();
+    fetchCores();
+  }, []);
+
+  useEffect(() => {
+    const t1 = setInterval(fetchCurrent, 3000);
+    const t2 = setInterval(fetchCores, 3000);
+    const t3 = setInterval(fetchDisks, 15000);
+    const t4 = setInterval(fetchDocker, 15000);
+    return () => [t1,t2,t3,t4].forEach(clearInterval);
+  }, [fetchCurrent, fetchCores, fetchDisks, fetchDocker]);
+
+  // Relay-time display
+  const [relTimeStr, setRelTimeStr] = useState('');
+  useEffect(() => {
+    const t = setInterval(() => setRelTimeStr(relTime(lastRefresh)), 1000);
+    return () => clearInterval(t);
+  }, [lastRefresh]);
+
+  // Drag & drop
+  const dragSrcRef = useRef(null);
+  const handleDragStart = (e, id) => { dragSrcRef.current = id; };
+  const handleDragOver = (id) => { if(dragSrcRef.current !== id) setDragOver(id); };
+  const handleDrop = (e, targetId) => {
+    e.preventDefault();
+    const src = dragSrcRef.current;
+    if (!src || src === targetId) { setDragOver(null); return; }
+    const order = [...settings.cardOrder];
+    const si = order.indexOf(src), ti = order.indexOf(targetId);
+    if (si < 0 || ti < 0) { setDragOver(null); return; }
+    order.splice(ti, 0, order.splice(si, 1)[0]);
+    changeSetting('cardOrder', order);
+    setDragOver(null);
+  };
+
+  const alerts = computeAlerts(effCurrent, effDisks, effDocker);
+
+  const cardProps = id => ({
+    editMode,
+    onDragStart: handleDragStart,
+    onDragOver: handleDragOver,
+    onDrop: handleDrop,
+    isDragOver: dragOver === id,
+  });
+
+  const CARDS = {
+    cpu:     <CPUCard     key="cpu"     data={effCurrent} spark={spark.cpu} onClick={()=>setView('cpu')}     {...cardProps('cpu')} />,
+    temp:    <TempCard    key="temp"    data={effCurrent}                                                     {...cardProps('temp')} />,
+    memory:  <MemoryCard  key="memory"  data={effCurrent} spark={spark.ram} onClick={()=>setView('memory')}  {...cardProps('memory')} />,
+    gpu:     <GpuCard     key="gpu"     data={effCurrent}                                                     {...cardProps('gpu')} />,
+    disks:   <DisksCard   key="disks"   disks={effDisks}                    onClick={()=>setView('storage')}  {...cardProps('disks')} />,
+    load:    <LoadCard    key="load"    data={effCurrent}                                                     {...cardProps('load')} />,
+    network: <NetworkCard key="network" data={effCurrent} spark={{sent:spark.sent,recv:spark.recv}} onClick={()=>setView('network')} {...cardProps('network')} />,
+    docker:  <DockerCard  key="docker"  docker={effDocker}                  onClick={()=>setView('containers')} {...cardProps('docker')} />,
+  };
+
+  const subTitle = sysInfo
+    ? [sysInfo.hostname, sysInfo.os, sysInfo.kernel ? `Linux ${sysInfo.kernel}` : null].filter(Boolean).join(' · ')
+    : '—';
+
+  return (
+    <>
+      {/* HEADER */}
+      <div className="header">
+        <div className="header-left" style={{cursor: view !== 'home' ? 'pointer' : 'default'}} onClick={()=>setView('home')}>
+          <div className="logo">
+            <span className="logo-icon">⚡</span>
+            Pulso
+          </div>
+          <div className="header-sub">{subTitle}</div>
+        </div>
+        <div className="header-right">
+          {effCurrent && (
+            <div className="uptime-badge">
+              <span className="uptime-dot"/>
+              up {formatUptime(effCurrent.uptime_seconds)}
+            </div>
+          )}
+          <button className="settings-btn" onClick={()=>setSettingsOpen(true)} title="Settings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* ALERTS */}
+      {view === 'home' && alerts.length > 0 && (
+        <div className="alerts-strip">
+          <span className="alerts-count">{alerts.length}</span>
+          <span className="alerts-label">Alerts active</span>
+          <div className="alerts-items">
+            {alerts.map((a,i) => (
+              <div className="alert-item" key={i}>
+                <span>{a.text}</span>
+                <span className="alert-tag">{a.tag}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* EDIT MODE BANNER */}
+      {editMode && (
+        <div style={{margin:'var(--gap) var(--pad) 0', padding:'10px 16px', background:'var(--card-bg)', border:'1px solid var(--border)', borderRadius:'8px', display:'flex', justifyContent:'space-between', alignItems:'center', fontSize:'0.82rem'}}>
+          <span style={{color:'var(--text-mid)'}}>Drag cards to reorder</span>
+          <button className="outline-btn" onClick={()=>setEditMode(false)} style={{padding:'5px 12px', fontSize:'0.78rem'}}>Done</button>
+        </div>
+      )}
+
+      {/* MAIN CONTENT */}
+      <div className="main">
+        {view === 'home' && (
+          <div className="card-grid">
+            {settings.cardOrder.map(id => CARDS[id] || null)}
+          </div>
+        )}
+        {view === 'cpu' && <CPUDetail sysInfo={sysInfo} current={effCurrent} spark={spark} cpuCores={cpuCores} onBack={()=>setView('home')} />}
+        {view === 'storage' && <StorageDetail disks={effDisks} onBack={()=>setView('home')} />}
+        {view === 'memory' && (
+          <div className="detail">
+            <button className="back-btn" onClick={()=>setView('home')}>← Back</button>
+            <div className="detail-title">Memory</div>
+            <div className="detail-sub">{effCurrent?.ram_total_gb} GB total</div>
+            <div className="stat-boxes">
+              <div className="stat-box"><div className="stat-box-label">Used</div><div className="stat-box-val">{effCurrent?.ram_used_gb ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
+              <div className="stat-box"><div className="stat-box-label">Usage</div><div className="stat-box-val">{effCurrent?.ram_percent ?? '—'}<span className="stat-box-unit">%</span></div></div>
+              <div className="stat-box"><div className="stat-box-label">Swap Used</div><div className="stat-box-val">{effCurrent?.swap_used_gb ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
+              <div className="stat-box"><div className="stat-box-label">Swap Total</div><div className="stat-box-val">{effCurrent?.swap_total_gb ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
+            </div>
+            <div className="chart-section">
+              <div className="chart-label">Usage · last 60s <span className="chart-unit">%</span></div>
+              <div className="chart-wrap"><AreaChart data={spark.ram.map(v=>({v}))} accessor={d=>d.v} yMax={100} height={160}/></div>
+            </div>
+          </div>
+        )}
+        {view === 'network' && (
+          <div className="detail">
+            <button className="back-btn" onClick={()=>setView('home')}>← Back</button>
+            <div className="detail-title">Network</div>
+            <div className="detail-sub">{effCurrent?.net_iface}</div>
+            <div className="stat-boxes">
+              <div className="stat-box"><div className="stat-box-label">Download</div><div className="stat-box-val">{effCurrent?.net_recv_mbps ?? '—'}<span className="stat-box-unit"> Mb/s</span></div></div>
+              <div className="stat-box"><div className="stat-box-label">Upload</div><div className="stat-box-val">{effCurrent?.net_sent_mbps ?? '—'}<span className="stat-box-unit"> Mb/s</span></div></div>
+              <div className="stat-box"><div className="stat-box-label">Latency</div><div className="stat-box-val">{effCurrent?.net_latency_ms ?? '—'}<span className="stat-box-unit"> ms</span></div></div>
+              <div className="stat-box"><div className="stat-box-label">Interface</div><div className="stat-box-val" style={{fontSize:'1rem',paddingTop:'6px'}}>{effCurrent?.net_iface ?? '—'}</div></div>
+            </div>
+            <div className="chart-section">
+              <div className="chart-label">Download · last 60s <span className="chart-unit">Mb/s</span></div>
+              <div className="chart-wrap"><AreaChart data={spark.recv.map(v=>({v}))} accessor={d=>d.v} yMax={Math.max(100,...spark.recv)} height={160}/></div>
+            </div>
+            <div className="chart-section">
+              <div className="chart-label">Upload · last 60s <span className="chart-unit">Mb/s</span></div>
+              <div className="chart-wrap"><AreaChart data={spark.sent.map(v=>({v}))} accessor={d=>d.v} yMax={Math.max(100,...spark.sent)} height={160}/></div>
+            </div>
+          </div>
+        )}
+        {view === 'containers' && <ContainersView docker={effDocker} onBack={()=>setView('home')} />}
+      </div>
+
+      {/* FOOTER */}
+      <div className="footer">
+        <div className="footer-links">
+          <span className="footer-link" onClick={()=>setView('containers')}>Containers</span>
+          <span className="footer-dot">·</span>
+          <span className="footer-link" onClick={()=>setView('cpu')}>CPU</span>
+          <span className="footer-dot">·</span>
+          <span className="footer-link" onClick={()=>setView('storage')}>Storage</span>
+          <span className="footer-dot">·</span>
+        </div>
+        <span>{relTimeStr}</span>
+      </div>
+
+      {/* SETTINGS */}
+      {settingsOpen && (
+        <SettingsPanel
+          settings={settings}
+          onChange={changeSetting}
+          onClose={()=>setSettingsOpen(false)}
+          hostname={sysInfo?.hostname}
+          onEnterEdit={()=>setEditMode(true)}
+          onResetOrder={()=>changeSetting('cardOrder', DEFAULT_CARD_ORDER)}
+        />
+      )}
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
