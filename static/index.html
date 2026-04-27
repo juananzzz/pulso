@@ -265,6 +265,22 @@ body {
 /* FOOTER */
 .footer { display: flex; justify-content: space-between; align-items: center; padding: 12px var(--pad); border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-dim); }
 
+/* RANGE SELECTOR */
+.range-selector { display: flex; gap: 2px; background: var(--bg); border-radius: 6px; padding: 2px; }
+.range-btn { border: none; background: none; cursor: pointer; padding: 4px 10px; font-size: 0.75rem; border-radius: 5px; color: var(--text-dim); transition: background var(--transition), color var(--transition); }
+.range-btn.active { background: var(--card-bg); color: var(--text); box-shadow: var(--shadow); }
+
+/* MEMORY LAYOUT */
+.mem-stat-boxes { grid-template-columns: repeat(4, 1fr); }
+.mem-body { display: grid; grid-template-columns: 1fr 280px; gap: var(--gap); }
+.mem-distrib { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: var(--shadow); }
+.mem-distrib-title { font-size: 0.8rem; color: var(--text-mid); margin-bottom: 16px; }
+.distrib-legend { margin-top: 16px; }
+.distrib-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.distrib-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; margin-right: 8px; }
+.distrib-label { font-size: 0.78rem; flex: 1; }
+.distrib-val { font-size: 0.78rem; color: var(--text-mid); font-variant-numeric: tabular-nums; }
+
 /* CONTAINERS */
 .containers-list { margin-top: 16px; }
 .container-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 7px; margin-bottom: 6px; font-size: 0.82rem; box-shadow: var(--shadow); }
@@ -366,35 +382,39 @@ function SparkLine({ data = [], color = 'var(--text)', height = 40 }) {
 }
 
 // ─── AreaChart ────────────────────────────────────────────────────
-function AreaChart({ data = [], height = 180, yMax = 100, color = 'var(--text)', accessor = d=>d }) {
+function AreaChart({ data = [], height = 180, yMax = 100, yMin = 0, yUnit = '', color = 'var(--text)', accessor = d=>d, xRangeSeconds = 60 }) {
   const W = 800, H = height;
-  const PL = 36, PR = 8, PT = 8, PB = 24;
+  const PL = 52, PR = 8, PT = 8, PB = 24;
   const cW = W-PL-PR, cH = H-PT-PB;
   if (data.length < 2) return (
     <div style={{height, display:'flex', alignItems:'center', justifyContent:'center', color:'var(--text-dim)', fontSize:'0.8rem'}}>
       Collecting data…
     </div>
   );
-  const ticks = [0,25,50,75,100].map(t=>t*yMax/100);
+  const range = yMax - yMin;
+  const ticks = Array.from({length:5}, (_,i) => yMin + range * i / 4);
   const pts = data.map((d,i) => ({
     x: PL+(i/(data.length-1))*cW,
-    y: PT+cH-(Math.max(0,Math.min(accessor(d),yMax))/yMax)*cH
+    y: PT+cH-(Math.max(yMin,Math.min(accessor(d),yMax))-yMin)/range*cH
   }));
   const line = `M ${pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')}`;
   const area = `${line} L ${pts[pts.length-1].x.toFixed(1)},${PT+cH} L ${pts[0].x.toFixed(1)},${PT+cH} Z`;
   const n = data.length-1;
-  const xLabels = [-60,-45,-30,-15,0].map(sec => {
-    const idx = n+Math.round(sec/(60/Math.max(n,1)));
+  const steps = xRangeSeconds <= 120 ? [-60,-45,-30,-15,0] : xRangeSeconds <= 3700 ? [-3600,-2700,-1800,-900,0] : [-86400,-64800,-43200,-21600,0];
+  const xFmts = xRangeSeconds <= 120 ? s => s===0?'now':`${s}s` : xRangeSeconds <= 3700 ? s => s===0?'now':`${-s/60}m` : s => s===0?'now':`${-s/3600}h`;
+  const xLabels = steps.map(sec => {
+    const idx = n+Math.round(sec/(xRangeSeconds/Math.max(n,1)));
     if (idx<0||idx>n) return null;
-    return {x: PL+(idx/n)*cW, label: sec===0?'now':`${sec}s`};
+    return {x: PL+(idx/n)*cW, label: xFmts(sec)};
   }).filter(Boolean);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:'auto',display:'block'}}>
       {ticks.map(t => {
-        const y = PT+cH-(t/yMax)*cH;
+        const y = PT+cH-(t-yMin)/range*cH;
+        const label = range < 5 ? t.toFixed(1) : Math.round(t);
         return <g key={t}>
           <line x1={PL} y1={y} x2={PL+cW} y2={y} stroke="var(--border)" strokeWidth={1}/>
-          <text x={PL-4} y={y+4} textAnchor="end" fontSize={10} fill="var(--text-dim)">{Math.round(t)}</text>
+          <text x={PL-4} y={y+4} textAnchor="end" fontSize={10} fill="var(--text-dim)">{label}{yUnit}</text>
         </g>;
       })}
       {xLabels.map(({x,label}) => (
@@ -403,6 +423,46 @@ function AreaChart({ data = [], height = 180, yMax = 100, color = 'var(--text)',
       <path d={area} fill={color} fillOpacity={0.12}/>
       <path d={line} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round"/>
     </svg>
+  );
+}
+
+// ─── ProgressArc (donut % circle) ────────────────────────────────
+function ProgressArc({ percent, size = 140 }) {
+  const cx = size/2, cy = size/2, r = size/2 - 16, sw = 13;
+  const circ = 2 * Math.PI * r;
+  const arc = Math.min(percent, 99.9) / 100 * circ;
+  const clr = percent > 85 ? 'var(--alert)' : percent > 70 ? '#f59e0b' : '#60a5fa';
+  return (
+    <svg width={size} height={size}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border)" strokeWidth={sw}/>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={clr} strokeWidth={sw}
+        strokeDasharray={`${arc} ${circ-arc}`} strokeLinecap="round"
+        style={{transform:'rotate(-90deg)', transformOrigin:`${cx}px ${cy}px`}}/>
+      <text x={cx} y={cy+6} textAnchor="middle" fontSize={20} fontWeight={700} fill="var(--text)">{percent}%</text>
+      <text x={cx} y={cy+20} textAnchor="middle" fontSize={8} letterSpacing="1.5" fill="var(--text-dim)">USADA</text>
+    </svg>
+  );
+}
+
+// ─── MemStatBox (stat box with optional progress bar) ─────────────
+function MemStatBox({ label, value, total, unit, sub, color = 'var(--chart-cpu)' }) {
+  const pct = total > 0 ? (value / total * 100) : 0;
+  return (
+    <div className="stat-box">
+      <div className="stat-box-label">{label}</div>
+      <div style={{display:'flex', alignItems:'baseline', gap:'4px', margin:'4px 0 6px'}}>
+        <span className="stat-box-val">{value != null ? value.toFixed(1) : '—'}</span>
+        {total
+          ? <span style={{fontSize:'0.85rem', color:'var(--text-dim)'}}>/ {total} {unit}</span>
+          : <span className="stat-box-unit"> {unit}</span>}
+      </div>
+      {total > 0 && (
+        <div style={{height:'3px', background:'var(--border)', borderRadius:'2px', marginBottom:'6px'}}>
+          <div style={{height:'100%', width:`${pct}%`, background:color, borderRadius:'2px', transition:'width 0.5s'}}/>
+        </div>
+      )}
+      {sub && <div style={{fontSize:'0.7rem', color:'var(--text-dim)'}}>{sub}</div>}
+    </div>
   );
 }
 
@@ -589,26 +649,103 @@ function CPUDetail({ sysInfo, current, spark, cpuCores }) {
 
 // ─── Detail: Memory ───────────────────────────────────────────────
 function MemoryDetail({ current, spark }) {
-  const swapPct = current && current.swap_total_gb > 0
-    ? Math.round(current.swap_used_gb / current.swap_total_gb * 100)
-    : 0;
+  const [range, setRange] = useState('1m');
+  const [histData, setHistData] = useState([]);
+
+  useEffect(() => {
+    if (range === '1m') return;
+    fetch(`/api/history?range=${range}`)
+      .then(r => r.json())
+      .then(setHistData)
+      .catch(() => {});
+  }, [range]);
+
+  const total = current?.ram_total_gb || 32;
+  const available = current?.ram_available_gb || 0;
+  const cached = current?.ram_cached_gb || 0;
+  const buffers = current?.ram_buffers_gb || 0;
+  const used = current?.ram_used_gb || 0;   // psutil 'used' = apps only on Linux
+  const usedApparent = +(total - available).toFixed(1); // total occupied incl. cache
+  const free = available;
+  const usedPct = total > 0 ? Math.round(usedApparent / total * 100) : 0;
+
+  const swapUsed = current?.swap_used_gb || 0;
+  const swapTotal = current?.swap_total_gb || 0;
+
+  // Chart data: 1m = client buffer in GB, 1h/24h = history converted to GB
+  const RANGE_SECS = { '1m': 90, '1h': 3600, '24h': 86400 };
+  const chartData = range === '1m'
+    ? (spark?.ramGb || []).map(v => ({v}))
+    : histData.map(d => ({v: d.ram != null ? +(d.ram * total / 100).toFixed(1) : 0}));
+
+  const distribColors = { apps:'#60a5fa', cached:'#34d399', buffers:'#93c5fd', libre:'var(--border-strong)' };
+  const distribItems = [
+    { label:'En uso (apps)', value:used,    color:distribColors.apps },
+    { label:'Cached',        value:cached,  color:distribColors.cached },
+    { label:'Buffers',       value:buffers, color:distribColors.buffers },
+    { label:'Libre',         value:free,    color:distribColors.libre },
+  ];
+
   return (
     <div className="detail">
-      <div className="detail-title">Memory</div>
-      <div className="detail-sub">{current?.ram_total_gb} GB total</div>
-      <div className="stat-boxes">
-        <div className="stat-box"><div className="stat-box-label">Used</div><div className="stat-box-val">{current?.ram_used_gb ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Usage</div><div className="stat-box-val">{current?.ram_percent ?? '—'}<span className="stat-box-unit">%</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Swap Used</div><div className="stat-box-val">{current?.swap_used_gb ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Swap Total</div><div className="stat-box-val">{current?.swap_total_gb ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
+      {/* Header row */}
+      <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'20px'}}>
+        <div>
+          <div className="detail-title">Memoria</div>
+          <div className="detail-sub" style={{margin:0}}>{total} GB total</div>
+        </div>
+        <div className="range-selector">
+          {['1m','1h','24h'].map(r => (
+            <button key={r} className={`range-btn${range===r?' active':''}`} onClick={()=>setRange(r)}>{r}</button>
+          ))}
+        </div>
       </div>
-      <div className="chart-section">
-        <div className="chart-label">RAM usage · last 60s <span className="chart-unit">%</span></div>
-        <div className="chart-wrap"><AreaChart data={spark?.ram?.map(v=>({v}))} accessor={d=>d.v} yMax={100} height={160} color="var(--chart-ram)"/></div>
+
+      {/* Stat boxes */}
+      <div className="stat-boxes mem-stat-boxes" style={{marginBottom:'var(--gap)'}}>
+        <MemStatBox label="RAM usada"  value={usedApparent} total={total}     unit="GB" color="var(--chart-ram)"/>
+        <MemStatBox label="Disponible" value={free}                            unit="GB" sub={total>0?`${Math.round(free/total*100)}% libre`:''}/>
+        <MemStatBox label="Cached"     value={cached}                          unit="GB" sub={buffers>0?`buffers ${buffers} GB`:''}/>
+        <MemStatBox label="Swap"       value={swapUsed}      total={swapTotal} unit="GB" color="var(--chart-swap)"/>
       </div>
-      <div className="chart-section">
-        <div className="chart-label">Swap usage · last 60s <span className="chart-unit">%</span></div>
-        <div className="chart-wrap"><AreaChart data={spark?.swap?.map(v=>({v}))} accessor={d=>d.v} yMax={100} height={160} color="var(--chart-swap)"/></div>
+
+      {/* Body: chart + distribution */}
+      <div className="mem-body">
+        {/* Area chart */}
+        <div className="chart-section" style={{margin:0}}>
+          <div className="chart-label">Uso de memoria <span className="chart-unit">GB</span></div>
+          <div className="chart-wrap">
+            <AreaChart
+              data={chartData}
+              accessor={d=>d.v}
+              yMax={total}
+              yMin={0}
+              yUnit=" GB"
+              height={220}
+              color="var(--chart-ram)"
+              xRangeSeconds={RANGE_SECS[range]}
+            />
+          </div>
+        </div>
+
+        {/* Distribution */}
+        <div className="mem-distrib">
+          <div className="mem-distrib-title">Distribución</div>
+          <div style={{display:'flex', justifyContent:'center'}}>
+            <ProgressArc percent={usedPct} size={130}/>
+          </div>
+          <div className="distrib-legend">
+            {distribItems.filter(d=>d.value>0).map(seg => (
+              <div className="distrib-row" key={seg.label}>
+                <div style={{display:'flex', alignItems:'center'}}>
+                  <span className="distrib-dot" style={{background:seg.color}}/>
+                  <span className="distrib-label">{seg.label}</span>
+                </div>
+                <span className="distrib-val">{seg.value.toFixed(2)} GB</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -837,7 +974,7 @@ function App() {
   const [disks, setDisks] = useState([]);
   const [docker, setDocker] = useState(null);
   const [cpuCores, setCpuCores] = useState([]);
-  const [spark, setSpark] = useState({cpu:[],temp:[],ram:[],swap:[],sent:[],recv:[]});
+  const [spark, setSpark] = useState({cpu:[],temp:[],ram:[],ramGb:[],swap:[],sent:[],recv:[]});
   const [lastRefresh, setLastRefresh] = useState(null);
   const [view, setView] = useState('home');
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -884,12 +1021,13 @@ function App() {
       const push = (arr,v) => v!=null ? [...arr.slice(-BUFFER_SIZE+1),v] : arr;
       const swapPct = curr.swap_total_gb > 0 ? Math.round(curr.swap_used_gb/curr.swap_total_gb*100) : 0;
       return {
-        cpu:  push(s.cpu,  curr.cpu_percent),
-        temp: push(s.temp, curr.temp_cpu),
-        ram:  push(s.ram,  curr.ram_percent),
-        swap: push(s.swap, swapPct),
-        sent: push(s.sent, curr.net_sent_mbps),
-        recv: push(s.recv, curr.net_recv_mbps),
+        cpu:   push(s.cpu,   curr.cpu_percent),
+        temp:  push(s.temp,  curr.temp_cpu),
+        ram:   push(s.ram,   curr.ram_percent),
+        ramGb: push(s.ramGb, curr.ram_used_gb),
+        swap:  push(s.swap,  swapPct),
+        sent:  push(s.sent,  curr.net_sent_mbps),
+        recv:  push(s.recv,  curr.net_recv_mbps),
       };
     });
   };
