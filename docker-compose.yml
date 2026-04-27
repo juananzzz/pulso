@@ -4,7 +4,7 @@ services:
     container_name: pulso
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "7331:7331"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
