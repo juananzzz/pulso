@@ -284,10 +284,10 @@ body {
 
 /* MEMORY LAYOUT */
 .mem-stat-boxes { grid-template-columns: repeat(4, 1fr); }
-.mem-body { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); min-width: 0; align-items: start; }
+.mem-body { display: grid; grid-template-columns: 3fr 1fr; gap: var(--gap); min-width: 0; align-items: stretch; }
 .mem-body > * { min-width: 0; }
-.mem-distrib { display: flex; flex-direction: column; align-items: center; }
-.mem-distrib .distrib-legend { width: 100%; max-width: 320px; }
+.mem-distrib { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.mem-distrib .distrib-legend { width: 100%; }
 .mem-distrib { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: var(--shadow); }
 .mem-distrib-title { font-size: 0.8rem; color: var(--text-mid); margin-bottom: 16px; }
 .distrib-legend { margin-top: 16px; }
@@ -745,8 +745,8 @@ function MemoryDetail({ current, spark }) {
         {/* Distribution */}
         <div className="mem-distrib">
           <div className="mem-distrib-title">Distribución</div>
-          <div style={{display:'flex', justifyContent:'center', margin:'16px 0 8px'}}>
-            <ProgressArc percent={usedPct} size={210}/>
+          <div style={{display:'flex', justifyContent:'center', margin:'16px 0 12px'}}>
+            <ProgressArc percent={usedPct} size={150}/>
           </div>
           <div className="distrib-legend">
             {distribItems.filter(d=>d.value>0).map(seg => (
