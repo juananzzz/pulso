@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
-import AreaChart from '../charts/AreaChart';
+import { useState, useMemo } from 'react';
 import { diskColor, tempColor } from '../utils';
 
 function fmt(gb) {
@@ -25,25 +24,8 @@ export default function StorageDetail({ disks }) {
   const free = useMemo(() => disks.reduce((s, d) => s + d.free_gb, 0), [disks]);
   const pct = total > 0 ? Math.round(used / total * 100) : 0;
 
-  const readSum = useMemo(() => disks.reduce((s, d) => s + (d.read_mbps || 0), 0), [disks]);
-  const writeSum = useMemo(() => disks.reduce((s, d) => s + (d.write_mbps || 0), 0), [disks]);
-
   const [expandedDisk, setExpandedDisk] = useState(null);
   const status = stoStatus(disks);
-
-  const [ioSpark, setIoSpark] = useState({ read: [], write: [] });
-  useEffect(() => {
-    setIoSpark(prev => {
-      const r = disks.reduce((s, d) => s + (d.read_mbps || 0), 0);
-      const w = disks.reduce((s, d) => s + (d.write_mbps || 0), 0);
-      return {
-        read: [...prev.read.slice(-29), r],
-        write: [...prev.write.slice(-29), w],
-      };
-    });
-  }, [disks]);
-
-  const hasIoData = ioSpark.read.some(v => v > 0) || ioSpark.write.some(v => v > 0);
 
   return (
     <div className="detail">
@@ -166,48 +148,6 @@ export default function StorageDetail({ disks }) {
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* Level 3: I/O Activity */}
-      <div className="sto-activity">
-        <div className="sto-activity-header">
-          <span className="chart-label" style={{ marginBottom: 0 }}>Activity</span>
-          <div className="sto-io-summary">
-            <span className="sto-io-tag sto-io-read">↓ {readSum.toFixed(1)} MB/s</span>
-            <span className="sto-io-tag sto-io-write">↑ {writeSum.toFixed(1)} MB/s</span>
-          </div>
-        </div>
-        <div className="chart-wrap" style={{ marginTop: 8 }}>
-          {hasIoData ? (
-            <svg viewBox="0 0 800 120" style={{ width: '100%', height: 'auto', display: 'block' }}>
-              <text x={8} y={14} fontSize={8} fill="var(--text-dim)">MB/s</text>
-              {ioSpark.read.length > 1 && (() => {
-                const pts = ioSpark.read.map((v, i) => ({
-                  x: 38 + (i / (ioSpark.read.length - 1)) * 754,
-                  y: 8 + 88 - Math.min(v, 50) / 50 * 88,
-                }));
-                const d = `M ${pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')}`;
-                return <path d={d} fill="none" stroke="var(--chart-net-recv)" strokeWidth={2} strokeLinejoin="round" />;
-              })()}
-              {ioSpark.write.length > 1 && (() => {
-                const pts = ioSpark.write.map((v, i) => ({
-                  x: 38 + (i / (ioSpark.write.length - 1)) * 754,
-                  y: 8 + 88 - Math.min(v, 50) / 50 * 88,
-                }));
-                const d = `M ${pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')}`;
-                return <path d={d} fill="none" stroke="var(--chart-net-sent)" strokeWidth={2} strokeLinejoin="round" />;
-              })()}
-            </svg>
-          ) : (
-            <div style={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)', fontSize: '0.8rem' }}>
-              Waiting for I/O data…
-            </div>
-          )}
-        </div>
-        <div className="sto-io-legend">
-          <span className="sto-io-legend-item"><span className="sto-io-legend-dot" style={{ background: 'var(--chart-net-recv)' }} /> Read</span>
-          <span className="sto-io-legend-item"><span className="sto-io-legend-dot" style={{ background: 'var(--chart-net-sent)' }} /> Write</span>
         </div>
       </div>
     </div>

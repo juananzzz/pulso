@@ -776,26 +776,6 @@ body {
 }
 .sto-disk-expanded-row .sto-meta-label { width: 100px; flex-shrink: 0; }
 
-/* I/O activity */
-.sto-activity { margin-bottom: 24px; }
-.sto-activity-header {
-  display: flex; justify-content: space-between; align-items: center;
-}
-.sto-io-summary { display: flex; gap: 10px; }
-.sto-io-tag {
-  font-size: 0.78rem; font-weight: 700; padding: 3px 8px;
-  border-radius: 4px; font-family: var(--num-font);
-  font-variant-numeric: tabular-nums;
-}
-.sto-io-read { background: rgba(96,165,250,0.12); color: var(--chart-net-recv); }
-.sto-io-write { background: rgba(167,139,250,0.12); color: var(--chart-net-sent); }
-.sto-io-legend {
-  display: flex; gap: 16px; margin-top: 6px;
-  font-size: 0.72rem; color: var(--text-dim);
-}
-.sto-io-legend-item { display: flex; align-items: center; gap: 4px; }
-.sto-io-legend-dot { width: 6px; height: 6px; border-radius: 50%; }
-
 /* ── OVERVIEW LAYOUT ── */
 .overview { display: flex; flex-direction: column; gap: calc(var(--gap) * 1.5); padding-top: var(--gap); }
 .ov-hero-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
