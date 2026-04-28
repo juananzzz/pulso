@@ -86,11 +86,11 @@ export default function NetworkDetail({ current, spark }) {
       <div className="net-details-grid">
         {/* Dual throughput chart */}
         <div className="chart-section">
-          <div className="chart-label">
-            <span>Throughput <span className="chart-unit">Mb/s</span></span>
-            <span className="chart-time-label">Last 90s</span>
-          </div>
           <div className="chart-wrap">
+            <div className="card-title-row">
+              <span>Throughput <span className="chart-unit">Mb/s</span></span>
+              <span className="chart-time-label">Last 90s</span>
+            </div>
             <svg viewBox="0 0 800 200" style={{ width: '100%', height: '100%', display: 'block' }}>
               {[0, 0.25, 0.5, 0.75, 1].map(r => {
                 const y = 8 + 164 - r * 164;
@@ -154,8 +154,8 @@ export default function NetworkDetail({ current, spark }) {
 
         {/* Interface card */}
         <div className="chart-section">
-          <div className="chart-label"><span>Interface</span></div>
           <div className="net-iface-card">
+            <div className="card-title-row"><span>Interface</span></div>
             <div className="net-iface-row">
               <span className="net-iface-dot" style={{ background: 'var(--ok)' }} />
               <span className="net-iface-name">{iface || '—'}</span>
