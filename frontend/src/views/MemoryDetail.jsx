@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import AreaChart from '../charts/AreaChart';
-import ProgressArc from '../charts/ProgressArc';
-import MemStatBox from '../components/MemStatBox';
 import { ramColor, swapColor } from '../utils';
 
 export default function MemoryDetail({ current, spark }) {
@@ -38,15 +36,15 @@ export default function MemoryDetail({ current, spark }) {
     : histData.map(d => ({ v: d.swap != null ? +d.swap.toFixed(1) : 0 }));
 
   const distribItems = [
-    { label: 'En uso (apps)', value: used,    color: 'var(--distrib-apps)' },
-    { label: 'Cached',        value: cached,  color: 'var(--distrib-cached)' },
-    { label: 'Buffers',       value: buffers, color: 'var(--distrib-buffers)' },
-    { label: 'Libre',         value: free,    color: 'var(--distrib-libre)' },
+    { label: 'En uso', value: used,    color: 'var(--distrib-apps)' },
+    { label: 'Cached',  value: cached,  color: 'var(--distrib-cached)' },
+    { label: 'Buffers', value: buffers, color: 'var(--distrib-buffers)' },
+    { label: 'Libre',   value: free,    color: 'var(--distrib-libre)' },
   ];
 
   return (
     <div className="detail">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
         <div>
           <div className="detail-title">Memoria</div>
           <div className="detail-sub" style={{ margin: 0 }}>{total} GB RAM · {swapTotal} GB SWAP</div>
@@ -58,68 +56,56 @@ export default function MemoryDetail({ current, spark }) {
         </div>
       </div>
 
-      <div style={{ marginBottom: 28 }}>
-        <div className="chart-label" style={{ fontSize: '0.85rem', marginBottom: 8 }}>RAM</div>
-        <div className="stat-boxes mem-stat-boxes" style={{ marginBottom: 'var(--gap)' }}>
-          <MemStatBox label="RAM usada"  value={usedApparent} total={total} unit="GB" color={ramColor(usedPct)} pct={usedPct} />
-          <MemStatBox label="Disponible" value={free}                           unit="GB" sub={total > 0 ? `${Math.round(free / total * 100)}% libre` : ''} />
-          <MemStatBox label="Cached"     value={cached}                         unit="GB" sub={buffers > 0 ? `buffers ${buffers} GB` : ''} />
+      <div style={{ marginBottom: 20 }}>
+        <div className="chart-label" style={{ fontSize: '0.85rem', marginBottom: 6 }}>RAM</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
+          <span style={{ fontSize: '2rem', fontWeight: 700, color: ramColor(usedPct), lineHeight: 1 }}>{usedPct}<span style={{ fontSize: '1rem', fontWeight: 400 }}>%</span></span>
+          <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{usedApparent} / {total} GB usado</span>
         </div>
-        <div className="mem-body">
-          <div className="chart-section" style={{ margin: 0 }}>
-            <div className="chart-label">Uso de memoria <span className="chart-unit">GB</span></div>
-            <div className="chart-wrap">
-              <AreaChart
-                data={ramChartData}
-                accessor={d => d.v}
-                yMax={total}
-                yMin={0}
-                yUnit=" GB"
-                height={320}
-                color="var(--chart-ram)"
-              />
+        <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', display: 'flex', marginBottom: 6, background: 'var(--border)' }}>
+          {distribItems.filter(d => d.value > 0).map(seg => (
+            <div key={seg.label} style={{ width: `${seg.value / total * 100}%`, background: seg.color, minWidth: seg.value > 0 ? 2 : 0 }} />
+          ))}
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 8, fontSize: '0.78rem' }}>
+          {distribItems.filter(d => d.value > 0).map(seg => (
+            <div key={seg.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: seg.color, display: 'inline-block' }} />
+              <span style={{ color: 'var(--text-dim)' }}>{seg.label}</span>
+              <span style={{ fontWeight: 600 }}>{seg.value.toFixed(1)} GB</span>
             </div>
-          </div>
-          <div className="mem-distrib">
-            <div className="mem-distrib-title">Distribución</div>
-            <div style={{ display: 'flex', justifyContent: 'center', margin: '12px 0 16px' }}>
-              <ProgressArc percent={usedPct} size={180} />
-            </div>
-            <div className="distrib-legend">
-              {distribItems.filter(d => d.value > 0).map(seg => (
-                <div className="distrib-row" key={seg.label}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <span className="distrib-dot" style={{ background: seg.color }} />
-                    <span className="distrib-label">{seg.label}</span>
-                  </div>
-                  <span className="distrib-val">{seg.value.toFixed(2)} GB</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
+        </div>
+        <div className="chart-wrap" style={{ padding: '4px 6px' }}>
+          <AreaChart
+            data={ramChartData}
+            accessor={d => d.v}
+            yMax={total}
+            yMin={0}
+            yUnit=" GB"
+            height={160}
+            color="var(--chart-ram)"
+          />
         </div>
       </div>
 
       <div>
-        <div className="chart-label" style={{ fontSize: '0.85rem', marginBottom: 8 }}>SWAP</div>
-        <div className="stat-boxes mem-stat-boxes" style={{ marginBottom: 'var(--gap)' }}>
-          <MemStatBox label="Swap usado" value={swapUsed} total={swapTotal} unit="GB" color={swapColor(swapPct)} swapPct={swapPct} />
-          <MemStatBox label="Total"      value={swapTotal} unit="GB" sub={swapTotal > 0 ? `${swapPct}% usado` : ''} />
+        <div className="chart-label" style={{ fontSize: '0.85rem', marginBottom: 6 }}>SWAP</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
+          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: swapColor(swapPct), lineHeight: 1 }}>{swapPct}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>%</span></span>
+          <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{swapUsed} / {swapTotal} GB usado</span>
         </div>
         {swapTotal > 0 && (
-          <div className="chart-section" style={{ margin: 0 }}>
-            <div className="chart-label">Uso de SWAP <span className="chart-unit">GB</span></div>
-            <div className="chart-wrap">
-              <AreaChart
-                data={swapChartData}
-                accessor={d => d.v}
-                yMax={swapTotal}
-                yMin={0}
-                yUnit=" GB"
-                height={180}
-                color="var(--chart-swap)"
-              />
-            </div>
+          <div className="chart-wrap" style={{ padding: '4px 6px' }}>
+            <AreaChart
+              data={swapChartData}
+              accessor={d => d.v}
+              yMax={swapTotal}
+              yMin={0}
+              yUnit=" GB"
+              height={120}
+              color="var(--chart-swap)"
+            />
           </div>
         )}
       </div>
