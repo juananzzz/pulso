@@ -22,6 +22,11 @@ const REF_LINES = [
   { value: 90, label: '90%', color: 'var(--alert)' },
 ];
 
+const TEMP_REF_LINES = [
+  { value: 60, label: '60°C', color: 'var(--warn)' },
+  { value: 80, label: '80°C', color: 'var(--alert)' },
+];
+
 function ChartModal({ chart, chartData, chartRange, onTimeRangeChange, onClose }) {
   const titles = { usage: 'Usage', temp: 'Temperature' };
   const colors = { usage: 'var(--chart-cpu)', temp: 'var(--chart-temp)' };
@@ -182,8 +187,26 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         </div>
       </div>
 
-      {/* Level 3: Charts + per-core + processes */}
-      <div className="cpu-details-grid">
+      {/* Level 3: Charts side by side */}
+      <div className="cpu-charts-row">
+        {/* Temperature chart */}
+        <div className="chart-section">
+          <div className="chart-label">
+            <span>Temperature <span className="chart-unit">°C</span></span>
+            <span className="chart-time-label">Last 90s</span>
+          </div>
+          <div className="chart-wrap" style={{ cursor: 'pointer' }} onClick={() => openChart('temp')}>
+            <AreaChart
+              data={spark?.temp?.map(v => ({ v }))}
+              accessor={d => d.v}
+              yMax={100}
+              height={200}
+              color="var(--chart-temp)"
+              refLines={TEMP_REF_LINES}
+            />
+          </div>
+        </div>
+
         {/* CPU Usage chart */}
         <div className="chart-section">
           <div className="chart-label">
@@ -202,34 +225,33 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
             />
           </div>
         </div>
-
-        {/* Per-core horizontal bars */}
-        {sortedCores.length > 0 && (
-          <div className="cores-section">
-            <div className="chart-label">
-              <span>Per Core</span>
-              <span className="chart-unit">{sortedCores.length} cores</span>
-            </div>
-            <div className="cores-hbars">
-              {sortedCores.map(c => (
-                <div className="core-hbar" key={c.core}>
-                  <div className="core-hbar-label">
-                    <span className="core-hbar-num">Core {String(c.core).padStart(2, '0')}</span>
-                    <span className="core-hbar-pct" style={{ color: cpuColor(c.percent) }}>{c.percent}%</span>
-                  </div>
-                  <div className="core-hbar-track">
-                    <div
-                      className="core-hbar-fill"
-                      style={{ width: `${Math.min(c.percent, 100)}%`, background: cpuColor(c.percent) }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-          </div>
-        )}
       </div>
+
+      {/* Per-core horizontal bars */}
+      {sortedCores.length > 0 && (
+        <div className="cores-section" style={{ marginTop: 20 }}>
+          <div className="chart-label">
+            <span>Per Core</span>
+            <span className="chart-unit">{sortedCores.length} cores</span>
+          </div>
+          <div className="cores-hbars">
+            {sortedCores.map(c => (
+              <div className="core-hbar" key={c.core}>
+                <div className="core-hbar-label">
+                  <span className="core-hbar-num">Core {String(c.core).padStart(2, '0')}</span>
+                  <span className="core-hbar-pct" style={{ color: cpuColor(c.percent) }}>{c.percent}%</span>
+                </div>
+                <div className="core-hbar-track">
+                  <div
+                    className="core-hbar-fill"
+                    style={{ width: `${Math.min(c.percent, 100)}%`, background: cpuColor(c.percent) }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Top CPU processes */}
       {topProcs.length > 0 && (

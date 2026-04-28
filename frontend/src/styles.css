@@ -534,6 +534,10 @@ body {
 .cpu-load-val > span:first-child { font-size: 1.7rem; font-weight: 700; font-family: var(--num-font); }
 .cpu-load-sub { font-size: 1rem; color: var(--text-mid); font-weight: 500; font-family: var(--num-font); }
 
+.cpu-charts-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap);
+  margin-bottom: 0;
+}
 .cpu-details-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap);
   margin-bottom: 24px;
@@ -999,6 +1003,7 @@ body {
 
   .settings-panel { width: 100%; max-width: 360px; }
 
+  .cpu-charts-row { grid-template-columns: 1fr; }
   .cpu-detail-layout { grid-template-columns: 1fr; }
   .ram-swap-row { grid-template-columns: 1fr; }
   .sto-grid { grid-template-columns: 1fr; }
