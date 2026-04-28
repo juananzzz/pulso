@@ -97,7 +97,7 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
   const netChipCol = netTotal < 1 ? 'var(--ok)' : netTotal < 20 ? 'var(--warn)' : 'var(--alert)';
 
   return (
-    <div className="ov-simple-hero">
+    <div className="ov-simple-hero ov-simple-hero-2">
       {/* CPU */}
       <div className="ov-simple-card ov-simple-card-wide" onClick={() => onNavigate('cpu')}>
         <div className="ov-simple-card-header"><Cpu size={20} /> CPU <Chip text={cpuChip} color={cpuChipCol} /></div>
@@ -394,21 +394,6 @@ function DetailedView({ current, disks, sysInfo, spark, onNavigate }) {
           )}
         </div>
       </div>
-
-      {/* System info row */}
-      {sysInfo && (
-        <div className="ov-sysinfo">
-          <div className="ov-micro-label" style={{ marginBottom: 6 }}>System</div>
-          <div className="ov-sysinfo-grid">
-            <span>{sysInfo.hostname || '—'}</span>
-            <span>{sysInfo.os || '—'}</span>
-            <span>{sysInfo.kernel || '—'}</span>
-            <span>{sysInfo.cpu_model || '—'}</span>
-            <span>{sysInfo.cpu_threads || '—'} threads</span>
-            <span>{disks.length} disks</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
