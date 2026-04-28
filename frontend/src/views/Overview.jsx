@@ -131,7 +131,7 @@ function SwapCard({ data, onClick }) {
               </div>
             </div>
           </div>
-          <Bar pct={swapPct} color={pctColor} height={6} />
+            <Bar pct={swapPct} color={pctColor} />
         </>
       ) : (
         <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.95rem' }}>
@@ -179,10 +179,16 @@ function DisksCard({ disks, onClick }) {
         <HardDrive size={18} color="var(--text-dim)" />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span className="disk-total-num">{fmt(used)}</span>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
+        <div className="disk-total-stat">
+          <div className="ov-micro-label">USED</div>
+          <span className="disk-total-num">{fmt(used)}</span>
+        </div>
         <span style={{ color: 'var(--text-dim)', fontSize: '1.3rem' }}>/</span>
-        <span className="disk-total-num">{fmt(total)}</span>
+        <div className="disk-total-stat">
+          <div className="ov-micro-label">TOTAL</div>
+          <span className="disk-total-num">{fmt(total)}</span>
+        </div>
       </div>
 
       <Bar pct={diskPct} color={diskColor(diskPct)} />
