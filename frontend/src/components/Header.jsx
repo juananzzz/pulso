@@ -8,7 +8,7 @@ export default function Header({ sysInfo, current, onLogoClick, onSettingsClick 
   return (
     <div className="header">
       <div className="header-left" onClick={onLogoClick}>
-        <div className="logo"><span className="logo-icon">⚡</span>Pulso</div>
+        <div className="logo"><img src="/pulso-icon.png" alt="" style={{ height: 22, width: 'auto', verticalAlign: 'middle' }} /> Pulso</div>
         <div className="header-sub">{subTitle}</div>
       </div>
       <div className="header-right">
