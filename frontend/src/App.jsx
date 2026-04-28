@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ALERT_COLOR_DEFAULT, BUFFER_SIZE, DEMO_DATA } from './constants';
-import { relTime, computeAlerts } from './utils';
+import { relTime, computeAlerts, hexToRgb } from './utils';
 import Header from './components/Header';
 import TabBar from './components/TabBar';
 import SettingsPanel from './components/SettingsPanel';
+import ErrorBoundary from './components/ErrorBoundary';
 import Overview from './views/Overview';
 import CPUDetail from './views/CPUDetail';
 import MemoryDetail from './views/MemoryDetail';
@@ -12,7 +13,7 @@ import NetworkDetail from './views/NetworkDetail';
 import AlertsView from './views/AlertsView';
 
 const ls = k => { try { return localStorage.getItem(k); } catch { return null; } };
-const lss = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+const lss = (k, v) => { try { localStorage.setItem(k, v); } catch { /* noop */ } };
 
 export default function App() {
   const [sysInfo, setSysInfo]   = useState(null);
@@ -52,9 +53,10 @@ export default function App() {
     document.documentElement.setAttribute('data-vstyle',  settings.visualStyle);
     document.documentElement.setAttribute('data-density', settings.density);
     document.documentElement.setAttribute('data-anim',    settings.animations ? 'true' : 'false');
-    document.documentElement.style.setProperty('--alert',        settings.alertColor);
-    document.documentElement.style.setProperty('--alert-bg',     settings.alertColor + '12');
-    document.documentElement.style.setProperty('--alert-border', settings.alertColor + '40');
+    const [r, g, b] = hexToRgb(settings.alertColor);
+    document.documentElement.style.setProperty('--alert',        `rgb(${r},${g},${b})`);
+    document.documentElement.style.setProperty('--alert-bg',     `rgba(${r},${g},${b},0.07)`);
+    document.documentElement.style.setProperty('--alert-border', `rgba(${r},${g},${b},0.25)`);
   }, [settings.theme, settings.density, settings.animations, settings.alertColor, settings.visualStyle]);
 
   const demo = settings.demoScenario !== 'normal' ? DEMO_DATA[settings.demoScenario] : null;
@@ -80,21 +82,22 @@ export default function App() {
 
   const fetchCurrent = useCallback(async () => {
     if (demo) return;
-    try { const r = await fetch('/api/current'); const d = await r.json(); setCurrent(d); pushSpark(d); setLastRefresh(Date.now()); } catch {}
+    try { const r = await fetch('/api/current'); const d = await r.json(); setCurrent(d); pushSpark(d); setLastRefresh(Date.now()); } catch { /* noop */ }
   }, [demo]);
 
   const fetchDisks = useCallback(async () => {
     if (demo?.disks) return;
-    try { const r = await fetch('/api/disks'); setDisks(await r.json()); } catch {}
+    try { const r = await fetch('/api/disks'); setDisks(await r.json()); } catch { /* noop */ }
   }, [demo]);
 
   const fetchCores = useCallback(async () => {
-    try { const r = await fetch('/api/cpu/cores'); setCpuCores(await r.json()); } catch {}
+    try { const r = await fetch('/api/cpu/cores'); setCpuCores(await r.json()); } catch { /* noop */ }
   }, []);
 
   useEffect(() => {
     fetch('/api/system').then(r => r.json()).then(setSysInfo).catch(() => {});
     fetchCurrent(); fetchDisks(); fetchCores();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -103,7 +106,7 @@ export default function App() {
     return () => [t1, t2, t3].forEach(clearInterval);
   }, [fetchCurrent, fetchCores, fetchDisks]);
 
-  const [relTimeStr, setRelTimeStr] = useState('');
+  const [_relTimeStr, setRelTimeStr] = useState('');
   useEffect(() => {
     const t = setInterval(() => setRelTimeStr(relTime(lastRefresh)), 1000);
     return () => clearInterval(t);
@@ -117,21 +120,29 @@ export default function App() {
       <TabBar view={view} onNavigate={setView} alertsCount={alerts.length} alertBadge={settings.alertBadge} />
 
       <div className="main">
-        {view === 'home' && (
-          <Overview
-            current={effCurrent}
-            disks={effDisks}
-            sysInfo={sysInfo}
-            spark={spark}
-            onNavigate={setView}
-            layoutMode={settings.layoutMode}
-          />
-        )}
-        {view === 'cpu'        && <CPUDetail      sysInfo={sysInfo} current={effCurrent} spark={spark} cpuCores={cpuCores} />}
-        {view === 'memory'     && <MemoryDetail   current={effCurrent} spark={spark} />}
-        {view === 'storage'    && <StorageDetail  disks={effDisks} />}
-        {view === 'network'    && <NetworkDetail  current={effCurrent} spark={spark} />}
-        {view === 'alerts'     && <AlertsView alerts={alerts} />}
+        <ErrorBoundary>
+          {!effCurrent && !demo && (
+            <div className="loading-spinner" style={{ textAlign: 'center', padding: '80px 20px', color: 'var(--text-dim)' }}>
+              <div className="spinner" />
+              <div style={{ marginTop: 16, fontSize: '0.85rem' }}>Connecting to Pulso agent...</div>
+            </div>
+          )}
+          {view === 'home' && (
+            <Overview
+              current={effCurrent}
+              disks={effDisks}
+              sysInfo={sysInfo}
+              spark={spark}
+              onNavigate={setView}
+              layoutMode={settings.layoutMode}
+            />
+          )}
+          {view === 'cpu'        && <CPUDetail      sysInfo={sysInfo} current={effCurrent} spark={spark} cpuCores={cpuCores} />}
+          {view === 'memory'     && <MemoryDetail   current={effCurrent} spark={spark} />}
+          {view === 'storage'    && <StorageDetail  disks={effDisks} />}
+          {view === 'network'    && <NetworkDetail  current={effCurrent} spark={spark} />}
+          {view === 'alerts'     && <AlertsView alerts={alerts} />}
+        </ErrorBoundary>
       </div>
 
       <div className="footer">

@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import platform
 import sqlite3
@@ -11,9 +12,14 @@ import psutil
 from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+log = logging.getLogger("pulso")
+
 app = FastAPI()
-DB_PATH = "metrics.db"
-INTERVAL = 10
+DB_PATH = os.environ.get("PULSO_DB", "metrics.db")
+INTERVAL = int(os.environ.get("PULSO_INTERVAL", "10"))
+PORT = int(os.environ.get("PULSO_PORT", "7331"))
+RETENTION_SECONDS = int(os.environ.get("PULSO_RETENTION", "86400"))  # 24h
 
 _lock = threading.Lock()
 _net_prev = None
@@ -21,6 +27,15 @@ _disk_io_prev = None
 _net_rates: Dict[str, float] = {"sent": 0.0, "recv": 0.0}
 _disk_rates: Dict[str, Dict[str, float]] = {}
 _latency_ms: Optional[float] = None
+_cpu_percent: float = 0.0
+_cpu_freq: Optional[float] = None
+_load_avg: tuple = (0.0, 0.0, 0.0)
+_ram: Optional[psutil._pslinux.svirtualmem] = None
+_swap: Optional[psutil._pslinux.sswap] = None
+_disk_pct: float = 0.0
+_temp: Optional[float] = None
+_boot_time: float = 0.0
+_last_cleanup = 0
 
 
 def init_db():
@@ -42,8 +57,8 @@ def cpu_temp() -> Optional[float]:
         for key in ("coretemp", "k10temp", "zenpower", "cpu_thermal", "acpitz"):
             if temps.get(key):
                 return round(max(t.current for t in temps[key]), 1)
-    except Exception:
-        pass
+    except Exception as e:
+        log.warning("cpu_temp failed: %s", e)
     return None
 
 
@@ -62,17 +77,34 @@ def ping_latency() -> Optional[float]:
             for tok in r.stdout.split():
                 if tok.startswith("time="):
                     return round(float(tok[5:]))
-    except Exception:
-        pass
+    except Exception as e:
+        log.warning("ping_latency failed: %s", e)
     return None
+
+
+def cleanup_db():
+    try:
+        cutoff = int(time.time()) - RETENTION_SECONDS
+        with sqlite3.connect(DB_PATH) as c:
+            c.execute("DELETE FROM metrics WHERE ts < ?", (cutoff,))
+            c.execute("PRAGMA optimize")
+        log.info("DB cleanup: removed rows older than %ds", RETENTION_SECONDS)
+    except Exception as e:
+        log.warning("DB cleanup failed: %s", e)
 
 
 def collect():
     global _net_prev, _disk_io_prev, _net_rates, _disk_rates
+    global _cpu_percent, _cpu_freq, _load_avg, _ram, _swap, _disk_pct, _temp, _boot_time, _last_cleanup
 
     cpu = psutil.cpu_percent(interval=1)
     ram = psutil.virtual_memory()
     temp = cpu_temp()
+    freq = psutil.cpu_freq()
+    try:
+        load1, load5, load15 = os.getloadavg()
+    except Exception:
+        load1 = load5 = load15 = 0.0
 
     net = psutil.net_io_counters()
     if _net_prev is not None:
@@ -96,16 +128,24 @@ def collect():
             with _lock:
                 _disk_rates = rates
         _disk_io_prev = io
-    except Exception:
-        pass
+    except Exception as e:
+        log.warning("disk I/O collection failed: %s", e)
 
-    load1 = os.getloadavg()[0] if hasattr(os, "getloadavg") else 0.0
     disk_pct = psutil.disk_usage("/").percent
+    swap = psutil.swap_memory()
 
     with _lock:
         nr = _net_rates.copy()
+        _cpu_percent = round(cpu, 1)
+        _cpu_freq = round(freq.current / 1000, 2) if freq else None
+        _load_avg = (round(load1, 2), round(load5, 2), round(load15, 2))
+        _ram = ram
+        _swap = swap
+        _disk_pct = disk_pct
+        _temp = temp
+        _boot_time = psutil.boot_time()
 
-    swap_used_gb = round(psutil.swap_memory().used / 1e9, 1)
+    swap_used_gb = round(swap.used / 1e9, 1)
     with sqlite3.connect(DB_PATH) as c:
         c.execute(
             "INSERT OR REPLACE INTO metrics VALUES (?,?,?,?,?,?,?,?,?)",
@@ -115,25 +155,30 @@ def collect():
 
 
 def collector():
-    global _latency_ms
+    global _latency_ms, _last_cleanup
     ping_tick = 0
     while True:
         try:
             collect()
-        except Exception:
-            pass
+        except Exception as e:
+            log.warning("collect failed: %s", e)
         ping_tick += 1
         if ping_tick >= 6:
             ping_tick = 0
             lat = ping_latency()
             with _lock:
                 _latency_ms = lat
+        now = int(time.time())
+        if now - _last_cleanup >= 3600:
+            _last_cleanup = now
+            cleanup_db()
         time.sleep(INTERVAL)
 
 
 @app.on_event("startup")
 async def startup():
     init_db()
+    cleanup_db()
     threading.Thread(target=collector, daemon=True).start()
 
 
@@ -150,8 +195,8 @@ def api_system():
                     k, v = line.strip().split("=", 1)
                     d[k] = v.strip('"')
         os_name = f"{d.get('NAME', '')} {d.get('VERSION_ID', '')}".strip()
-    except Exception:
-        pass
+    except Exception as e:
+        log.warning("/api/system os-release read failed: %s", e)
     cpu_model = platform.processor()
     try:
         with open("/proc/cpuinfo") as f:
@@ -159,8 +204,8 @@ def api_system():
                 if "model name" in line:
                     cpu_model = line.split(":", 1)[1].strip()
                     break
-    except Exception:
-        pass
+    except Exception as e:
+        log.warning("/api/system cpuinfo read failed: %s", e)
     return {
         "hostname": hostname,
         "os": os_name,
@@ -173,20 +218,18 @@ def api_system():
 
 @app.get("/api/current")
 def api_current():
-    cpu = psutil.cpu_percent(interval=0.2)
-    freq = psutil.cpu_freq()
-    try:
-        load1, load5, load15 = os.getloadavg()
-    except Exception:
-        load1 = load5 = load15 = 0.0
-    ram = psutil.virtual_memory()
-    swap = psutil.swap_memory()
-    temp = cpu_temp()
-    net_io = psutil.net_io_counters()
     with _lock:
+        cpu = _cpu_percent
+        freq = _cpu_freq
+        load1, load5, load15 = _load_avg
+        ram = _ram
+        swap = _swap
+        temp = _temp
         nr = _net_rates.copy()
         lat = _latency_ms
-    
+        disk_pct = _disk_pct
+        boot_time = _boot_time
+
     top_proc = None
     try:
         procs = []
@@ -200,32 +243,33 @@ def api_current():
         if procs:
             procs.sort(key=lambda x: x['cpu'], reverse=True)
             top_proc = procs[0]
-    except Exception:
-        pass
-    
+    except Exception as e:
+        log.warning("/api/current process scan failed: %s", e)
+
     iface = "eth0"
     try:
         for name, st in sorted(psutil.net_if_stats().items()):
             if st.isup and name not in ("lo",) and not name.startswith(("docker", "veth", "br-", "virbr")):
                 iface = name
                 break
-    except Exception:
-        pass
+    except Exception as e:
+        log.warning("/api/current iface detection failed: %s", e)
 
+    net_io = psutil.net_io_counters()
     return {
-        "cpu_percent": round(cpu, 1),
-        "cpu_freq_ghz": round(freq.current / 1000, 2) if freq else None,
-        "load_1": round(load1, 2),
-        "load_5": round(load5, 2),
-        "load_15": round(load15, 2),
-        "ram_used_gb": round(ram.used / 1e9, 1),
-        "ram_total_gb": int(round(ram.total / 1e9)),
-        "ram_percent": round(ram.percent, 1),
-        "ram_available_gb": round(ram.available / 1e9, 1),
-        "ram_cached_gb": round(getattr(ram, "cached", 0) / 1e9, 1),
-        "ram_buffers_gb": round(getattr(ram, "buffers", 0) / 1e9, 1),
-        "swap_used_gb": round(swap.used / 1e9, 1),
-        "swap_total_gb": int(round(swap.total / 1e9)),
+        "cpu_percent": cpu,
+        "cpu_freq_ghz": freq,
+        "load_1": load1,
+        "load_5": load5,
+        "load_15": load15,
+        "ram_used_gb": round(ram.used / 1e9, 1) if ram else 0,
+        "ram_total_gb": int(round(ram.total / 1e9)) if ram else 0,
+        "ram_percent": round(ram.percent, 1) if ram else 0,
+        "ram_available_gb": round(ram.available / 1e9, 1) if ram else 0,
+        "ram_cached_gb": round(getattr(ram, "cached", 0) / 1e9, 1) if ram else 0,
+        "ram_buffers_gb": round(getattr(ram, "buffers", 0) / 1e9, 1) if ram else 0,
+        "swap_used_gb": round(swap.used / 1e9, 1) if swap else 0,
+        "swap_total_gb": int(round(swap.total / 1e9)) if swap else 0,
         "temp_cpu": temp,
         "net_sent_mbps": nr["sent"],
         "net_recv_mbps": nr["recv"],
@@ -234,8 +278,8 @@ def api_current():
         "net_sent_total_gb": round(net_io.bytes_sent / 1e9, 2),
         "net_recv_total_gb": round(net_io.bytes_recv / 1e9, 2),
         "top_cpu_proc": top_proc,
-        "disk_percent": round(psutil.disk_usage("/").percent, 1),
-        "uptime_seconds": int(time.time() - psutil.boot_time()),
+        "disk_percent": disk_pct,
+        "uptime_seconds": int(time.time() - boot_time) if boot_time else 0,
     }
 
 
@@ -270,8 +314,8 @@ def api_disks():
             )
             if r.returncode == 0:
                 model = r.stdout.strip() or None
-        except Exception:
-            pass
+        except Exception as e:
+            log.warning("lsblk failed for %s: %s", p.device, e)
         smart_ok = None
         disk_temp = None
         try:
@@ -288,8 +332,8 @@ def api_disks():
                         if "Temperature" in attr.get("name", ""):
                             disk_temp = attr.get("value")
                             break
-        except Exception:
-            pass
+        except Exception as e:
+            log.warning("smartctl failed for %s: %s", p.device, e)
         result.append({
             "mountpoint": p.mountpoint,
             "device": p.device,
@@ -396,7 +440,8 @@ def api_docker():
                         try: containers[cid]["mem"] = float(d.get("MemPerc", "0").rstrip("%"))
                         except ValueError: pass
         return {"available": True, "containers": list(containers.values())}
-    except Exception:
+    except Exception as e:
+        log.warning("/api/docker failed: %s", e)
         return {"available": False, "containers": []}
 
 

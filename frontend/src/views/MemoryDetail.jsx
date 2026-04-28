@@ -103,7 +103,7 @@ function SimpleGauge({ pct, used, total, label, status, colorFn, unit, onClick }
 export default function MemoryDetail({ current, spark }) {
   const total = current?.ram_total_gb || 32;
   const used = current?.ram_used_gb != null ? current.ram_used_gb : +(total - (current?.ram_available_gb || 0)).toFixed(1);
-  const available = current?.ram_available_gb || 0;
+  const _available = current?.ram_available_gb || 0;
   const ramPct = current?.ram_percent != null ? Math.round(current.ram_percent) : total > 0 ? Math.round(used / total * 100) : 0;
   const ramStatus = memStatus(ramPct);
 

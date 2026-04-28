@@ -6,7 +6,6 @@ function fmt(gb) {
 }
 
 function stoStatus(disks) {
-  const maxPct = disks.reduce((m, d) => Math.max(m, d.percent), 0);
   const critical = disks.filter(d => d.percent >= 90).length;
   const warn = disks.filter(d => d.percent >= 80 && d.percent < 90).length;
   if (critical > 0) return { label: `Critical · ${critical} disk${critical > 1 ? 's' : ''} at ${'\u2265'}90%`, color: 'var(--alert)' };
@@ -21,8 +20,8 @@ export default function StorageDetail({ disks }) {
 
   const total = useMemo(() => disks.reduce((s, d) => s + d.total_gb, 0), [disks]);
   const used = useMemo(() => disks.reduce((s, d) => s + d.used_gb, 0), [disks]);
-  const free = useMemo(() => disks.reduce((s, d) => s + d.free_gb, 0), [disks]);
-  const pct = total > 0 ? Math.round(used / total * 100) : 0;
+  const _free = useMemo(() => disks.reduce((s, d) => s + d.free_gb, 0), [disks]);
+  const _pct = total > 0 ? Math.round(used / total * 100) : 0;
 
   const status = stoStatus(disks);
 

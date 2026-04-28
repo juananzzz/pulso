@@ -696,18 +696,6 @@ body {
   border-radius: 2px; overflow: hidden;
 }
 .mem-proc-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
-.mem-proc-rank {
-  font-size: 0.7rem; font-weight: 700; color: var(--text-dim);
-  text-align: center; font-variant-numeric: tabular-nums;
-}
-.mem-proc-name { font-size: 0.85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mem-proc-pid { font-size: 0.72rem; color: var(--text-dim); font-family: var(--num-font); }
-.mem-proc-pct { font-size: 0.85rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; text-align: right; }
-.mem-proc-bar-track {
-  grid-column: 1 / -1; height: 3px; background: var(--border);
-  border-radius: 2px; overflow: hidden;
-}
-.mem-proc-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
 
 /* ── STORAGE REDESIGN ── */
 .sto-primary {
@@ -981,3 +969,54 @@ body {
 .net-iface-detail-row { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; }
 .net-meta-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); width: 72px; flex-shrink: 0; }
 .net-meta-val { font-family: var(--num-font); font-variant-numeric: tabular-nums; }
+
+/* ── Loading ── */
+.spinner {
+  width: 32px; height: 32px; margin: 0 auto;
+  border: 3px solid var(--border); border-top-color: var(--text-mid);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+
+  .ov-simple-hero-2 { grid-template-columns: 1fr; }
+  .ov-simple-hero-3,
+  .ov-gauges-row { grid-template-columns: 1fr; gap: 12px; }
+  .ov-hero { grid-template-columns: 1fr; }
+  .ov-bottom { grid-template-columns: 1fr; }
+
+  .tab-bar { gap: 2px; }
+  .tab-button { padding: 6px 10px; font-size: 0.75rem; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .header-info { min-width: 0; }
+  .header-hostname { font-size: 1rem; }
+  .header-sub { font-size: 0.7rem; }
+
+  .settings-panel { width: 100%; max-width: 360px; }
+
+  .cpu-detail-layout { grid-template-columns: 1fr; }
+  .ram-swap-row { grid-template-columns: 1fr; }
+  .sto-grid { grid-template-columns: 1fr; }
+  .sto-disk-meta { flex-wrap: wrap; }
+
+  .net-layout { grid-template-columns: 1fr; }
+  .net-chart-row { flex-direction: column; }
+
+  .chart-modal { width: 95vw; max-height: 90vh; padding: 16px; }
+
+  .ov-simple-card-main { font-size: 2.4rem; }
+  .ov-simple-mid-row { flex-direction: column; gap: 16px; }
+  .ov-detailed-sysinfo.card { display: none; }
+}
+
+@media (max-width: 480px) {
+  .grid-4 { grid-template-columns: 1fr; }
+  .ov-simple-card { padding: 14px; }
+  .ov-simple-card-main { font-size: 2rem; }
+  .ove-card-val { font-size: 2rem; }
+}

@@ -36,4 +36,16 @@ export const DEMO_DATA = {
       { mountpoint: '/mnt/backup', device: '/dev/sdc1', total_gb: 5460, used_gb: 2730, free_gb: 2730, percent: 50.1, model: 'Toshiba N300 6TB', temp: 38, smart_ok: true, read_mbps: 0, write_mbps: 0 },
     ],
   },
+  'docker-issues': {
+    current: {
+      cpu_percent: 34, cpu_freq_ghz: 2.6, load_1: 2.1, load_5: 1.8, load_15: 1.5,
+      ram_used_gb: 28.1, ram_total_gb: 64, ram_percent: 43.9, ram_available_gb: 35.9,
+      ram_cached_gb: 10.2, ram_buffers_gb: 0.8, swap_used_gb: 3.5, swap_total_gb: 8,
+      temp_cpu: 55, net_sent_mbps: 4.1, net_recv_mbps: 6.3, net_iface: 'enp4s0',
+      net_latency_ms: 12, disk_percent: 52, uptime_seconds: 420000,
+    },
+    disks: [
+      { mountpoint: '/', device: '/dev/nvme0n1p1', total_gb: 930, used_gb: 483, free_gb: 447, percent: 52, model: 'Samsung 980 Pro 1TB', temp: 41, smart_ok: true, read_mbps: 2.1, write_mbps: 1.8 },
+    ],
+  },
 };

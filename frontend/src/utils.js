@@ -20,6 +20,18 @@ export const ramColor = pct => pct < 70 ? 'var(--ok)' : pct < 90 ? 'var(--warn)'
 export const swapColor = pct => pct < 40 ? 'var(--ok)' : pct < 70 ? 'var(--warn)' : 'var(--alert)';
 export const tempColor = t => t < 45 ? 'var(--ok)' : t < 55 ? 'var(--warn)' : 'var(--alert)';
 
+export function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  if (h.length === 3) {
+    const [r, g, b] = h.split('').map(x => parseInt(x + x, 16));
+    return [r, g, b];
+  }
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return [isNaN(r) ? 230 : r, isNaN(g) ? 57 : g, isNaN(b) ? 70 : b];
+}
+
 export function computeAlerts(current, disks) {
   const alerts = [];
   if (!current) return alerts;
