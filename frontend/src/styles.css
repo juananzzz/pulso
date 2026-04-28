@@ -294,7 +294,6 @@ body {
 .ov-big-unit { font-size: 1.5rem; color: var(--text-mid); }
 .ov-chip-row { display: flex; gap: 20px; flex-wrap: wrap; margin: 10px 0; }
 .ov-spark-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-.ov-swap-row { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .ov-chart-bottom { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border); }
 .ov-chart-bottom .ov-micro-label { margin-bottom: 6px; }
 .ov-net-line { display: flex; align-items: center; gap: 12px; }
@@ -311,11 +310,6 @@ body {
 .ov-gauge-side { display: flex; flex-direction: column; gap: 2px; }
 .ov-side-num { font-size: 2.2rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }
 .ov-side-unit { font-size: 1rem; color: var(--text-mid); margin-left: 2px; }
-.ov-swap-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-.ov-swap-header { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
-.ov-swap-label { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text); }
-.ov-swap-val { font-size: 1rem; font-weight: 600; font-family: var(--num-font); margin-left: auto; }
-.ov-swap-pct { font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; color: white; line-height: 1.5; }
 .ov-net-wrapper { display: flex; gap: 24px; margin: 12px 0; }
 .ov-net-block { flex: 1; }
 .ov-stat-big { font-size: 2.8rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }

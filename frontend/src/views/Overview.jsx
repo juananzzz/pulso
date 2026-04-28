@@ -80,9 +80,6 @@ function RAMCard({ data, onClick }) {
   const used    = total > 0 ? +(total - avail).toFixed(1) : (data?.ram_used_gb || 0);
   const pct     = data?.ram_percent != null ? Math.round(data.ram_percent) : null;
   const pctColor = pct != null ? ramColor(pct) : 'var(--text)';
-  const swapUsed  = data?.swap_used_gb  || 0;
-  const swapTotal = data?.swap_total_gb || 0;
-  const swapPct   = swapTotal > 0 ? Math.round(swapUsed / swapTotal * 100) : 0;
 
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
@@ -104,19 +101,45 @@ function RAMCard({ data, onClick }) {
         </div>
       </div>
       <Bar pct={pct} color={pctColor} />
+    </div>
+  );
+}
 
-      <div className="ov-swap-section">
-        <div className="ov-swap-header">
-          <span className="ov-swap-label">SWAP</span>
-          <span className="ov-swap-val" style={{ color: swapColor(swapPct) }}>
-            {swapUsed.toFixed(1)} / {swapTotal} GB
-          </span>
-          {swapPct > 0 && (
-            <span className="ov-swap-pct" style={{ background: swapColor(swapPct) }}>{swapPct}%</span>
-          )}
-        </div>
-        <Bar pct={swapPct} color={swapColor(swapPct)} height={6} />
+// ── SWAP ─────────────────────────────────────────────────────────
+function SwapCard({ data, onClick }) {
+  const swapUsed  = data?.swap_used_gb  || 0;
+  const swapTotal = data?.swap_total_gb || 0;
+  const swapPct   = swapTotal > 0 ? Math.round(swapUsed / swapTotal * 100) : 0;
+  const pctColor  = swapColor(swapPct);
+
+  return (
+    <div className="card clickable ov-main-card" onClick={onClick}>
+      <div className="ov-main-header">
+        <CardTitle text="SWAP" />
+        <span className="ov-meta">{swapTotal || '—'} GB total</span>
       </div>
+      {swapTotal > 0 ? (
+        <>
+          <div className="ov-gauge-row">
+            <Gauge pct={swapPct} color={pctColor} size={110} stroke={8} />
+            <div className="ov-gauge-side">
+              <div>
+                <div className="ov-micro-label">EN USO</div>
+                <span className="ov-side-num" style={{ color: pctColor }}>{swapUsed.toFixed(1)}<span className="ov-side-unit">GB</span></span>
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <div className="ov-micro-label">DE</div>
+                <span className="ov-side-num">{swapTotal}<span className="ov-side-unit">GB</span></span>
+              </div>
+            </div>
+          </div>
+          <Bar pct={swapPct} color={pctColor} height={6} />
+        </>
+      ) : (
+        <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.95rem' }}>
+          No hay swap configurado
+        </div>
+      )}
     </div>
   );
 }
@@ -221,11 +244,12 @@ export default function Overview({ current, disks, sysInfo, onNavigate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--gap) * 1.5)' }}>
       <div className="overview-grid-3" style={{ alignItems: 'stretch' }}>
-        <CPUCard     data={current} cpuModel={sysInfo?.cpu_model} onClick={() => onNavigate('cpu')} />
-        <RAMCard     data={current} onClick={() => onNavigate('memory')} />
-        <NetworkCard data={current} onClick={() => onNavigate('network')} />
+        <CPUCard  data={current} cpuModel={sysInfo?.cpu_model} onClick={() => onNavigate('cpu')} />
+        <RAMCard  data={current}                              onClick={() => onNavigate('memory')} />
+        <SwapCard data={current}                              onClick={() => onNavigate('memory')} />
       </div>
-      <DisksCard disks={disks} onClick={() => onNavigate('storage')} />
+      <DisksCard   disks={disks}   onClick={() => onNavigate('storage')} />
+      <NetworkCard data={current}  onClick={() => onNavigate('network')} />
     </div>
   );
 }
