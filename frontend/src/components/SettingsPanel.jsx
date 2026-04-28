@@ -37,6 +37,7 @@ export default function SettingsPanel({ settings, onChange, onClose, hostname })
               <span className="settings-row-label">Theme</span>
               <div className="seg-control">
                 <button className={`seg-btn${theme === 'light' ? ' active' : ''}`} onClick={() => onChange('theme', 'light')}>Light</button>
+                <button className={`seg-btn${theme === 'dim' ? ' active' : ''}`} onClick={() => onChange('theme', 'dim')}>Dim</button>
                 <button className={`seg-btn${theme === 'dark' ? ' active' : ''}`} onClick={() => onChange('theme', 'dark')}>Dark</button>
               </div>
             </div>

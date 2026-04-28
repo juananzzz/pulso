@@ -29,6 +29,20 @@
   --distrib-libre: var(--border);
   --distrib-arc: var(--text);
 }
+/* ── Minimal theme (dim) ── */
+[data-theme="dim"] {
+  --bg: #1a1d23;
+  --card-bg: #22262e;
+  --text: #d4d7db;
+  --text-dim: #636e7b;
+  --text-mid: #9098a3;
+  --border: rgba(255,255,255,0.06);
+  --border-strong: rgba(255,255,255,0.11);
+  --alert-bg: rgba(230,57,70,0.1);
+  --alert-border: rgba(230,57,70,0.3);
+  --warn: #eab308;
+  --shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
 /* ── Minimal theme (dark) ── */
 [data-theme="dark"] {
   --bg: #0c0c0c;
