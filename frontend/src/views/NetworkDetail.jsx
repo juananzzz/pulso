@@ -1,31 +1,201 @@
+import { useMemo } from 'react';
 import AreaChart from '../charts/AreaChart';
 
+function netStatus(recv, sent) {
+  const total = (recv || 0) + (sent || 0);
+  if (total < 1) return { label: 'Tráfico bajo', color: 'var(--ok)' };
+  if (total < 20) return { label: 'Tráfico moderado', color: 'var(--warn)' };
+  return { label: 'Tráfico elevado', color: 'var(--alert)' };
+}
+
 export default function NetworkDetail({ current, spark }) {
+  const recv = current?.net_recv_mbps;
+  const sent = current?.net_sent_mbps;
+  const latency = current?.net_latency_ms;
+  const iface = current?.net_iface;
+  const totalRecv = current?.net_recv_total_gb;
+  const totalSent = current?.net_sent_total_gb;
+  const status = netStatus(recv, sent);
+
+  const maxVal = useMemo(() => {
+    const m = Math.max(100, ...(spark?.recv || []), ...(spark?.sent || []));
+    return Math.ceil(m / 10) * 10 || 100;
+  }, [spark]);
+
+  const recvData = useMemo(() => (spark?.recv || []).map(v => ({ v })), [spark]);
+  const sentData = useMemo(() => (spark?.sent || []).map(v => ({ v })), [spark]);
+
+  const peakRecv = useMemo(() => {
+    if (!spark?.recv) return [];
+    return spark.recv.reduce((acc, v, i) => {
+      if (v >= maxVal * 0.9) acc.push(i);
+      return acc;
+    }, []);
+  }, [spark, maxVal]);
+
   return (
     <div className="detail">
-      <div className="detail-title">Network</div>
-      <div className="detail-sub">{current?.net_iface}</div>
-      <div className="stat-boxes">
-        <div className="stat-box"><div className="stat-box-label">Download</div><div className="stat-box-val">{current?.net_recv_mbps ?? '—'}<span className="stat-box-unit"> Mb/s</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Upload</div><div className="stat-box-val">{current?.net_sent_mbps ?? '—'}<span className="stat-box-unit"> Mb/s</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Latency</div><div className="stat-box-val">{current?.net_latency_ms ?? '—'}<span className="stat-box-unit"> ms</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Interface</div><div className="stat-box-val" style={{ fontSize: '1rem', paddingTop: '6px' }}>{current?.net_iface ?? '—'}</div></div>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--gap)', marginTop: '-12px' }}>
-        <div className="stat-box"><div className="stat-box-label">Total Recv</div><div className="stat-box-val" style={{ fontSize: '1.3rem' }}>{current?.net_recv_total_gb?.toFixed(1) ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Total Sent</div><div className="stat-box-val" style={{ fontSize: '1.3rem' }}>{current?.net_sent_total_gb?.toFixed(1) ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--gap)' }}>
-        <div className="chart-section">
-          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Download <span className="chart-unit">Mb/s</span></div>
-          <div className="chart-wrap" style={{ padding: '6px 8px' }}>
-            <AreaChart data={spark?.recv?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.recv || [0]))} height={160} color="var(--chart-net-recv)" />
+      {/* Level 1: Primary status */}
+      <div className="net-primary">
+        <div className="net-primary-left">
+          <div className="detail-title" style={{ marginBottom: 0 }}>Network</div>
+          <div className="detail-sub" style={{ marginBottom: 0 }}>
+            {iface || '—'} &middot; {totalRecv != null ? `${totalRecv.toFixed(1)} GB recv` : ''}{totalSent != null ? ` · ${totalSent.toFixed(1)} GB sent` : ''}
+          </div>
+          <div className="net-status-row">
+            <span className="net-status-indicator" style={{ background: status.color }} />
+            <span className="net-status-text" style={{ color: status.color }}>{status.label}</span>
           </div>
         </div>
+        <div className="net-primary-right">
+          <div className="net-speeds">
+            <div className="net-speed-card net-speed-down">
+              <div className="net-speed-label">Download</div>
+              <div className="net-speed-val">{recv ?? '—'}<span className="net-speed-unit">Mb/s</span></div>
+            </div>
+            <div className="net-speed-card net-speed-up">
+              <div className="net-speed-label">Upload</div>
+              <div className="net-speed-val">{sent ?? '—'}<span className="net-speed-unit">Mb/s</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Level 2: Secondary metrics */}
+      <div className="net-secondary">
+        <div className="net-metric">
+          <div className="net-metric-label">Latency</div>
+          <div className="net-metric-val">{latency ?? '—'}<span className="net-metric-unit">ms</span></div>
+        </div>
+        <div className="net-metric">
+          <div className="net-metric-label">Interface</div>
+          <div className="net-metric-val" style={{ fontSize: '1.2rem' }}>{iface || '—'}</div>
+        </div>
+        <div className="net-metric" title="Total data received since boot">
+          <div className="net-metric-label">Total Received</div>
+          <div className="net-metric-val">{totalRecv?.toFixed(1) ?? '—'}<span className="net-metric-unit">GB</span></div>
+        </div>
+        <div className="net-metric" title="Total data sent since boot">
+          <div className="net-metric-label">Total Sent</div>
+          <div className="net-metric-val">{totalSent?.toFixed(1) ?? '—'}<span className="net-metric-unit">GB</span></div>
+        </div>
+      </div>
+
+      {/* Level 3: Charts */}
+      <div className="net-details-grid">
+        {/* Dual chart */}
         <div className="chart-section">
-          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Upload <span className="chart-unit">Mb/s</span></div>
-          <div className="chart-wrap" style={{ padding: '6px 8px' }}>
-            <AreaChart data={spark?.sent?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.sent || [0]))} height={160} color="var(--chart-net-sent)" />
+          <div className="chart-label">
+            <span>Throughput <span className="chart-unit">Mb/s</span></span>
+            <span className="chart-time-label">Últimos 90s</span>
+          </div>
+          <div className="chart-wrap">
+            <svg viewBox="0 0 800 200" style={{ width: '100%', height: 'auto', display: 'block' }}>
+              {/* Grid lines */}
+              {[0, 0.25, 0.5, 0.75, 1].map(r => {
+                const y = 8 + 164 - r * 164;
+                const label = Math.round(maxVal * r);
+                return (
+                  <g key={r}>
+                    <line x1={38} y1={y} x2={792} y2={y} stroke="var(--border)" strokeWidth={1} />
+                    <text x={34} y={y + 4} textAnchor="end" fontSize={8} fill="var(--text-dim)">{label}</text>
+                  </g>
+                );
+              })}
+              {/* Reference line at 90% */}
+              {(() => {
+                const y90 = 8 + 164 - 0.9 * 164;
+                return (
+                  <g>
+                    <line x1={38} y1={y90} x2={792} y2={y90} stroke="var(--alert)" strokeWidth={1} strokeDasharray="4 3" opacity={0.4} />
+                    <rect x={758} y={y90 - 9} width={34} height={9} rx={3} fill="var(--alert)" opacity={0.8} />
+                    <text x={792} y={y90 - 2} textAnchor="end" fontSize={7} fill="#fff" fontWeight={600}>{Math.round(maxVal * 0.9)}</text>
+                  </g>
+                );
+              })()}
+              {/* Download line */}
+              {recvData.length > 1 && (() => {
+                const pts = recvData.map((d, i) => ({
+                  x: 38 + (i / (recvData.length - 1)) * 754,
+                  y: 8 + 164 - Math.min(d.v, maxVal) / maxVal * 164,
+                }));
+                const d = `M ${pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')}`;
+                const area = `${d} L ${pts[pts.length - 1].x.toFixed(1)},${8 + 164} L ${pts[0].x.toFixed(1)},${8 + 164} Z`;
+                return (
+                  <>
+                    <path d={area} fill="var(--chart-net-recv)" fillOpacity={0.1} />
+                    <path d={d} fill="none" stroke="var(--chart-net-recv)" strokeWidth={2} strokeLinejoin="round" />
+                  </>
+                );
+              })()}
+              {/* Upload line */}
+              {sentData.length > 1 && (() => {
+                const pts = sentData.map((d, i) => ({
+                  x: 38 + (i / (sentData.length - 1)) * 754,
+                  y: 8 + 164 - Math.min(d.v, maxVal) / maxVal * 164,
+                }));
+                const d = `M ${pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')}`;
+                return (
+                  <path d={d} fill="none" stroke="var(--chart-net-sent)" strokeWidth={2} strokeLinejoin="round" />
+                );
+              })()}
+              {/* Peak markers for download */}
+              {peakRecv.map(i => {
+                if (i < 0 || i >= recvData.length) return null;
+                const x = 38 + (i / (recvData.length - 1)) * 754;
+                const y = 8 + 164 - Math.min(recvData[i].v, maxVal) / maxVal * 164;
+                return <circle key={i} cx={x} cy={y} r={3.5} fill="var(--chart-net-recv)" stroke="var(--card-bg)" strokeWidth={1.5} />;
+              })}
+              {/* X-axis labels */}
+              <text x={38} y={192} fontSize={8} fill="var(--text-dim)">now</text>
+              <text x={38 + 754} y={192} textAnchor="end" fontSize={8} fill="var(--text-dim)">-90s</text>
+            </svg>
+          </div>
+          <div className="net-legend">
+            <span className="net-legend-item">
+              <span className="net-legend-line" style={{ background: 'var(--chart-net-recv)' }} />
+              Download
+            </span>
+            <span className="net-legend-item">
+              <span className="net-legend-line" style={{ background: 'var(--chart-net-sent)' }} />
+              Upload
+            </span>
+          </div>
+        </div>
+
+        {/* Interface info */}
+        <div className="chart-section">
+          <div className="chart-label">
+            <span>Interfaces</span>
+          </div>
+          <div className="net-iface-card">
+            <div className="net-iface-row">
+              <div className="net-iface-dot" style={{ background: 'var(--ok)' }} />
+              <div className="net-iface-name">{iface || '—'}</div>
+              <div className="net-iface-status" style={{ color: 'var(--ok)' }}>Active</div>
+            </div>
+            <div className="net-iface-detail">
+              <div className="net-iface-detail-row">
+                <span className="net-meta-label">Download</span>
+                <span className="net-meta-val" style={{ color: 'var(--chart-net-recv)' }}>↓ {recv ?? '—'} Mb/s</span>
+              </div>
+              <div className="net-iface-detail-row">
+                <span className="net-meta-label">Upload</span>
+                <span className="net-meta-val" style={{ color: 'var(--chart-net-sent)' }}>↑ {sent ?? '—'} Mb/s</span>
+              </div>
+              <div className="net-iface-detail-row">
+                <span className="net-meta-label">Latency</span>
+                <span className="net-meta-val">{latency ?? '—'} ms</span>
+              </div>
+              <div className="net-iface-detail-row">
+                <span className="net-meta-label">Total DL</span>
+                <span className="net-meta-val">{totalRecv?.toFixed(1) ?? '—'} GB</span>
+              </div>
+              <div className="net-iface-detail-row">
+                <span className="net-meta-label">Total UL</span>
+                <span className="net-meta-val">{totalSent?.toFixed(1) ?? '—'} GB</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
