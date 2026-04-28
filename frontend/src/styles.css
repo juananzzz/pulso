@@ -366,14 +366,14 @@ body {
 .ov-side-unit { font-size: 1rem; color: var(--text-mid); margin-left: 2px; }
 .ov-net-wrapper { display: flex; gap: 24px; margin: 12px 0; }
 .ov-net-block { flex: 1; }
-.ov-stat-big { font-size: 2.8rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }
+.ov-stat-big { font-size: 2.2rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }
 .ov-stat-unit { font-size: 0.82rem; color: var(--text-mid); margin-left: 2px; }
 .ov-lat-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .ov-lat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--num-font); }
 .ov-cpu-model { font-size: 0.78rem; color: var(--text-dim); text-align: right; }
 .disk-total-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
 .disk-total-stat { display: flex; flex-direction: column; }
-.disk-total-num { font-size: 2.4rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }
+.disk-total-num { font-size: 2.2rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }
 .disk-total-divider { font-size: 2rem; color: var(--text-dim); margin: 0 4px; }
 .disk-total-pct { font-size: 1.2rem; font-weight: 700; font-family: var(--num-font); margin-left: auto; }
 .disk-total-io { display: flex; gap: 16px; margin: 2px 0 8px; }
