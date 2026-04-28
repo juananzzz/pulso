@@ -295,6 +295,8 @@ body {
 .ov-chip-row { display: flex; gap: 20px; flex-wrap: wrap; margin: 10px 0; }
 .ov-spark-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
 .ov-swap-row { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ov-chart-bottom { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border); }
+.ov-chart-bottom .ov-micro-label { margin-bottom: 6px; }
 .ov-net-line { display: flex; align-items: center; gap: 12px; }
 .ov-net-label-col { flex-shrink: 0; width: 100px; }
 .ov-net-num { font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; font-family: var(--num-font); line-height: 1; }
