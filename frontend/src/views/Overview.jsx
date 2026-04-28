@@ -271,7 +271,7 @@ function DisksCard({ disks, onClick }) {
 }
 
 // ── Main Overview ──
-export default function Overview({ current, disks, sysInfo, onNavigate }) {
+export default function Overview({ current, disks, sysInfo, spark, onNavigate }) {
   const diskTotal = disks.reduce((s, d) => s + d.total_gb, 0);
   const diskUsed = disks.reduce((s, d) => s + d.used_gb, 0);
   const diskPct = diskTotal > 0 ? Math.round(diskUsed / diskTotal * 100) : 0;

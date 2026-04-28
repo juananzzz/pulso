@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { cpuColor } from '../utils';
 
 function netStatus(recv, sent) {
   const total = (recv || 0) + (sent || 0);

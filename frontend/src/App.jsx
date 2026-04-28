@@ -120,6 +120,7 @@ export default function App() {
             current={effCurrent}
             disks={effDisks}
             sysInfo={sysInfo}
+            spark={spark}
             onNavigate={setView}
           />
         )}
