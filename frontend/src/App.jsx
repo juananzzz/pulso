@@ -10,7 +10,6 @@ import CPUDetail from './views/CPUDetail';
 import MemoryDetail from './views/MemoryDetail';
 import StorageDetail from './views/StorageDetail';
 import NetworkDetail from './views/NetworkDetail';
-import DockerDetail from './views/DockerDetail';
 import ProcessesDetail from './views/ProcessesDetail';
 
 const ls = k => { try { return localStorage.getItem(k); } catch { return null; } };
@@ -129,7 +128,6 @@ export default function App() {
         {view === 'memory'     && <MemoryDetail   current={effCurrent} spark={spark} />}
         {view === 'storage'    && <StorageDetail  disks={effDisks} />}
         {view === 'network'    && <NetworkDetail  current={effCurrent} spark={spark} />}
-        {view === 'docker'     && <DockerDetail />}
         {view === 'processes'  && <ProcessesDetail />}
       </div>
 
