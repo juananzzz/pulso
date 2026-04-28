@@ -103,60 +103,14 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         <div className="stat-box"><div className="stat-box-label">Load Avg</div><div className="stat-box-val" style={{ fontSize: '1rem', paddingTop: '6px' }}>{current?.load_1} · {current?.load_5} · {current?.load_15}</div></div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--gap)' }}>
-        <div className="chart-section">
-          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>USAGE</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
-            <span style={{ fontSize: '1.6rem', fontWeight: 700, color: cpuColor(current?.cpu_percent), lineHeight: 1 }}>{current?.cpu_percent ?? 0}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>%</span></span>
-            <span style={{ fontSize: '1rem', color: 'var(--text-dim)' }}>{current?.cpu_percent ?? 0}% used</span>
-          </div>
-          <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 4, background: 'var(--border)' }}>
-            <div style={{ width: `${Math.min(current?.cpu_percent ?? 0, 100)}%`, height: '100%', background: cpuColor(current?.cpu_percent), borderRadius: 4, transition: 'width 0.3s' }} />
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 4, fontSize: '0.82rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: cpuColor(current?.cpu_percent), display: 'inline-block' }} />
-              <span style={{ color: 'var(--text-dim)' }}>Used</span>
-              <span style={{ fontWeight: 600 }}>{current?.cpu_percent ?? 0}%</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--border)', display: 'inline-block' }} />
-              <span style={{ color: 'var(--text-dim)' }}>Free</span>
-              <span style={{ fontWeight: 600 }}>{100 - (current?.cpu_percent ?? 0)}%</span>
-            </div>
-          </div>
-          <div className="chart-wrap" style={{ padding: '6px 8px', cursor: 'pointer' }} onClick={() => openChart('usage')}>
-            <AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-cpu)" />
-          </div>
-        </div>
+      <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('usage')}>
+        <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Usage <span className="chart-unit">%</span></div>
+        <div className="chart-wrap" style={{ padding: '6px 8px' }}><AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={120} color="var(--chart-cpu)" /></div>
+      </div>
 
-        <div className="chart-section">
-          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>TEMP</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
-            <span style={{ fontSize: '1.6rem', fontWeight: 700, color: tempColor(current?.temp_cpu), lineHeight: 1 }}>{current?.temp_cpu ?? '—'}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>°C</span></span>
-            <span style={{ fontSize: '1rem', color: 'var(--text-dim)' }}>{current?.temp_cpu != null ? `${current.temp_cpu}°C` : '—'}</span>
-          </div>
-          <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 4, background: 'var(--border)' }}>
-            <div style={{ width: `${Math.min((current?.temp_cpu ?? 0) / 100 * 100, 100)}%`, height: '100%', background: tempColor(current?.temp_cpu), borderRadius: 4, transition: 'width 0.3s' }} />
-          </div>
-          {current?.temp_cpu != null && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 4, fontSize: '0.82rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: tempColor(current.temp_cpu), display: 'inline-block' }} />
-                <span style={{ color: 'var(--text-dim)' }}>Current</span>
-                <span style={{ fontWeight: 600 }}>{current.temp_cpu}°C</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--text-dim)', display: 'inline-block' }} />
-                <span style={{ color: 'var(--text-dim)' }}>Max</span>
-                <span style={{ fontWeight: 600 }}>100°C</span>
-              </div>
-            </div>
-          )}
-          <div className="chart-wrap" style={{ padding: '6px 8px', cursor: 'pointer' }} onClick={() => openChart('temp')}>
-            <AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-temp)" />
-          </div>
-        </div>
+      <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('temp')}>
+        <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Temperature <span className="chart-unit">°C</span></div>
+        <div className="chart-wrap" style={{ padding: '6px 8px' }}><AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={120} color="var(--chart-temp)" /></div>
       </div>
 
       {cpuCores.length > 0 && (
