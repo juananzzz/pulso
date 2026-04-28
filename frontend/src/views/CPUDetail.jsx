@@ -130,10 +130,6 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
     }
   }, [expandedChart, fetchHistory]);
 
-  const maxCorePct = sortedCores.length > 1 ? sortedCores[0].percent : 0;
-  const minCorePct = sortedCores.length > 1 ? sortedCores[sortedCores.length - 1].percent : 0;
-  const imbalance = maxCorePct - minCorePct;
-
   return (
     <div className="detail">
       {/* Level 1: Primary status */}
@@ -231,11 +227,7 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
                 </div>
               ))}
             </div>
-            {imbalance > 30 && (
-              <div className="cpu-imbalance-note">
-                Desequilibrio detectado: core {sortedCores[0].core} al {maxCorePct}% vs core {sortedCores[sortedCores.length - 1].core} al {minCorePct}%
-              </div>
-            )}
+
           </div>
         )}
       </div>

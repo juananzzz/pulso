@@ -557,12 +557,6 @@ body {
   height: 100%; border-radius: 3px; transition: width 0.4s ease;
 }
 
-.cpu-imbalance-note {
-  margin-top: 10px; padding: 8px 12px;
-  background: var(--alert-bg); border: 1px solid var(--alert-border);
-  border-radius: 6px; font-size: 0.75rem; color: var(--alert);
-}
-
 /* Top CPU processes */
 .cpu-procs-section { margin-bottom: 24px; }
 .cpu-procs-grid { display: flex; flex-direction: column; gap: 4px; }
