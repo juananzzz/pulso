@@ -55,7 +55,7 @@ function SimpleView({ current, disks, onNavigate }) {
         <Bar pct={diskPct} color={diskColor(diskPct)} height={12} />
         <div className="ov-simple-card-footer">{fmt(diskUsed)} / {fmt(diskTotal)}</div>
       </div>
-      <div className="ov-simple-card">
+      <div className="ov-simple-card" onClick={() => onNavigate('network')}>
         <div className="ov-simple-card-header"><Activity size={20} /> Network <Chip text={netTotal < 1 ? 'Low' : netTotal < 20 ? 'Moderate' : 'High'} color={netTotal < 1 ? 'var(--ok)' : netTotal < 20 ? 'var(--warn)' : 'var(--alert)'} big /></div>
         <div className="ov-simple-card-main" style={{ color: netTotal < 1 ? 'var(--ok)' : netTotal < 20 ? 'var(--warn)' : 'var(--alert)' }}>{netTotal.toFixed(1)}<span className="ov-simple-unit">Mb/s</span></div>
         <div className="ov-simple-net-detail"><span>↓ {current?.net_recv_mbps?.toFixed(1) ?? '—'}</span><span>↑ {current?.net_sent_mbps?.toFixed(1) ?? '—'}</span></div>
@@ -163,7 +163,7 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
       </div>
 
       {/* Network */}
-      <div className="ov-simple-card ov-simple-card-wide">
+      <div className="ov-simple-card ov-simple-card-wide" onClick={() => onNavigate('network')}>
         <div className="ov-simple-card-header"><Network size={20} /> Network <Chip text={netChip} color={netChipCol} big /></div>
         <div className="ov-simple-mid-row">
           <div>
