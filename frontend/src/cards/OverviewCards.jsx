@@ -37,7 +37,6 @@ export function MemoryCard({ data, spark, onClick }) {
     <div className="card wide clickable" onClick={onClick}>
       <div className="card-header">
         <span className="card-label">Memory</span>
-        <span className="card-meta">{data.ram_total_gb} GB total</span>
       </div>
       <div className="card-value-row">
         <span className="card-num" style={warn ? { color: 'var(--alert)' } : {}}>{data.ram_used_gb}<span className="card-num-unit">/ {data.ram_total_gb} GB</span></span>

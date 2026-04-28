@@ -85,7 +85,6 @@ function RAMCard({ data, onClick }) {
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
         <CardTitle text="RAM" />
-        <span className="ov-meta">{total} GB total</span>
       </div>
       <div className="ov-gauge-row">
         <Gauge pct={pct} color={pctColor} size={110} stroke={8} />
@@ -116,7 +115,6 @@ function SwapCard({ data, onClick }) {
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
         <CardTitle text="SWAP" />
-        <span className="ov-meta">{swapTotal || '—'} GB total</span>
       </div>
       {swapTotal > 0 ? (
         <>
