@@ -1,19 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
-import AreaChart from '../charts/AreaChart';
-import { ramColor, swapColor } from '../utils';
+import { useState, useEffect } from 'react';
+import { ramColor } from '../utils';
 
 function memStatus(pct) {
   if (pct == null) return { label: 'No data', color: 'var(--text-dim)' };
   if (pct < 70) return { label: 'Stable memory', color: 'var(--ok)' };
   if (pct < 90) return { label: 'High memory pressure', color: 'var(--warn)' };
   return { label: 'Critical pressure', color: 'var(--alert)' };
-}
-
-function swapStatus(pct) {
-  if (pct == null || pct === 0) return { label: 'No usage', color: 'var(--text-dim)' };
-  if (pct < 40) return { label: 'Low usage', color: 'var(--ok)' };
-  if (pct < 70) return { label: 'Moderate usage', color: 'var(--warn)' };
-  return { label: 'Intensive usage', color: 'var(--alert)' };
 }
 
 export default function MemoryDetail({ current, spark }) {
@@ -24,17 +16,10 @@ export default function MemoryDetail({ current, spark }) {
   const buffers = current?.ram_buffers_gb || 0;
   const ramPct = current?.ram_percent != null ? Math.round(current.ram_percent) : total > 0 ? Math.round(used / total * 100) : 0;
 
-  const swapUsed = current?.swap_used_gb || 0;
   const swapTotal = current?.swap_total_gb || 0;
-  const swapPct = swapTotal > 0 ? Math.round(swapUsed / swapTotal * 100) : 0;
-
   const freeMem = Math.max(0, +(total - used - cached - buffers).toFixed(1));
 
   const status = memStatus(ramPct);
-  const swapStat = swapStatus(swapPct);
-
-  const ramChartData = useMemo(() => (spark?.ramGb || []).map(v => ({ v })), [spark]);
-  const swapChartData = useMemo(() => (spark?.swapGb || []).map(v => ({ v })), [spark]);
 
   const [topProcs, setTopProcs] = useState([]);
   useEffect(() => {
@@ -43,24 +28,6 @@ export default function MemoryDetail({ current, spark }) {
       .then(d => setTopProcs((d.top_mem || []).slice(0, 5)))
       .catch(() => setTopProcs([]));
   }, []);
-
-  const refLines = useMemo(() => {
-    const pct70 = +(total * 0.7).toFixed(1);
-    const pct90 = +(total * 0.9).toFixed(1);
-    return [
-      { value: pct70, label: `70% (${pct70} GB)`, color: 'var(--warn)' },
-      { value: pct90, label: `90% (${pct90} GB)`, color: 'var(--alert)' },
-    ];
-  }, [total]);
-
-  const peakIndices = useMemo(() => {
-    if (!spark?.ramGb) return [];
-    const pct90 = total * 0.9;
-    return spark.ramGb.reduce((acc, v, i) => {
-      if (v >= pct90) acc.push(i);
-      return acc;
-    }, []);
-  }, [spark, total]);
 
   const segs = [
     { key: 'used', label: 'Used', value: used, pct: total > 0 ? used / total * 100 : 0, color: 'var(--chart-ram)' },
@@ -117,62 +84,7 @@ export default function MemoryDetail({ current, spark }) {
         </div>
       </div>
 
-      {/* Level 3: SWAP — compact section */}
-      <div className="mem-swap-compact">
-        <div className="chart-label">
-          <span>SWAP</span>
-          <span className="mem-swap-status" style={{ color: swapStat.color }}>{swapStat.label}</span>
-        </div>
-        <div className="chart-wrap">
-          <div className="mem-swap-compact-grid">
-            <div className="mem-swap-compact-left">
-              <div className="mem-swap-compact-pct" style={{ color: swapColor(swapPct) }}>
-                {swapPct}<span className="mem-metric-unit">%</span>
-              </div>
-              <div className="mem-swap-compact-detail">
-                <span>{swapUsed.toFixed(1)} / {swapTotal} GB</span>
-              </div>
-              <div className="mem-swap-compact-bar">
-                <div className="mem-swap-compact-fill" style={{ width: `${Math.min(swapPct, 100)}%`, background: swapColor(swapPct) }} />
-              </div>
-            </div>
-            <div className="mem-swap-compact-chart">
-              <AreaChart
-                data={swapChartData}
-                accessor={d => d.v}
-                yMax={swapTotal || 8}
-                yMin={0}
-                yUnit=" GB"
-                height={80}
-                color="var(--chart-swap)"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Level 4: Usage chart */}
-      <div className="chart-section">
-        <div className="chart-label">
-          <span>Usage <span className="chart-unit">GB</span></span>
-          <span className="chart-time-label">Last 90s</span>
-        </div>
-        <div className="chart-wrap">
-          <AreaChart
-            data={ramChartData}
-            accessor={d => d.v}
-            yMax={total}
-            yMin={0}
-            yUnit=" GB"
-            height={140}
-            color="var(--chart-ram)"
-            refLines={refLines}
-            highlightIndices={peakIndices}
-          />
-        </div>
-      </div>
-
-      {/* Level 5: Top processes by memory */}
+      {/* Level 3: Top processes by memory */}
       {topProcs.length > 0 && (
         <div className="mem-procs-section">
           <div className="chart-label">Top Processes by Memory</div>
