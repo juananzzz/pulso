@@ -45,7 +45,7 @@ export default function SparkLine({ data = [], color = 'var(--text)', height = 4
         onMouseMove={fill ? handleMove : undefined}
         onMouseLeave={fill ? () => setTip(null) : undefined}>
         <line x1={0} y1={H - 1} x2={W} y2={H - 1} stroke="var(--border)" strokeWidth={1} />
-        <path d={area} fill={color} fillOpacity={0.18} />
+        <path d={area} fill={color} fillOpacity={0.12} />
         <path d={line} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
         {tip && (
           <circle cx={tip.frac * W} cy={H - (tip.v / max) * (H - 4) - 2} r={4} fill={color} stroke="var(--card-bg)" strokeWidth={2} />

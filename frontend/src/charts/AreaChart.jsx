@@ -35,7 +35,7 @@ export default function AreaChart({
         );
       })}
       <path d={area} fill={color} fillOpacity={0.12} />
-      <path d={line} fill="none" stroke={color} strokeWidth={1.5} strokeLinejoin="round" />
+      <path d={line} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" />
     </svg>
   );
 }
