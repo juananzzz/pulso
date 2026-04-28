@@ -2,13 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import AreaChart from '../charts/AreaChart';
 import { ramColor, swapColor } from '../utils';
 
-const REF_LINES_70 = [
-  { value: 70, label: '70%', color: 'var(--warn)' },
-];
-const REF_LINES_90 = [
-  { value: 90, label: '90%', color: 'var(--alert)' },
-];
-
 function memStatus(pct) {
   if (pct == null) return { label: 'No data', color: 'var(--text-dim)' };
   if (pct < 70) return { label: 'Stable memory', color: 'var(--ok)' };
@@ -22,9 +15,6 @@ function swapStatus(pct) {
   if (pct < 70) return { label: 'Moderate usage', color: 'var(--warn)' };
   return { label: 'Intensive usage', color: 'var(--alert)' };
 }
-
-const MEM_TOOLTIPS = {
-};
 
 export default function MemoryDetail({ current, spark }) {
   const total = current?.ram_total_gb || 32;
@@ -122,51 +112,55 @@ export default function MemoryDetail({ current, spark }) {
       <div className="mem-details-grid">
         {/* RAM chart */}
         <div className="chart-section">
-          <div className="chart-label">
-            <span>Usage <span className="chart-unit">GB</span></span>
-            <span className="chart-time-label">Last 90s</span>
-          </div>
           <div className="chart-wrap">
-            <AreaChart
-              data={ramChartData}
-              accessor={d => d.v}
-              yMax={total}
-              yMin={0}
-              yUnit=" GB"
-              height={200}
-              color="var(--chart-ram)"
-              refLines={refLines}
-            />
+            <div className="card-title-row">
+              <span>Usage <span className="chart-unit">GB</span></span>
+              <span className="chart-time-label">Last 90s</span>
+            </div>
+            <div className="chart-area">
+              <AreaChart
+                data={ramChartData}
+                accessor={d => d.v}
+                yMax={total}
+                yMin={0}
+                yUnit=" GB"
+                height={200}
+                color="var(--chart-ram)"
+                refLines={refLines}
+              />
+            </div>
           </div>
         </div>
 
         {/* SWAP section */}
         <div className="chart-section">
-          <div className="chart-label">
-            <span>SWAP</span>
-            <span className="mem-swap-status" style={{ color: swapStat.color }}>{swapStat.label}</span>
-          </div>
           <div className="chart-wrap">
-            <AreaChart
-              data={swapChartData}
-              accessor={d => d.v}
-              yMax={swapTotal || 8}
-              yMin={0}
-              yUnit=" GB"
-              height={200}
-              color="var(--chart-swap)"
-            />
-          </div>
-          <div className="mem-swap-footer">
-            <div className="mem-swap-pct" style={{ color: swapColor(swapPct) }}>
-              {swapPct}<span className="mem-metric-unit">%</span>
+            <div className="card-title-row">
+              <span>SWAP</span>
+              <span className="mem-swap-status" style={{ color: swapStat.color }}>{swapStat.label}</span>
             </div>
-            <div className="mem-swap-detail">
-              <span>{swapUsed.toFixed(1)} / {swapTotal} GB</span>
-              {swapPct > 70 && <span className="mem-swap-alert-badge">High</span>}
+            <div className="chart-area">
+              <AreaChart
+                data={swapChartData}
+                accessor={d => d.v}
+                yMax={swapTotal || 8}
+                yMin={0}
+                yUnit=" GB"
+                height={200}
+                color="var(--chart-swap)"
+              />
             </div>
-            <div className="mem-swap-bar-track">
-              <div className="mem-swap-bar-fill" style={{ width: `${Math.min(swapPct, 100)}%`, background: swapColor(swapPct) }} />
+            <div className="mem-swap-footer">
+              <div className="mem-swap-pct" style={{ color: swapColor(swapPct) }}>
+                {swapPct}<span className="mem-metric-unit">%</span>
+              </div>
+              <div className="mem-swap-detail">
+                <span>{swapUsed.toFixed(1)} / {swapTotal} GB</span>
+                {swapPct > 70 && <span className="mem-swap-alert-badge">High</span>}
+              </div>
+              <div className="mem-swap-bar-track">
+                <div className="mem-swap-bar-fill" style={{ width: `${Math.min(swapPct, 100)}%`, background: swapColor(swapPct) }} />
+              </div>
             </div>
           </div>
         </div>
@@ -175,19 +169,21 @@ export default function MemoryDetail({ current, spark }) {
       {/* Top memory processes */}
       {topProcs.length > 0 && (
         <div className="mem-procs-section">
-          <div className="chart-label">Top Processes by Memory</div>
-          <div className="mem-procs-grid">
-            {topProcs.map((p, i) => (
-              <div className="mem-proc-row" key={p.pid || i}>
-                <span className="mem-proc-rank">{i + 1}</span>
-                <span className="mem-proc-name">{p.name || '—'}</span>
-                <span className="mem-proc-pid">PID {p.pid}</span>
-                <span className="mem-proc-pct" style={{ color: ramColor(p.mem ?? 0) }}>{p.mem != null ? `${p.mem.toFixed(1)}%` : '—'}</span>
-                <div className="mem-proc-bar-track">
-                  <div className="mem-proc-bar-fill" style={{ width: `${Math.min(p.mem || 0, 100)}%`, background: ramColor(p.mem ?? 0) }} />
+          <div className="chart-wrap">
+            <div className="card-title-row"><span>Top Processes by Memory</span></div>
+            <div className="mem-procs-grid">
+              {topProcs.map((p, i) => (
+                <div className="mem-proc-row" key={p.pid || i}>
+                  <span className="mem-proc-rank">{i + 1}</span>
+                  <span className="mem-proc-name">{p.name || '—'}</span>
+                  <span className="mem-proc-pid">PID {p.pid}</span>
+                  <span className="mem-proc-pct" style={{ color: ramColor(p.mem ?? 0) }}>{p.mem != null ? `${p.mem.toFixed(1)}%` : '—'}</span>
+                  <div className="mem-proc-bar-track">
+                    <div className="mem-proc-bar-fill" style={{ width: `${Math.min(p.mem || 0, 100)}%`, background: ramColor(p.mem ?? 0) }} />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}
