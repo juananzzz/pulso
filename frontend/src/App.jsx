@@ -128,7 +128,7 @@ export default function App() {
           />
         )}
         {view === 'cpu'        && <CPUDetail      sysInfo={sysInfo} current={effCurrent} spark={spark} cpuCores={cpuCores} />}
-        {view === 'memory'     && <MemoryDetail   current={effCurrent} spark={spark} layoutMode={settings.layoutMode} onChangeLayout={(m) => changeSetting('layoutMode', m)} />}
+        {view === 'memory'     && <MemoryDetail   current={effCurrent} spark={spark} />}
         {view === 'storage'    && <StorageDetail  disks={effDisks} />}
         {view === 'network'    && <NetworkDetail  current={effCurrent} spark={spark} />}
         {view === 'alerts'     && <AlertsView alerts={alerts} />}
