@@ -28,8 +28,12 @@ def init_db():
         c.execute(
             "CREATE TABLE IF NOT EXISTS metrics ("
             "ts INTEGER PRIMARY KEY, cpu REAL, ram REAL, temp REAL,"
-            "net_sent REAL, net_recv REAL, disk REAL, load1 REAL)"
+            "net_sent REAL, net_recv REAL, disk REAL, load1 REAL, swap REAL)"
         )
+        try:
+            c.execute("ALTER TABLE metrics ADD COLUMN swap REAL")
+        except Exception:
+            pass
 
 
 def cpu_temp() -> Optional[float]:
@@ -101,11 +105,12 @@ def collect():
     with _lock:
         nr = _net_rates.copy()
 
+    swap_used_gb = round(psutil.swap_memory().used / 1e9, 1)
     with sqlite3.connect(DB_PATH) as c:
         c.execute(
-            "INSERT OR REPLACE INTO metrics VALUES (?,?,?,?,?,?,?,?)",
+            "INSERT OR REPLACE INTO metrics VALUES (?,?,?,?,?,?,?,?,?)",
             (int(time.time()), round(cpu, 1), round(ram.percent, 1), temp,
-             nr["sent"], nr["recv"], disk_pct, round(load1, 2)),
+             nr["sent"], nr["recv"], disk_pct, round(load1, 2), swap_used_gb),
         )
 
 
@@ -321,13 +326,14 @@ def api_history(range: str = Query("1h")):
     since = int(time.time()) - ranges.get(range, 3600)
     with sqlite3.connect(DB_PATH) as c:
         rows = c.execute(
-            "SELECT ts,cpu,ram,temp,net_sent,net_recv,disk,load1 "
+            "SELECT ts,cpu,ram,temp,net_sent,net_recv,disk,load1,swap "
             "FROM metrics WHERE ts>? ORDER BY ts",
             (since,),
         ).fetchall()
     return [
         {"ts": r[0], "cpu": r[1], "ram": r[2], "temp": r[3],
-         "net_sent": r[4], "net_recv": r[5], "disk": r[6], "load": r[7]}
+         "net_sent": r[4], "net_recv": r[5], "disk": r[6], "load": r[7],
+         "swap": r[8] if len(r) > 8 and r[8] is not None else None}
         for r in rows
     ]
 

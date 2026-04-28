@@ -21,7 +21,7 @@ export default function App() {
   const [current, setCurrent]   = useState(null);
   const [disks, setDisks]       = useState([]);
   const [cpuCores, setCpuCores] = useState([]);
-  const [spark, setSpark]       = useState({ cpu: [], temp: [], ram: [], ramGb: [], swap: [], sent: [], recv: [] });
+  const [spark, setSpark]       = useState({ cpu: [], temp: [], ram: [], ramGb: [], swap: [], swapGb: [], sent: [], recv: [] });
   const [lastRefresh, setLastRefresh] = useState(null);
   const [view, setView]         = useState('home');
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -69,6 +69,7 @@ export default function App() {
         ram:   push(s.ram,   curr.ram_percent),
         ramGb: push(s.ramGb, curr.ram_used_gb),
         swap:  push(s.swap,  swapPct),
+        swapGb: push(s.swapGb, curr.swap_used_gb),
         sent:  push(s.sent,  curr.net_sent_mbps),
         recv:  push(s.recv,  curr.net_recv_mbps),
       };
