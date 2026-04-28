@@ -91,7 +91,7 @@ export default function NetworkDetail({ current, spark }) {
             <span className="chart-time-label">Last 90s</span>
           </div>
           <div className="chart-wrap">
-            <svg viewBox="0 0 800 200" style={{ width: '100%', height: 'auto', display: 'block' }}>
+            <svg viewBox="0 0 800 200" style={{ width: '100%', height: '100%', display: 'block' }}>
               {[0, 0.25, 0.5, 0.75, 1].map(r => {
                 const y = 8 + 164 - r * 164;
                 const label = Math.round(maxVal * r);
@@ -102,7 +102,6 @@ export default function NetworkDetail({ current, spark }) {
                   </g>
                 );
               })}
-              {/* Reference line at 90% */}
               {(() => {
                 const y90 = 8 + 164 - 0.9 * 164;
                 return (
@@ -113,7 +112,6 @@ export default function NetworkDetail({ current, spark }) {
                   </g>
                 );
               })()}
-              {/* Download area + line */}
               {recvData.length > 1 && (() => {
                 const pts = recvData.map((d, i) => ({
                   x: 38 + (i / (recvData.length - 1)) * 754,
@@ -128,7 +126,6 @@ export default function NetworkDetail({ current, spark }) {
                   </>
                 );
               })()}
-              {/* Upload line */}
               {sentData.length > 1 && (() => {
                 const pts = sentData.map((d, i) => ({
                   x: 38 + (i / (sentData.length - 1)) * 754,
@@ -139,7 +136,6 @@ export default function NetworkDetail({ current, spark }) {
                   <path d={d} fill="none" stroke="var(--chart-net-sent)" strokeWidth={2} strokeLinejoin="round" />
                 );
               })()}
-              {/* Peak markers */}
               {peakRecv.map(i => {
                 if (i < 0 || i >= recvData.length) return null;
                 const x = 38 + (i / (recvData.length - 1)) * 754;
@@ -149,6 +145,10 @@ export default function NetworkDetail({ current, spark }) {
               <text x={38} y={192} fontSize={8} fill="var(--text-dim)">now</text>
               <text x={38 + 754} y={192} textAnchor="end" fontSize={8} fill="var(--text-dim)">-90s</text>
             </svg>
+            <div className="net-legend">
+              <span className="net-legend-item"><span className="net-legend-line" style={{ background: 'var(--chart-net-recv)' }} /> Download</span>
+              <span className="net-legend-item"><span className="net-legend-line" style={{ background: 'var(--chart-net-sent)' }} /> Upload</span>
+            </div>
           </div>
           <div className="net-legend">
             <span className="net-legend-item"><span className="net-legend-line" style={{ background: 'var(--chart-net-recv)' }} /> Download</span>
