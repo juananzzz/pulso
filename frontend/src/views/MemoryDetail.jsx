@@ -83,7 +83,7 @@ export default function MemoryDetail({ current, spark }) {
         </div>
       </div>
 
-      {/* Level 2: Memory breakdown stacked bar */}
+      {/* Level 2: Memory distribution stacked bar */}
       <div className="mem-breakdown">
         <div className="mem-breakdown-header">
           <span>Memory Distribution</span>
@@ -108,82 +108,76 @@ export default function MemoryDetail({ current, spark }) {
         </div>
       </div>
 
-      {/* Level 3: Details grid */}
-      <div className="mem-details-grid">
-        {/* RAM chart */}
-        <div className="chart-section">
-          <div className="chart-wrap">
-            <div className="card-title-row">
-              <span>Usage <span className="chart-unit">GB</span></span>
-              <span className="chart-time-label">Last 90s</span>
-            </div>
-            <div className="chart-area">
-              <AreaChart
-                data={ramChartData}
-                accessor={d => d.v}
-                yMax={total}
-                yMin={0}
-                yUnit=" GB"
-                height={200}
-                color="var(--chart-ram)"
-                refLines={refLines}
-              />
-            </div>
-          </div>
+      {/* Level 3: SWAP — compact section */}
+      <div className="mem-swap-compact">
+        <div className="chart-label">
+          <span>SWAP</span>
+          <span className="mem-swap-status" style={{ color: swapStat.color }}>{swapStat.label}</span>
         </div>
-
-        {/* SWAP section */}
-        <div className="chart-section">
-          <div className="chart-wrap">
-            <div className="card-title-row">
-              <span>SWAP</span>
-              <span className="mem-swap-status" style={{ color: swapStat.color }}>{swapStat.label}</span>
+        <div className="chart-wrap">
+          <div className="mem-swap-compact-grid">
+            <div className="mem-swap-compact-left">
+              <div className="mem-swap-compact-pct" style={{ color: swapColor(swapPct) }}>
+                {swapPct}<span className="mem-metric-unit">%</span>
+              </div>
+              <div className="mem-swap-compact-detail">
+                <span>{swapUsed.toFixed(1)} / {swapTotal} GB</span>
+              </div>
+              <div className="mem-swap-compact-bar">
+                <div className="mem-swap-compact-fill" style={{ width: `${Math.min(swapPct, 100)}%`, background: swapColor(swapPct) }} />
+              </div>
             </div>
-            <div className="chart-area">
+            <div className="mem-swap-compact-chart">
               <AreaChart
                 data={swapChartData}
                 accessor={d => d.v}
                 yMax={swapTotal || 8}
                 yMin={0}
                 yUnit=" GB"
-                height={200}
+                height={80}
                 color="var(--chart-swap)"
               />
-            </div>
-            <div className="mem-swap-footer">
-              <div className="mem-swap-pct" style={{ color: swapColor(swapPct) }}>
-                {swapPct}<span className="mem-metric-unit">%</span>
-              </div>
-              <div className="mem-swap-detail">
-                <span>{swapUsed.toFixed(1)} / {swapTotal} GB</span>
-                {swapPct > 70 && <span className="mem-swap-alert-badge">High</span>}
-              </div>
-              <div className="mem-swap-bar-track">
-                <div className="mem-swap-bar-fill" style={{ width: `${Math.min(swapPct, 100)}%`, background: swapColor(swapPct) }} />
-              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Top memory processes */}
+      {/* Level 4: Usage chart */}
+      <div className="chart-section">
+        <div className="chart-label">
+          <span>Usage <span className="chart-unit">GB</span></span>
+          <span className="chart-time-label">Last 90s</span>
+        </div>
+        <div className="chart-wrap">
+          <AreaChart
+            data={ramChartData}
+            accessor={d => d.v}
+            yMax={total}
+            yMin={0}
+            yUnit=" GB"
+            height={200}
+            color="var(--chart-ram)"
+            refLines={refLines}
+          />
+        </div>
+      </div>
+
+      {/* Level 5: Top processes by memory */}
       {topProcs.length > 0 && (
         <div className="mem-procs-section">
-          <div className="chart-wrap">
-            <div className="card-title-row"><span>Top Processes by Memory</span></div>
-            <div className="mem-procs-grid">
-              {topProcs.map((p, i) => (
-                <div className="mem-proc-row" key={p.pid || i}>
-                  <span className="mem-proc-rank">{i + 1}</span>
-                  <span className="mem-proc-name">{p.name || '—'}</span>
-                  <span className="mem-proc-pid">PID {p.pid}</span>
-                  <span className="mem-proc-pct" style={{ color: ramColor(p.mem ?? 0) }}>{p.mem != null ? `${p.mem.toFixed(1)}%` : '—'}</span>
-                  <div className="mem-proc-bar-track">
-                    <div className="mem-proc-bar-fill" style={{ width: `${Math.min(p.mem || 0, 100)}%`, background: ramColor(p.mem ?? 0) }} />
-                  </div>
+          <div className="chart-label">Top Processes by Memory</div>
+          <div className="mem-procs-grid">
+            {topProcs.map((p, i) => (
+              <div className="mem-proc-row" key={p.pid || i}>
+                <span className="mem-proc-rank">{i + 1}</span>
+                <span className="mem-proc-name">{p.name || '—'}</span>
+                <span className="mem-proc-pid">PID {p.pid}</span>
+                <span className="mem-proc-pct" style={{ color: ramColor(p.mem ?? 0) }}>{p.mem != null ? `${p.mem.toFixed(1)}%` : '—'}</span>
+                <div className="mem-proc-bar-track">
+                  <div className="mem-proc-bar-fill" style={{ width: `${Math.min(p.mem || 0, 100)}%`, background: ramColor(p.mem ?? 0) }} />
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
