@@ -1,6 +1,7 @@
 import AreaChart from '../charts/AreaChart';
 
 export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
+  const top = current?.top_cpu_proc;
   return (
     <div className="detail">
       <div className="detail-title">CPU</div>
@@ -17,6 +18,16 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         <div className="chart-label">Usage · last 60s <span className="chart-unit">%</span></div>
         <div className="chart-wrap"><AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-cpu)" /></div>
       </div>
+      {top && (
+        <div className="chart-section">
+          <div className="chart-label">Top process <span className="chart-unit">{top.name} · PID {top.pid}</span></div>
+          <div className="top-proc-box">
+            <span className="top-proc-name">{top.name}</span>
+            <span className="top-proc-pct">{top.cpu}%</span>
+            <span className="top-proc-pid">PID {top.pid}</span>
+          </div>
+        </div>
+      )}
       <div className="chart-section">
         <div className="chart-label">Temperature · last 60s <span className="chart-unit">°C</span></div>
         <div className="chart-wrap"><AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-temp)" /></div>

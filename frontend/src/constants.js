@@ -2,11 +2,13 @@ export const ALERT_COLOR_DEFAULT = '#E63946';
 export const BUFFER_SIZE = 30;
 
 export const TABS = [
-  { id: 'home',    label: 'Overview' },
-  { id: 'cpu',     label: 'CPU' },
-  { id: 'memory',  label: 'Memory' },
-  { id: 'storage', label: 'Disks' },
-  { id: 'network', label: 'Network' },
+  { id: 'home',      label: 'Overview' },
+  { id: 'cpu',       label: 'CPU' },
+  { id: 'memory',    label: 'Memory' },
+  { id: 'storage',   label: 'Disks' },
+  { id: 'network',   label: 'Network' },
+  { id: 'docker',    label: 'Docker' },
+  { id: 'processes', label: 'Processes' },
 ];
 
 export const DEMO_DATA = {

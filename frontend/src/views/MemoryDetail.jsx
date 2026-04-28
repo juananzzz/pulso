@@ -57,7 +57,7 @@ export default function MemoryDetail({ current, spark }) {
         <MemStatBox label="RAM usada"  value={usedApparent} total={total}     unit="GB" color="var(--chart-ram)" />
         <MemStatBox label="Disponible" value={free}                            unit="GB" sub={total > 0 ? `${Math.round(free / total * 100)}% libre` : ''} />
         <MemStatBox label="Cached"     value={cached}                          unit="GB" sub={buffers > 0 ? `buffers ${buffers} GB` : ''} />
-        <MemStatBox label="Swap"       value={swapUsed}      total={swapTotal} unit="GB" color="var(--chart-swap)" />
+        <MemStatBox label="Swap"       value={swapUsed}      total={swapTotal} unit="GB" color="var(--chart-swap)" swapWarn={swapTotal > 0 && swapUsed / swapTotal > 0.75} swapMid={swapTotal > 0 && swapUsed / swapTotal > 0.5} />
       </div>
 
       <div className="mem-body">

@@ -178,21 +178,27 @@ function NetworkCard({ data, spark, onClick }) {
   );
 }
 
+function diskBarColor(pct) {
+  if (pct < 70) return 'var(--ok)';
+  if (pct < 85) return '#eab308';
+  return 'var(--alert)';
+}
+
 // ── Disks ────────────────────────────────────────────────────────
 function DisksCard({ disks, onClick }) {
   return (
     <div className="card clickable" onClick={onClick}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <div className="ov-card-label">Discos</div>
-        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{disks.length} montados</span>
+        <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', opacity: 0.6 }}>{disks.length} montados</span>
       </div>
       {disks.slice(0, 6).map(d => (
         <div className="disk-row" key={d.mountpoint}>
           <span className="disk-mount">{d.mountpoint}</span>
           <div className="disk-bar-wrap">
-            <div className={`disk-bar${d.percent > 90 ? ' warn' : ''}`} style={{ width: `${d.percent}%` }} />
+            <div className="disk-bar" style={{ width: `${d.percent}%`, background: diskBarColor(d.percent) }} />
           </div>
-          <span className={`disk-pct${d.percent > 90 ? ' warn' : ''}`}>{d.percent}%</span>
+          <span className="disk-pct" style={{ color: d.percent >= 85 ? 'var(--alert)' : undefined, fontWeight: d.percent >= 85 ? 600 : undefined }}>{d.percent}%</span>
         </div>
       ))}
     </div>
@@ -204,7 +210,7 @@ export default function Overview({ current, disks, spark, onNavigate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--gap) * 1.5)' }}>
       {/* Top row: CPU · RAM · Network */}
-      <div className="overview-grid-3">
+      <div className="overview-grid-3" style={{ alignItems: 'stretch' }}>
         <CPUCard     data={current} spark={spark?.cpu}  onClick={() => onNavigate('cpu')} />
         <RAMCard     data={current}                     onClick={() => onNavigate('memory')} />
         <NetworkCard data={current} spark={spark}       onClick={() => onNavigate('network')} />

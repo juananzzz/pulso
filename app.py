@@ -177,10 +177,27 @@ def api_current():
     ram = psutil.virtual_memory()
     swap = psutil.swap_memory()
     temp = cpu_temp()
+    net_io = psutil.net_io_counters()
     with _lock:
         nr = _net_rates.copy()
         lat = _latency_ms
-
+    
+    top_proc = None
+    try:
+        procs = []
+        for p in psutil.process_iter(['pid', 'name']):
+            try:
+                pp = psutil.Process(p.pid)
+                cpu = pp.cpu_percent(interval=0)
+                procs.append({'pid': p.pid, 'name': p.info['name'], 'cpu': round(cpu, 1)})
+            except Exception:
+                pass
+        if procs:
+            procs.sort(key=lambda x: x['cpu'], reverse=True)
+            top_proc = procs[0]
+    except Exception:
+        pass
+    
     iface = "eth0"
     try:
         for name, st in sorted(psutil.net_if_stats().items()):
@@ -209,6 +226,9 @@ def api_current():
         "net_recv_mbps": nr["recv"],
         "net_iface": iface,
         "net_latency_ms": lat,
+        "net_sent_total_gb": round(net_io.bytes_sent / 1e9, 2),
+        "net_recv_total_gb": round(net_io.bytes_recv / 1e9, 2),
+        "top_cpu_proc": top_proc,
         "disk_percent": round(psutil.disk_usage("/").percent, 1),
         "uptime_seconds": int(time.time() - psutil.boot_time()),
     }
@@ -310,6 +330,68 @@ def api_history(range: str = Query("1h")):
          "net_sent": r[4], "net_recv": r[5], "disk": r[6], "load": r[7]}
         for r in rows
     ]
+
+
+@app.get("/api/processes/top")
+def api_processes_top():
+    n = psutil.cpu_count()
+    procs = []
+    for p in psutil.process_iter(['pid', 'name']):
+        try:
+            pp = psutil.Process(p.pid)
+            cpu = pp.cpu_percent(interval=0) / n
+            mem = pp.memory_percent()
+            procs.append({'pid': p.pid, 'name': p.info['name'], 'cpu': round(cpu, 1), 'mem': round(mem, 1)})
+        except Exception:
+            pass
+    procs.sort(key=lambda x: x['cpu'], reverse=True)
+    top_cpu = procs[:5]
+    procs.sort(key=lambda x: x['mem'], reverse=True)
+    top_mem = procs[:5]
+    return {"top_cpu": top_cpu, "top_mem": top_mem}
+
+
+@app.get("/api/docker")
+def api_docker():
+    try:
+        r = subprocess.run(
+            ["docker", "ps", "-a", "--format", "{{json .}}"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if r.returncode != 0:
+            return {"available": False, "containers": []}
+        containers = {}
+        for line in r.stdout.strip().split("\n"):
+            if not line.strip():
+                continue
+            d = json.loads(line)
+            cid = d.get("ID", "")[:12]
+            status = d.get("Status", "")
+            is_up = status.lower().startswith("up")
+            containers[cid] = {
+                "name": d.get("Names", "").lstrip("/"),
+                "state": "running" if is_up else "stopped",
+                "cpu": 0, "mem": 0,
+            }
+        if any(c["state"] == "running" for c in containers.values()):
+            r2 = subprocess.run(
+                ["docker", "stats", "--no-stream", "--format", "{{json .}}"],
+                capture_output=True, text=True, timeout=5,
+            )
+            if r2.returncode == 0:
+                for line in r2.stdout.strip().split("\n"):
+                    if not line.strip():
+                        continue
+                    d = json.loads(line)
+                    cid = d.get("ID", "")
+                    if cid in containers:
+                        try: containers[cid]["cpu"] = float(d.get("CPUPerc", "0").rstrip("%"))
+                        except ValueError: pass
+                        try: containers[cid]["mem"] = float(d.get("MemPerc", "0").rstrip("%"))
+                        except ValueError: pass
+        return {"available": True, "containers": list(containers.values())}
+    except Exception:
+        return {"available": False, "containers": []}
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
