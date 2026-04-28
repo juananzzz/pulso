@@ -7,6 +7,7 @@ export function CPUCard({ data, spark, onClick }) {
     <div className="card wide clickable" onClick={onClick}>
       <div className="card-header">
         <span className="card-label">CPU</span>
+        <span className="card-meta">{data.cpu_freq_ghz ? `${data.cpu_freq_ghz} GHz` : ''}</span>
       </div>
       <div className="card-value-row">
         <span className="card-num" style={warn ? { color: 'var(--alert)' } : {}}>{Math.round(data.cpu_percent)}<span className="card-num-unit">%</span></span>
