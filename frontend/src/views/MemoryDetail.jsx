@@ -81,10 +81,10 @@ export default function MemoryDetail({ current, spark }) {
               <span style={{ fontSize: '1.5rem', fontWeight: 700, color: swapColor(swapPct), lineHeight: 1 }}>{swapPct}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>%</span></span>
               <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{swapUsed} / {swapTotal} GB used</span>
             </div>
-            <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 6, background: 'var(--border)' }}>
+            <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 4, background: 'var(--border)' }}>
               <div style={{ width: `${Math.min(swapPct, 100)}%`, height: '100%', background: swapColor(swapPct), borderRadius: 4, transition: 'width 0.3s' }} />
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 8, fontSize: '0.78rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 4, fontSize: '0.78rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: swapColor(swapPct), display: 'inline-block' }} />
                 <span style={{ color: 'var(--text-dim)' }}>Used</span>
