@@ -322,7 +322,7 @@ body {
 .ov-stat-unit { font-size: 0.82rem; color: var(--text-mid); margin-left: 2px; }
 .ov-lat-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
 .ov-lat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--num-font); }
-.ov-cpu-model { font-size: 0.78rem; color: var(--text-dim); max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
+.ov-cpu-model { font-size: 0.78rem; color: var(--text-dim); text-align: right; }
 .disk-total-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
 .disk-total-stat { display: flex; flex-direction: column; }
 .disk-total-num { font-size: 2.4rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }

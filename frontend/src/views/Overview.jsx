@@ -52,7 +52,7 @@ function CPUCard({ data, cpuModel, onClick }) {
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
         <CardTitle text="CPU" />
-        <div style={{ textAlign: 'right', overflow: 'hidden' }}>
+        <div style={{ textAlign: 'right' }}>
           {cpuModel && <div className="ov-cpu-model">{cpuModel}</div>}
           {freq && <span className="ov-meta">{freq} GHz</span>}
         </div>
