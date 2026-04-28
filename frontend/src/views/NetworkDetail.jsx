@@ -17,11 +17,11 @@ export default function NetworkDetail({ current, spark }) {
       </div>
       <div className="chart-section">
         <div className="chart-label">Download · last 60s <span className="chart-unit">Mb/s</span></div>
-        <div className="chart-wrap"><AreaChart data={spark?.recv?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.recv || [0]))} height={160} color="var(--chart-net-recv)" /></div>
+        <div className="chart-wrap"><AreaChart data={spark?.recv?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.recv || [0]))} height={90} color="var(--chart-net-recv)" /></div>
       </div>
       <div className="chart-section">
         <div className="chart-label">Upload · last 60s <span className="chart-unit">Mb/s</span></div>
-        <div className="chart-wrap"><AreaChart data={spark?.sent?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.sent || [0]))} height={160} color="var(--chart-net-sent)" /></div>
+        <div className="chart-wrap"><AreaChart data={spark?.sent?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.sent || [0]))} height={90} color="var(--chart-net-sent)" /></div>
       </div>
     </div>
   );
