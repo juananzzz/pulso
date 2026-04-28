@@ -39,24 +39,28 @@ function SimpleView({ current, disks, onNavigate }) {
   return (
     <div className="ov-simple-hero ov-simple-hero-2">
       <div className="ov-simple-card" onClick={() => onNavigate('cpu')}>
-        <div className="ov-simple-card-header"><Cpu size={20} /> CPU <Chip text={cpuChip} color={cpuChipCol} big /></div>
+        <div className="ov-simple-card-icon"><Cpu size={40} /></div>
+        <div className="ov-simple-card-header">CPU <Chip text={cpuChip} color={cpuChipCol} big /></div>
         <div className="ov-simple-card-main" style={{ color: cpuColor(cpuPct) }}>{cpuPct ?? '—'}<span className="ov-simple-unit">%</span></div>
         <Bar pct={cpuPct} color={cpuColor(cpuPct)} height={12} />
       </div>
       <div className="ov-simple-card" onClick={() => onNavigate('memory')}>
-        <div className="ov-simple-card-header"><MemoryStick size={20} /> RAM <Chip text={ramPct < 70 ? 'Stable' : ramPct < 90 ? 'High' : 'Critical'} color={ramPct < 70 ? 'var(--ok)' : ramPct < 90 ? 'var(--warn)' : 'var(--alert)'} big /></div>
+        <div className="ov-simple-card-icon"><MemoryStick size={40} /></div>
+        <div className="ov-simple-card-header">RAM <Chip text={ramPct < 70 ? 'Stable' : ramPct < 90 ? 'High' : 'Critical'} color={ramPct < 70 ? 'var(--ok)' : ramPct < 90 ? 'var(--warn)' : 'var(--alert)'} big /></div>
         <div className="ov-simple-card-main" style={{ color: ramColor(ramPct) }}>{ramPct}<span className="ov-simple-unit">%</span></div>
         <Bar pct={ramPct} color={ramColor(ramPct)} height={12} />
         <div className="ov-simple-card-footer">{ramUsed.toFixed(1)} / {ramTotal} GB</div>
       </div>
       <div className="ov-simple-card" onClick={() => onNavigate('storage')}>
-        <div className="ov-simple-card-header"><HardDrive size={20} /> Storage <Chip text={diskPct < 70 ? 'Stable' : diskPct < 85 ? 'High' : 'Critical'} color={diskPct < 70 ? 'var(--ok)' : diskPct < 85 ? 'var(--warn)' : 'var(--alert)'} big /></div>
+        <div className="ov-simple-card-icon"><HardDrive size={40} /></div>
+        <div className="ov-simple-card-header">Storage <Chip text={diskPct < 70 ? 'Stable' : diskPct < 85 ? 'High' : 'Critical'} color={diskPct < 70 ? 'var(--ok)' : diskPct < 85 ? 'var(--warn)' : 'var(--alert)'} big /></div>
         <div className="ov-simple-card-main" style={{ color: diskColor(diskPct) }}>{diskPct}<span className="ov-simple-unit">%</span></div>
         <Bar pct={diskPct} color={diskColor(diskPct)} height={12} />
         <div className="ov-simple-card-footer">{fmt(diskUsed)} / {fmt(diskTotal)}</div>
       </div>
       <div className="ov-simple-card" onClick={() => onNavigate('network')}>
-        <div className="ov-simple-card-header"><Activity size={20} /> Network <Chip text={netTotal < 1 ? 'Low' : netTotal < 20 ? 'Moderate' : 'High'} color={netTotal < 1 ? 'var(--ok)' : netTotal < 20 ? 'var(--warn)' : 'var(--alert)'} big /></div>
+        <div className="ov-simple-card-icon"><Network size={40} /></div>
+        <div className="ov-simple-card-header">Network <Chip text={netTotal < 1 ? 'Low' : netTotal < 20 ? 'Moderate' : 'High'} color={netTotal < 1 ? 'var(--ok)' : netTotal < 20 ? 'var(--warn)' : 'var(--alert)'} big /></div>
         <div className="ov-simple-card-main" style={{ color: netTotal < 1 ? 'var(--ok)' : netTotal < 20 ? 'var(--warn)' : 'var(--alert)' }}>{netTotal.toFixed(1)}<span className="ov-simple-unit">Mb/s</span></div>
         <div className="ov-simple-net-detail"><span>↓ {current?.net_recv_mbps?.toFixed(1) ?? '—'}</span><span>↑ {current?.net_sent_mbps?.toFixed(1) ?? '—'}</span></div>
       </div>
@@ -98,7 +102,8 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
     <div className="ov-simple-hero ov-simple-hero-2">
       {/* CPU */}
       <div className="ov-simple-card ov-simple-card-wide" onClick={() => onNavigate('cpu')}>
-        <div className="ov-simple-card-header"><Cpu size={20} /> CPU <Chip text={cpuChip} color={cpuChipCol} big /></div>
+        <div className="ov-simple-card-icon"><Cpu size={40} /></div>
+        <div className="ov-simple-card-header">CPU <Chip text={cpuChip} color={cpuChipCol} big /></div>
         <div className="ov-simple-mid-row">
           <div>
             <div className="ov-simple-card-main" style={{ color: cpuColor(cpuPct) }}>{cpuPct ?? '—'}<span className="ov-simple-unit">%</span></div>
@@ -120,7 +125,8 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
 
       {/* RAM + SWAP */}
       <div className="ov-simple-card ov-simple-card-wide" onClick={() => onNavigate('memory')}>
-        <div className="ov-simple-card-header"><MemoryStick size={20} /> Memory <Chip text={ramChip} color={ramChipCol} big /></div>
+        <div className="ov-simple-card-icon"><MemoryStick size={40} /></div>
+        <div className="ov-simple-card-header">Memory <Chip text={ramChip} color={ramChipCol} big /></div>
         <div className="ov-simple-mid-row">
           <div>
             <div className="ov-simple-card-main" style={{ color: ramColor(ramPct) }}>{ramPct}<span className="ov-simple-unit">%</span></div>
@@ -145,7 +151,8 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
 
       {/* Storage */}
       <div className="ov-simple-card ov-simple-card-wide" onClick={() => onNavigate('storage')}>
-        <div className="ov-simple-card-header"><HardDrive size={20} /> Storage <Chip text={diskChip} color={diskChipCol} big /></div>
+        <div className="ov-simple-card-icon"><HardDrive size={40} /></div>
+        <div className="ov-simple-card-header">Storage <Chip text={diskChip} color={diskChipCol} big /></div>
         <div className="ov-simple-card-main" style={{ color: diskColor(diskPct) }}>{diskPct}<span className="ov-simple-unit">%</span></div>
         <Bar pct={diskPct} color={diskColor(diskPct)} height={10} />
         <div className="ov-simple-meta" style={{ marginBottom: 8 }}>{fmt(diskUsed)} / {fmt(diskTotal)}</div>
@@ -164,7 +171,8 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
 
       {/* Network */}
       <div className="ov-simple-card ov-simple-card-wide" onClick={() => onNavigate('network')}>
-        <div className="ov-simple-card-header"><Network size={20} /> Network <Chip text={netChip} color={netChipCol} big /></div>
+        <div className="ov-simple-card-icon"><Network size={40} /></div>
+        <div className="ov-simple-card-header">Network <Chip text={netChip} color={netChipCol} big /></div>
         <div className="ov-simple-mid-row">
           <div>
             <div className="ov-simple-card-main" style={{ color: netChipCol }}>{netTotal.toFixed(1)}<span className="ov-simple-unit">Mb/s</span></div>
