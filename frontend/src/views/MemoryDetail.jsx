@@ -103,7 +103,7 @@ export default function MemoryDetail({ current, spark }) {
                 yMax={swapTotal}
                 yMin={0}
                 yUnit=" GB"
-                height={80}
+                height={110}
                 color="var(--chart-swap)"
               />
             </div>
