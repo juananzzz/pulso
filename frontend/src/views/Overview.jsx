@@ -179,13 +179,15 @@ function DisksCard({ disks, onClick }) {
         <HardDrive size={18} color="var(--text-dim)" />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span className="disk-total-num">{fmt(used)}</span>
-        <span style={{ color: 'var(--text-dim)', fontSize: '1.3rem' }}>/</span>
-        <span className="disk-total-num">{fmt(total)}</span>
+      <div className="disk-row" style={{ marginTop: 0 }}>
+        <span className="disk-mount" style={{ fontWeight: 600, color: 'var(--text)' }}>TOTAL</span>
+        <div className="disk-bar-wrap" style={{ height: 6 }}>
+          <div className="disk-bar" style={{ width: `${diskPct}%`, background: diskColor(diskPct) }} />
+        </div>
+        <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontFamily: 'var(--num-font)', whiteSpace: 'nowrap' }}>
+          {fmt(used)} / {fmt(total)}
+        </span>
       </div>
-
-      <Bar pct={diskPct} color={diskColor(diskPct)} />
 
       {disks.map(d => (
         <div className="disk-row" key={d.mountpoint}>
