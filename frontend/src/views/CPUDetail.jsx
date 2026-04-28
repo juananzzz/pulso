@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import AreaChart from '../charts/AreaChart';
 import InteractiveChart from '../charts/InteractiveChart';
 import { cpuColor, tempColor } from '../utils';
@@ -50,13 +50,9 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
   const [expandedChart, setExpandedChart] = useState(null);
   const [chartRange, setChartRange] = useState('1h');
   const [chartData, setChartData] = useState(null);
+  const frozenSpark = useRef(null);
 
-  const fetchData = useCallback((chart, range) => {
-    if (range === '1m') {
-      const src = chart === 'usage' ? spark?.cpu : spark?.temp;
-      setChartData((src || []).map((v, i) => ({ ts: Date.now() - (src.length - i) * 3000, v })));
-      return;
-    }
+  const fetchHistory = (chart, range) => {
     fetch(`/api/history?range=${range}`)
       .then(r => r.json())
       .then(data => {
@@ -64,24 +60,34 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         setChartData(data.map(d => ({ ts: d.ts * 1000, v: d[field] })));
       })
       .catch(() => setChartData([]));
-  }, [spark]);
-
-  useEffect(() => {
-    if (expandedChart) fetchData(expandedChart, chartRange);
-  }, [expandedChart, chartRange, fetchData]);
+  };
 
   const openChart = (chart) => {
+    frozenSpark.current = spark;
     setExpandedChart(chart);
-    fetchData(chart, chartRange);
+    if (chartRange === '1m') {
+      const src = chart === 'usage' ? spark?.cpu : spark?.temp;
+      setChartData((src || []).map((v, i) => ({ ts: Date.now() - (src.length - i) * 3000, v })));
+    } else {
+      fetchHistory(chart, chartRange);
+    }
   };
 
   const closeChart = () => {
     setExpandedChart(null);
     setChartData(null);
+    frozenSpark.current = null;
   };
 
   const handleRangeChange = (range) => {
     setChartRange(range);
+    if (range === '1m' && frozenSpark.current) {
+      const chart = expandedChart;
+      const src = chart === 'usage' ? frozenSpark.current?.cpu : frozenSpark.current?.temp;
+      setChartData((src || []).map((v, i) => ({ ts: Date.now() - (src.length - i) * 3000, v })));
+    } else if (expandedChart) {
+      fetchHistory(expandedChart, range);
+    }
   };
 
   const top = current?.top_cpu_proc;

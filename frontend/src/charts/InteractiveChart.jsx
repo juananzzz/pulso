@@ -10,7 +10,7 @@ export default function InteractiveChart({
   const [hoverX, setHoverX] = useState(null);
 
   const W = 800, H = height;
-  const PL = 56, PR = 12, PT = 8, PB = 28;
+  const PL = 56, PR = 12, PT = 8, PB = 48;
   const cW = W - PL - PR, cH = H - PT - PB;
   const range = yMax - yMin || 1;
   const n = Math.max(data.length - 1, 1);
@@ -75,6 +75,9 @@ export default function InteractiveChart({
     return d.toLocaleTimeString();
   };
 
+  const tooltipX = tooltipPoint ? Math.min(Math.max(tooltipPoint.x, PL + 70), PL + cW - 70) : PL + 70;
+  const tooltipY = PT + cH + 22;
+
   return (
     <div style={{ position: 'relative' }}>
       {!modal && (
@@ -111,7 +114,7 @@ export default function InteractiveChart({
             );
           })}
           {xLabels.map(({ x, label }) => (
-            <text key={label} x={x} y={PT + cH + 17} textAnchor="middle" fontSize={10} fill="var(--text-dim)">{label}</text>
+            <text key={label} x={x} y={PT + cH + 16} textAnchor="middle" fontSize={10} fill="var(--text-dim)">{label}</text>
           ))}
           {tooltipPoint && (
             <line x1={tooltipPoint.x} y1={PT} x2={tooltipPoint.x} y2={PT + cH}
@@ -119,31 +122,18 @@ export default function InteractiveChart({
           )}
           {area && <path d={area} fill={color} fillOpacity={0.12} />}
           {line && <path d={line} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" />}
-          {pts.map((p, i) => (
-            <circle key={i} cx={p.x} cy={p.y} r={2.5} fill={color} opacity={0}>
-              <title>{p.val?.toFixed(1)}</title>
-            </circle>
-          ))}
-        </svg>
 
-        {tooltipPoint && (
-          <div style={{
-            position: 'absolute', left: 0, right: 0, top: '100%',
-            paddingTop: 6,
-            pointerEvents: 'none',
-          }}>
-            <div style={{
-              background: 'var(--card-bg)', border: '1px solid var(--border)',
-              borderRadius: 6, padding: '6px 12px',
-              display: 'inline-flex', gap: 16,
-              fontSize: '0.82rem',
-              boxShadow: 'var(--shadow)',
-            }}>
-              <span><span style={{ color: 'var(--text-dim)' }}>Value: </span><strong>{tooltipPoint.val?.toFixed(1)}</strong></span>
-              <span><span style={{ color: 'var(--text-dim)' }}>Time: </span><strong>{fmtTime(tooltipPoint.ts)}</strong></span>
-            </div>
-          </div>
-        )}
+          {tooltipPoint && (
+            <g>
+              <rect x={tooltipX - 70} y={tooltipY - 8} width={140} height={20} rx={4}
+                fill="var(--card-bg)" stroke="var(--border)" strokeWidth={1} />
+              <text x={tooltipX - 60} y={tooltipY + 4} fontSize={11} fill="var(--text-dim)">V: </text>
+              <text x={tooltipX - 42} y={tooltipY + 4} fontSize={11} fontWeight={700} fill="var(--text)">{tooltipPoint.val?.toFixed(1)}</text>
+              <text x={tooltipX + 5} y={tooltipY + 4} fontSize={11} fill="var(--text-dim)">T: </text>
+              <text x={tooltipX + 20} y={tooltipY + 4} fontSize={11} fontWeight={600} fill="var(--text)">{fmtTime(tooltipPoint.ts)}</text>
+            </g>
+          )}
+        </svg>
       </div>
     </div>
   );
