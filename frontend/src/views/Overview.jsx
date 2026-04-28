@@ -93,7 +93,7 @@ function RAMCard({ data, onClick }) {
             <span className="ov-side-num" style={{ color: pctColor }}>{used.toFixed(1)}<span className="ov-side-unit">GB</span></span>
           </div>
           <div style={{ marginTop: 8 }}>
-            <div className="ov-micro-label">DE</div>
+            <div className="ov-micro-label">OF</div>
             <span className="ov-side-num">{total}<span className="ov-side-unit">GB</span></span>
           </div>
         </div>
