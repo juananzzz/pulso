@@ -172,7 +172,7 @@ body {
 .disk-row { display: flex; align-items: center; gap: 8px; margin-top: 9px; font-size: 0.82rem; }
 .disk-mount { color: var(--text-dim); width: 100px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .disk-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
-.disk-bar { height: 100%; border-radius: 2px; background: var(--text); transition: width 0.5s ease; }
+.disk-bar { height: 100%; border-radius: 2px; background: #3b82f6; transition: width 0.5s ease; }
 .disk-bar.warn { background: var(--alert); }
 .disk-pct { width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
 .disk-pct.warn { color: var(--alert); font-weight: 600; }

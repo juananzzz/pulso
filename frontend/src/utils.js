@@ -15,7 +15,7 @@ export function relTime(ts) {
 }
 
 export const cpuColor = pct => pct < 70 ? 'var(--ok)' : pct < 90 ? 'var(--warn)' : 'var(--alert)';
-export const diskColor = pct => pct < 70 ? 'var(--ok)' : pct < 90 ? 'var(--warn)' : 'var(--alert)';
+export const diskColor = pct => pct < 90 ? '#3b82f6' : 'var(--alert)';
 export const ramColor = pct => pct < 70 ? 'var(--ok)' : pct < 90 ? 'var(--warn)' : 'var(--alert)';
 export const swapColor = pct => pct < 40 ? 'var(--ok)' : pct < 70 ? 'var(--warn)' : 'var(--alert)';
 export const tempColor = t => t < 45 ? 'var(--ok)' : t < 55 ? 'var(--warn)' : 'var(--alert)';
