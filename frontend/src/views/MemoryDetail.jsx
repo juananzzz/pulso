@@ -189,9 +189,9 @@ export default function MemoryDetail({ current, spark }) {
                 <span className="mem-proc-rank">{i + 1}</span>
                 <span className="mem-proc-name">{p.name || '—'}</span>
                 <span className="mem-proc-pid">PID {p.pid}</span>
-                <span className="mem-proc-pct" style={{ color: ramColor(p.mem_percent) }}>{p.mem_percent}%</span>
+                <span className="mem-proc-pct" style={{ color: ramColor(p.mem ?? 0) }}>{p.mem != null ? `${p.mem.toFixed(1)}%` : '—'}</span>
                 <div className="mem-proc-bar-track">
-                  <div className="mem-proc-bar-fill" style={{ width: `${Math.min(p.mem_percent, 100)}%`, background: ramColor(p.mem_percent) }} />
+                  <div className="mem-proc-bar-fill" style={{ width: `${Math.min(p.mem || 0, 100)}%`, background: ramColor(p.mem ?? 0) }} />
                 </div>
               </div>
             ))}

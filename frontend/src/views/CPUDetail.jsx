@@ -241,9 +241,9 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
                 <span className="cpu-proc-rank">{i + 1}</span>
                 <span className="cpu-proc-name">{p.name || '—'}</span>
                 <span className="cpu-proc-pid">PID {p.pid}</span>
-                <span className="cpu-proc-pct" style={{ color: cpuColor(p.cpu_percent) }}>{p.cpu_percent}%</span>
+                <span className="cpu-proc-pct" style={{ color: cpuColor(p.cpu ?? 0) }}>{p.cpu != null ? `${p.cpu.toFixed(1)}%` : '—'}</span>
                 <div className="cpu-proc-bar-track">
-                  <div className="cpu-proc-bar-fill" style={{ width: `${Math.min(p.cpu_percent, 100)}%`, background: cpuColor(p.cpu_percent) }} />
+                  <div className="cpu-proc-bar-fill" style={{ width: `${Math.min(p.cpu || 0, 100)}%`, background: cpuColor(p.cpu ?? 0) }} />
                 </div>
               </div>
             ))}
