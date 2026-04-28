@@ -37,7 +37,7 @@ function SimpleView({ current, disks, onNavigate }) {
   const cpuChipCol = cpuPct < 70 ? 'var(--ok)' : cpuPct < 90 ? 'var(--warn)' : 'var(--alert)';
 
   return (
-    <div className="ov-simple-hero">
+    <div className="ov-simple-hero ov-simple-hero-2">
       <div className="ov-simple-card" onClick={() => onNavigate('cpu')}>
         <div className="ov-simple-card-header"><Cpu size={20} /> CPU</div>
         <div className="ov-simple-card-main" style={{ color: cpuColor(cpuPct) }}>{cpuPct ?? '—'}<span className="ov-simple-unit">%</span></div>
