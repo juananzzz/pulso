@@ -164,13 +164,6 @@ function NetworkCard({ data, onClick }) {
           <span className="ov-stat-unit">Mb/s</span>
         </div>
       </div>
-      {data?.net_latency_ms != null && (
-        <div className="ov-lat-row">
-          <span className="ov-micro-label">LATENCY</span>
-          <span className="ov-lat-num">{data.net_latency_ms}</span>
-          <span className="ov-stat-unit">ms</span>
-        </div>
-      )}
     </div>
   );
 }
