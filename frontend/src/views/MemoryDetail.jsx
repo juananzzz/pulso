@@ -61,7 +61,7 @@ export default function MemoryDetail({ current, spark }) {
               <span style={{ fontWeight: 600 }}>{(total - usedApparent).toFixed(1)} GB</span>
             </div>
           </div>
-          <div className="chart-wrap" style={{ padding: '4px 6px' }}>
+          <div className="chart-wrap" style={{ padding: '6px 8px' }}>
             <AreaChart
               data={ramChartData}
               accessor={d => d.v}
@@ -96,7 +96,7 @@ export default function MemoryDetail({ current, spark }) {
                 <span style={{ fontWeight: 600 }}>{(swapTotal - swapUsed).toFixed(1)} GB</span>
               </div>
             </div>
-            <div className="chart-wrap" style={{ padding: '4px 6px' }}>
+            <div className="chart-wrap" style={{ padding: '6px 8px' }}>
               <AreaChart
                 data={swapChartData}
                 accessor={d => d.v}
