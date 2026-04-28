@@ -199,7 +199,6 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
               color="var(--chart-cpu)"
               refLines={REF_LINES}
               highlightIndices={peakIndices}
-              endLabel={`${pct ?? 0}%`}
             />
           </div>
         </div>
