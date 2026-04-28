@@ -63,7 +63,7 @@ function CPUCard({ data, onClick }) {
   const freq = data?.cpu_freq_ghz;
   const temp = data?.temp_cpu;
   const load1 = data?.load_1;
-  const chip = pct < 70 ? 'Normal' : pct < 90 ? 'Alto' : 'Crítico';
+  const chip = pct < 70 ? 'Normal' : pct < 90 ? 'High' : 'Critical';
   const chipColor = pct < 70 ? 'var(--ok)' : pct < 90 ? 'var(--warn)' : 'var(--alert)';
   return (
     <div className="card clickable ov-main-card" onClick={onClick} style={{ position: 'relative' }}>
@@ -104,7 +104,7 @@ function RAMCard({ data, onClick }) {
   const used    = total > 0 ? +(total - avail).toFixed(1) : (data?.ram_used_gb || 0);
   const pct     = data?.ram_percent != null ? Math.round(data.ram_percent) : null;
   const pctColor = pct != null ? ramColor(pct) : 'var(--text)';
-  const chip = pct < 70 ? 'Normal' : pct < 90 ? 'Alto' : 'Crítico';
+  const chip = pct < 70 ? 'Normal' : pct < 90 ? 'High' : 'Critical';
   const chipColor = pct < 70 ? 'var(--ok)' : pct < 90 ? 'var(--warn)' : 'var(--alert)';
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
@@ -142,7 +142,7 @@ function SwapCard({ data, onClick }) {
   const swapTotal = data?.swap_total_gb || 0;
   const swapPct   = swapTotal > 0 ? Math.round(swapUsed / swapTotal * 100) : 0;
   const pctColor  = swapColor(swapPct);
-  const chip = swapPct < 40 ? 'Normal' : swapPct < 70 ? 'Alto' : 'Crítico';
+  const chip = swapPct < 40 ? 'Normal' : swapPct < 70 ? 'High' : 'Critical';
   const chipColor = swapPct < 40 ? 'var(--ok)' : swapPct < 70 ? 'var(--warn)' : 'var(--alert)';
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
@@ -183,7 +183,7 @@ function NetworkCard({ data, spark, onClick }) {
   const recv = data?.net_recv_mbps ?? 0;
   const sent = data?.net_sent_mbps ?? 0;
   const total = recv + sent;
-  const chip = total < 1 ? 'Bajo' : total < 20 ? 'Moderado' : 'Elevado';
+  const chip = total < 1 ? 'Low' : total < 20 ? 'Moderate' : 'High';
   const chipColor = total < 1 ? 'var(--ok)' : total < 20 ? 'var(--warn)' : 'var(--alert)';
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
@@ -237,7 +237,7 @@ function DisksCard({ disks, onClick }) {
   const diskPct = total > 0 ? Math.round(used / total * 100) : 0;
   const sorted = [...disks].sort((a, b) => b.percent - a.percent);
   const critical = disks.filter(d => d.percent >= 85).length;
-  const chip = critical > 0 ? `${critical} crítico${critical > 1 ? 's' : ''}` : diskPct >= 70 ? 'Alto' : 'Normal';
+  const chip = critical > 0 ? `${critical} critical${critical > 1 ? 's' : ''}` : diskPct >= 70 ? 'High' : 'Normal';
   const chipColor = critical > 0 ? 'var(--alert)' : diskPct >= 70 ? 'var(--warn)' : 'var(--ok)';
 
   return (

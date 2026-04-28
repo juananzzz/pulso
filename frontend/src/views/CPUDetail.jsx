@@ -11,10 +11,10 @@ const RANGES = [
 ];
 
 function cpuStatus(pct) {
-  if (pct == null) return { label: 'Sin datos', color: 'var(--text-dim)' };
-  if (pct < 70) return { label: 'Uso normal', color: 'var(--ok)' };
-  if (pct < 90) return { label: 'Carga moderada', color: 'var(--warn)' };
-  return { label: 'Carga crítica', color: 'var(--alert)' };
+  if (pct == null) return { label: 'No data', color: 'var(--text-dim)' };
+  if (pct < 70) return { label: 'Normal usage', color: 'var(--ok)' };
+  if (pct < 90) return { label: 'Moderate load', color: 'var(--warn)' };
+  return { label: 'Critical load', color: 'var(--alert)' };
 }
 
 const REF_LINES = [
@@ -188,7 +188,7 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         <div className="chart-section">
           <div className="chart-label">
             <span>Usage <span className="chart-unit">%</span></span>
-            <span className="chart-time-label">Últimos 90s</span>
+            <span className="chart-time-label">Last 90s</span>
           </div>
           <div className="chart-wrap" style={{ cursor: 'pointer' }} onClick={() => openChart('usage')}>
             <AreaChart
@@ -234,7 +234,7 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
       {/* Top CPU processes */}
       {topProcs.length > 0 && (
         <div className="cpu-procs-section">
-          <div className="chart-label">Top Procesos</div>
+          <div className="chart-label">Top Processes</div>
           <div className="cpu-procs-grid">
             {topProcs.map((p, i) => (
               <div className="cpu-proc-row" key={p.pid || i}>

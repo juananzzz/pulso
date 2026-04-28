@@ -9,9 +9,9 @@ function stoStatus(disks) {
   const maxPct = disks.reduce((m, d) => Math.max(m, d.percent), 0);
   const critical = disks.filter(d => d.percent >= 90).length;
   const warn = disks.filter(d => d.percent >= 80 && d.percent < 90).length;
-  if (critical > 0) return { label: `Crítico · ${critical} disco${critical > 1 ? 's' : ''} al ${'\u2265'}90%`, color: 'var(--alert)' };
-  if (warn > 0) return { label: `Advertencia · ${warn} disco${warn > 1 ? 's' : ''} al ${'\u2265'}80%`, color: 'var(--warn)' };
-  return { label: 'Saludable', color: 'var(--ok)' };
+  if (critical > 0) return { label: `Critical · ${critical} disk${critical > 1 ? 's' : ''} at ${'\u2265'}90%`, color: 'var(--alert)' };
+  if (warn > 0) return { label: `Warning · ${warn} disk${warn > 1 ? 's' : ''} at ${'\u2265'}80%`, color: 'var(--warn)' };
+  return { label: 'Healthy', color: 'var(--ok)' };
 }
 
 export default function StorageDetail({ disks }) {
@@ -33,7 +33,7 @@ export default function StorageDetail({ disks }) {
         <div className="sto-primary-left">
           <div className="detail-title" style={{ marginBottom: 0 }}>Storage</div>
           <div className="detail-sub" style={{ marginBottom: 0 }}>
-            {disks.length} disco{disks.length !== 1 ? 's' : ''} · {fmt(total)} total
+            {disks.length} disk{disks.length !== 1 ? 's' : ''} · {fmt(total)} total
           </div>
           <div className="sto-status-row">
             <span className="sto-status-indicator" style={{ background: status.color, boxShadow: `0 0 6px ${status.color}` }} />
@@ -62,7 +62,7 @@ export default function StorageDetail({ disks }) {
       <div className="sto-breakdown">
         <div className="chart-label" style={{ marginBottom: 12 }}>
           <span>Volumes</span>
-          <span className="chart-unit">ordenados por uso</span>
+          <span className="chart-unit">sorted by usage</span>
         </div>
         <div className="sto-disk-list">
           {sorted.map(d => {

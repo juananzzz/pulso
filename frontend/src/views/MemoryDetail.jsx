@@ -10,17 +10,17 @@ const REF_LINES_90 = [
 ];
 
 function memStatus(pct) {
-  if (pct == null) return { label: 'Sin datos', color: 'var(--text-dim)' };
-  if (pct < 70) return { label: 'Memoria estable', color: 'var(--ok)' };
-  if (pct < 90) return { label: 'Alta presión de memoria', color: 'var(--warn)' };
-  return { label: 'Presión crítica', color: 'var(--alert)' };
+  if (pct == null) return { label: 'No data', color: 'var(--text-dim)' };
+  if (pct < 70) return { label: 'Stable memory', color: 'var(--ok)' };
+  if (pct < 90) return { label: 'High memory pressure', color: 'var(--warn)' };
+  return { label: 'Critical pressure', color: 'var(--alert)' };
 }
 
 function swapStatus(pct) {
-  if (pct == null || pct === 0) return { label: 'Sin uso', color: 'var(--text-dim)' };
-  if (pct < 40) return { label: 'Uso bajo', color: 'var(--ok)' };
-  if (pct < 70) return { label: 'Uso moderado', color: 'var(--warn)' };
-  return { label: 'Uso intensivo', color: 'var(--alert)' };
+  if (pct == null || pct === 0) return { label: 'No usage', color: 'var(--text-dim)' };
+  if (pct < 40) return { label: 'Low usage', color: 'var(--ok)' };
+  if (pct < 70) return { label: 'Moderate usage', color: 'var(--warn)' };
+  return { label: 'Intensive usage', color: 'var(--alert)' };
 }
 
 const MEM_TOOLTIPS = {
@@ -124,7 +124,7 @@ export default function MemoryDetail({ current, spark }) {
         <div className="chart-section">
           <div className="chart-label">
             <span>Usage <span className="chart-unit">GB</span></span>
-            <span className="chart-time-label">Últimos 90s</span>
+            <span className="chart-time-label">Last 90s</span>
           </div>
           <div className="chart-wrap">
             <AreaChart
@@ -153,7 +153,7 @@ export default function MemoryDetail({ current, spark }) {
               </div>
               <div className="mem-swap-detail">
                 <span>{swapUsed.toFixed(1)} / {swapTotal} GB</span>
-                {swapPct > 70 && <span className="mem-swap-alert-badge">Alto</span>}
+                {swapPct > 70 && <span className="mem-swap-alert-badge">High</span>}
               </div>
             </div>
             <div className="mem-swap-bar-track">
@@ -177,7 +177,7 @@ export default function MemoryDetail({ current, spark }) {
       {/* Top memory processes */}
       {topProcs.length > 0 && (
         <div className="mem-procs-section">
-          <div className="chart-label">Top Procesos por Memoria</div>
+          <div className="chart-label">Top Processes by Memory</div>
           <div className="mem-procs-grid">
             {topProcs.map((p, i) => (
               <div className="mem-proc-row" key={p.pid || i}>

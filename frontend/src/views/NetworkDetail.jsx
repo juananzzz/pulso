@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 
 function netStatus(recv, sent) {
   const total = (recv || 0) + (sent || 0);
-  if (total < 1) return { label: 'Tráfico bajo', color: 'var(--ok)' };
-  if (total < 20) return { label: 'Tráfico moderado', color: 'var(--warn)' };
-  return { label: 'Tráfico elevado', color: 'var(--alert)' };
+  if (total < 1) return { label: 'Low traffic', color: 'var(--ok)' };
+  if (total < 20) return { label: 'Moderate traffic', color: 'var(--warn)' };
+  return { label: 'High traffic', color: 'var(--alert)' };
 }
 
 export default function NetworkDetail({ current, spark }) {
@@ -88,7 +88,7 @@ export default function NetworkDetail({ current, spark }) {
         <div className="chart-section">
           <div className="chart-label">
             <span>Throughput <span className="chart-unit">Mb/s</span></span>
-            <span className="chart-time-label">Últimos 90s</span>
+            <span className="chart-time-label">Last 90s</span>
           </div>
           <div className="chart-wrap">
             <svg viewBox="0 0 800 200" style={{ width: '100%', height: 'auto', display: 'block' }}>
