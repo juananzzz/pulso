@@ -40,22 +40,6 @@ export default function StorageDetail({ disks }) {
             <span className="sto-status-text" style={{ color: status.color }}>{status.label}</span>
           </div>
         </div>
-        <div className="sto-primary-right">
-          <div className="sto-summary-cards">
-            <div className="sto-summary-card">
-              <div className="sto-summary-label">Used</div>
-              <div className="sto-summary-val">{fmt(used)}</div>
-            </div>
-            <div className="sto-summary-card">
-              <div className="sto-summary-label">Free</div>
-              <div className="sto-summary-val">{fmt(free)}</div>
-            </div>
-            <div className="sto-summary-card">
-              <div className="sto-summary-label">Usage</div>
-              <div className="sto-summary-val sto-summary-pct" style={{ color: diskColor(pct) }}>{pct}%</div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Level 2: Disk breakdown */}
