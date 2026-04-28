@@ -849,6 +849,11 @@ body {
 .ov-simple-hero-2 .ov-simple-mid-row { gap: 24px; }
 .ov-simple-hero-2 .ov-simple-meta-col { gap: 4px; min-width: 160px; }
 .ov-simple-hero-2 .ov-simple-card-footer { font-size: 0.92rem; }
+.ov-storage-disk-row { margin-top: 4px; }
+.ov-storage-disk-label { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-dim); margin-bottom: 2px; }
+.ov-storage-disk-pct { font-weight: 600; font-family: var(--num-font); }
+.ov-storage-disk-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.ov-storage-disk-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
 .ov-simple-card-wide { grid-column: span 1; }
 .ov-simple-mid-row { display: flex; gap: 16px; align-items: flex-start; flex: 1; }
 .ov-simple-mid-row > div:first-child { flex: 1; display: flex; flex-direction: column; }

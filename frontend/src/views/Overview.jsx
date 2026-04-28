@@ -135,20 +135,20 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
       {/* Storage */}
       <div className="ov-simple-card ov-simple-card-wide" onClick={() => onNavigate('storage')}>
         <div className="ov-simple-card-header"><HardDrive size={20} /> Storage <Chip text={diskChip} color={diskChipCol} big /></div>
-        <div className="ov-simple-mid-row">
-          <div>
-            <div className="ov-simple-card-main" style={{ color: diskColor(diskPct) }}>{diskPct}<span className="ov-simple-unit">%</span></div>
-            <Bar pct={diskPct} color={diskColor(diskPct)} height={10} />
-            <div className="ov-simple-meta">{fmt(diskUsed)} / {fmt(diskTotal)}</div>
+        <div className="ov-simple-card-main" style={{ color: diskColor(diskPct) }}>{diskPct}<span className="ov-simple-unit">%</span></div>
+        <Bar pct={diskPct} color={diskColor(diskPct)} height={10} />
+        <div className="ov-simple-meta" style={{ marginBottom: 8 }}>{fmt(diskUsed)} / {fmt(diskTotal)}</div>
+        {disks.sort((a, b) => b.percent - a.percent).slice(0, 4).map(d => (
+          <div key={d.mountpoint} className="ov-storage-disk-row">
+            <div className="ov-storage-disk-label">
+              <span style={{ color: d.percent >= 85 ? 'var(--alert)' : undefined }}>{d.mountpoint}</span>
+              <span className="ov-storage-disk-pct" style={{ color: diskColor(d.percent) }}>{d.percent}%</span>
+            </div>
+            <div className="ov-storage-disk-bar">
+              <div className="ov-storage-disk-fill" style={{ width: `${Math.min(d.percent, 100)}%`, background: diskColor(d.percent) }} />
+            </div>
           </div>
-          <div className="ov-simple-meta-col">
-            {disks.sort((a, b) => b.percent - a.percent).slice(0, 4).map(d => (
-              <div key={d.mountpoint} className="ov-simple-meta" style={{ color: d.percent >= 85 ? 'var(--alert)' : undefined }}>
-                {d.mountpoint} {d.percent}%
-              </div>
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Network */}
