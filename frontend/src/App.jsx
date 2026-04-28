@@ -120,6 +120,7 @@ export default function App() {
           <Overview
             current={effCurrent}
             disks={effDisks}
+            sysInfo={sysInfo}
             onNavigate={setView}
           />
         )}

@@ -43,7 +43,7 @@ function CardTitle({ text }) {
 }
 
 // ── CPU ──────────────────────────────────────────────────────────
-function CPUCard({ data, onClick }) {
+function CPUCard({ data, cpuModel, onClick }) {
   const pct = data?.cpu_percent != null ? Math.round(data.cpu_percent) : null;
   const freq = data?.cpu_freq_ghz;
   const temp = data?.temp_cpu;
@@ -52,7 +52,10 @@ function CPUCard({ data, onClick }) {
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
         <CardTitle text="CPU" />
-        {freq && <span className="ov-meta">{freq} GHz</span>}
+        <div style={{ textAlign: 'right', overflow: 'hidden' }}>
+          {cpuModel && <div className="ov-cpu-model">{cpuModel}</div>}
+          {freq && <span className="ov-meta">{freq} GHz</span>}
+        </div>
       </div>
       <div className="ov-gauge-row">
         <Gauge pct={pct} color={cpuColor(pct)} size={110} stroke={8} />
@@ -190,9 +193,9 @@ function DisksCard({ disks, onClick }) {
             <span className="disk-mount">{d.mountpoint}</span>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 1 }}>
               {d.temp != null && (
-                <span style={{ fontSize: '0.68rem', color: tempColor(d.temp) }}>{d.temp}°C</span>
+                <span style={{ fontSize: '0.78rem', color: tempColor(d.temp) }}>{d.temp}°C</span>
               )}
-              <span style={{ fontSize: '0.62rem', color: 'var(--text-dim)' }}>{d.device?.split('/').pop() || ''}</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>{d.device?.split('/').pop() || ''}</span>
             </div>
           </div>
           <div className="disk-bar-wrap" style={{ minWidth: 80, flex: 1 }}>
@@ -200,10 +203,10 @@ function DisksCard({ disks, onClick }) {
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
             <span className="disk-pct" style={{ color: diskColor(d.percent), width: 40, textAlign: 'right' }}>{d.percent}%</span>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontFamily: 'var(--num-font)', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontFamily: 'var(--num-font)', whiteSpace: 'nowrap' }}>
               {fmt(d.used_gb)} / {fmt(d.total_gb)}
             </span>
-            <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontFamily: 'var(--num-font)', whiteSpace: 'nowrap', minWidth: 70, textAlign: 'right' }}>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontFamily: 'var(--num-font)', whiteSpace: 'nowrap', minWidth: 70, textAlign: 'right' }}>
               ↓{d.read_mbps} ↑{d.write_mbps}
             </span>
           </div>
@@ -214,11 +217,11 @@ function DisksCard({ disks, onClick }) {
 }
 
 // ── Main Overview ─────────────────────────────────────────────────
-export default function Overview({ current, disks, onNavigate }) {
+export default function Overview({ current, disks, sysInfo, onNavigate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--gap) * 1.5)' }}>
       <div className="overview-grid-3" style={{ alignItems: 'stretch' }}>
-        <CPUCard     data={current} onClick={() => onNavigate('cpu')} />
+        <CPUCard     data={current} cpuModel={sysInfo?.cpu_model} onClick={() => onNavigate('cpu')} />
         <RAMCard     data={current} onClick={() => onNavigate('memory')} />
         <NetworkCard data={current} onClick={() => onNavigate('network')} />
       </div>
