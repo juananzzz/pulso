@@ -78,7 +78,7 @@ export default function MemoryDetail({ current, spark }) {
           <div className="chart-section">
             <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>SWAP</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
-              <span style={{ fontSize: '1.5rem', fontWeight: 700, color: swapColor(swapPct), lineHeight: 1 }}>{swapPct}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>%</span></span>
+              <span style={{ fontSize: '1.6rem', fontWeight: 700, color: swapColor(swapPct), lineHeight: 1 }}>{swapPct}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>%</span></span>
               <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{swapUsed} / {swapTotal} GB used</span>
             </div>
             <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 4, background: 'var(--border)' }}>
