@@ -137,7 +137,7 @@ export default function App() {
           style={{ color: 'var(--text-dim)', textDecoration: 'none', fontSize: '0.72rem' }}
           onMouseOver={e => e.target.style.color = 'var(--text)'}
           onMouseOut={e => e.target.style.color = 'var(--text-dim)'}>
-          Pulso
+          Pulso v01
         </a>
       </div>
 
