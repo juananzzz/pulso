@@ -317,7 +317,7 @@ def api_cpu_cores():
 
 @app.get("/api/history")
 def api_history(range: str = Query("1h")):
-    ranges = {"5m": 300, "15m": 900, "1h": 3600, "6h": 21600, "24h": 86400}
+    ranges = {"1m": 60, "5m": 300, "15m": 900, "1h": 3600, "8h": 28800, "24h": 86400}
     since = int(time.time()) - ranges.get(range, 3600)
     with sqlite3.connect(DB_PATH) as c:
         rows = c.execute(
