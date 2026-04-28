@@ -105,15 +105,15 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         <div className="stat-box"><div className="stat-box-label">Load Avg</div><div className="stat-box-val" style={{ fontSize: '1rem', paddingTop: '6px' }}>{current?.load_1} · {current?.load_5} · {current?.load_15}</div></div>
       </div>
 
-      <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('usage')}>
-        <div className="chart-label">Usage · last 60s <span className="chart-unit">%</span></div>
-        <div className="chart-wrap"><AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-cpu)" /></div>
+      <div className="chart-section" style={{ cursor: 'pointer', marginBottom: 8 }} onClick={() => openChart('usage')}>
+        <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Usage <span className="chart-unit">%</span></div>
+        <div className="chart-wrap" style={{ padding: '6px 8px' }}><AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={90} color="var(--chart-cpu)" /></div>
       </div>
 
       {top && (
-        <div className="chart-section">
-          <div className="chart-label">Top process <span className="chart-unit">{top.name} · PID {top.pid}</span></div>
-          <div className="top-proc-box">
+        <div className="chart-section" style={{ marginBottom: 8 }}>
+          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Top process <span className="chart-unit">{top.name} · PID {top.pid}</span></div>
+          <div className="top-proc-box" style={{ padding: '10px 14px' }}>
             <span className="top-proc-name">{top.name}</span>
             <span className="top-proc-pct" style={{ color: cpuColor(top.cpu) }}>{top.cpu}%</span>
             <span className="top-proc-pid">PID {top.pid}</span>
@@ -121,9 +121,9 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         </div>
       )}
 
-      <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('temp')}>
-        <div className="chart-label">Temperature · last 60s <span className="chart-unit">°C</span></div>
-        <div className="chart-wrap"><AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-temp)" /></div>
+      <div className="chart-section" style={{ cursor: 'pointer', marginBottom: 8 }} onClick={() => openChart('temp')}>
+        <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Temperature <span className="chart-unit">°C</span></div>
+        <div className="chart-wrap" style={{ padding: '6px 8px' }}><AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={90} color="var(--chart-temp)" /></div>
       </div>
 
       {cpuCores.length > 0 && (
