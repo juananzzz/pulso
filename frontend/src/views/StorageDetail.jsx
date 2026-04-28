@@ -46,7 +46,6 @@ export default function StorageDetail({ disks }) {
       <div className="sto-breakdown">
         <div className="chart-label" style={{ marginBottom: 12 }}>
           <span>Volumes</span>
-          <span className="chart-unit">sorted by usage</span>
         </div>
         <div className="sto-disk-list">
           {sorted.map(d => {
