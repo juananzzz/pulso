@@ -30,7 +30,7 @@ export default function AreaChart({
         return (
           <g key={t}>
             <line x1={PL} y1={y} x2={PL + cW} y2={y} stroke="var(--border)" strokeWidth={1} />
-            <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="var(--text-dim)">{label}{yUnit}</text>
+            <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={7} fill="var(--text-dim)">{label}{yUnit}</text>
           </g>
         );
       })}
