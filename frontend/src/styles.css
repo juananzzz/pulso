@@ -601,80 +601,68 @@ body {
 .mem-big-unit { font-size: 1.5rem; font-weight: 400; color: var(--text-mid); margin-left: 4px; }
 .mem-big-sub { font-size: 1.1rem; color: var(--text-mid); margin-top: 4px; font-weight: 500; }
 .mem-available-label { font-size: 0.82rem; color: var(--text-dim); margin-top: 2px; }
+.mem-status-text { font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.mem-status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
 
-/* Memory breakdown */
-.mem-breakdown {
-  background: var(--card-bg); border: 1px solid var(--border);
-  border-radius: 10px; padding: 16px 18px; margin-bottom: 24px;
-  box-shadow: var(--shadow);
-}
-.mem-breakdown-header {
-  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em;
-  text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px;
-}
-.mem-stacked-bar {
-  display: flex; height: 14px; border-radius: 4px; overflow: hidden;
+/* Simplified distribution bar */
+.mem-bar-section { margin-bottom: 20px; }
+.mem-bar-track {
+  display: flex; height: 22px; border-radius: 4px; overflow: hidden;
   background: var(--border);
 }
-.mem-stacked-seg {
-  height: 100%; transition: width 0.4s ease;
-  position: relative;
+.mem-bar-seg {
+  height: 100%; display: flex; align-items: center; justify-content: center;
+  transition: width 0.4s ease; position: relative;
 }
-.mem-stacked-seg:first-child { border-radius: 4px 0 0 4px; }
-.mem-stacked-seg:last-child { border-radius: 0 4px 4px 0; }
-.mem-stacked-seg:only-child { border-radius: 4px; }
-.mem-legend {
-  display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px;
+.mem-bar-seg:first-child { border-radius: 4px 0 0 4px; }
+.mem-bar-seg:last-child { border-radius: 0 4px 4px 0; }
+.mem-bar-seg:only-child { border-radius: 4px; }
+.mem-bar-seg-label { font-size: 0.65rem; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); white-space: nowrap; }
+.mem-bar-legend {
+  display: flex; gap: 16px; margin-top: 6px; font-size: 0.75rem; color: var(--text-dim);
 }
-.mem-legend-item {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 0.78rem;
-}
-.mem-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
-.mem-legend-label { color: var(--text-dim); }
-.mem-legend-val { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.mem-bar-legend-item { display: flex; align-items: center; gap: 4px; }
+.mem-bar-legend-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
 
 .mem-details-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
-/* SWAP section */
-.mem-swap-section { }
-.mem-swap-status { font-size: 0.72rem; font-weight: 600; }
-.mem-swap-footer {
-  display: flex; align-items: center; gap: 10px; margin-top: 10px;
-  flex-wrap: wrap;
-}
-.mem-swap-pct { font-size: 1.4rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; line-height: 1; }
-.mem-swap-detail { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dim); }
-.mem-swap-alert-badge { font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: var(--alert); color: white; line-height: 1.4; }
-.mem-swap-bar-track { flex: 1; min-width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.mem-swap-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-
-/* Memory processes */
-.mem-procs-section { margin-bottom: 24px; }
-.mem-procs-grid { display: flex; flex-direction: column; gap: 4px; }
-.mem-proc-row {
-  display: grid; grid-template-columns: 24px 1fr auto 48px;
-  gap: 8px; align-items: center;
+/* SWAP — lower hierarchy */
+.mem-swap-col { }
+.mem-swap-badge { font-size: 0.72rem; font-weight: 600; }
+.mem-swap-body {
   background: var(--card-bg); border: 1px solid var(--border);
-  border-radius: 6px; padding: 8px 12px; box-shadow: var(--shadow);
-  transition: border-color var(--transition);
+  border-radius: 8px; padding: 12px 14px; box-shadow: var(--shadow);
 }
-.mem-proc-row:hover { border-color: var(--border-strong); }
-.mem-proc-rank {
-  font-size: 0.7rem; font-weight: 700; color: var(--text-dim);
-  text-align: center; font-variant-numeric: tabular-nums;
+.mem-swap-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+.mem-swap-used { font-size: 1.4rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }
+.mem-swap-total { font-size: 0.82rem; color: var(--text-dim); }
+.mem-swap-badge-alert { font-size: 0.55rem; font-weight: 700; padding: 1px 5px; border-radius: 3px; background: var(--alert); color: #fff; margin-left: auto; }
+.mem-swap-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.mem-swap-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.mem-swap-mini { margin-top: 2px; opacity: 0.5; }
+
+/* Top processes — compact table */
+.mem-procs-section { margin-bottom: 24px; }
+.mem-procs-table {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; box-shadow: var(--shadow);
 }
-.mem-proc-name { font-size: 0.85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mem-proc-pid { font-size: 0.72rem; color: var(--text-dim); font-family: var(--num-font); }
-.mem-proc-pct { font-size: 0.85rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; text-align: right; }
-.mem-proc-bar-track {
-  grid-column: 1 / -1; height: 3px; background: var(--border);
-  border-radius: 2px; overflow: hidden;
+.mem-proc-row {
+  display: grid; grid-template-columns: 20px 1fr auto 44px;
+  gap: 6px; align-items: center;
+  padding: 6px 12px; font-size: 0.8rem;
+  border-bottom: 1px solid var(--border);
 }
-.mem-proc-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+.mem-proc-row:last-child { border-bottom: none; }
+.mem-proc-rank { font-size: 0.65rem; font-weight: 700; color: var(--text-dim); text-align: center; font-variant-numeric: tabular-nums; }
+.mem-proc-name { font-size: 0.8rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mem-proc-pid { font-size: 0.68rem; color: var(--text-dim); font-family: var(--num-font); }
+.mem-proc-val { font-size: 0.8rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; text-align: right; }
+.mem-proc-bar { grid-column: 1 / -1; height: 2px; background: var(--border); border-radius: 1px; overflow: hidden; }
+.mem-proc-bar-fill { height: 100%; border-radius: 1px; transition: width 0.4s ease; }
 
 /* ── STORAGE REDESIGN ── */
 .sto-primary {
