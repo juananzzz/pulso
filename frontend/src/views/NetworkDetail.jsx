@@ -15,13 +15,19 @@ export default function NetworkDetail({ current, spark }) {
         <div className="stat-box"><div className="stat-box-label">Total Recv</div><div className="stat-box-val" style={{ fontSize: '1.3rem' }}>{current?.net_recv_total_gb?.toFixed(1) ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
         <div className="stat-box"><div className="stat-box-label">Total Sent</div><div className="stat-box-val" style={{ fontSize: '1.3rem' }}>{current?.net_sent_total_gb?.toFixed(1) ?? '—'}<span className="stat-box-unit"> GB</span></div></div>
       </div>
-      <div className="chart-section">
-        <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Download <span className="chart-unit">Mb/s</span></div>
-        <div className="chart-wrap" style={{ padding: '6px 8px' }}><AreaChart data={spark?.recv?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.recv || [0]))} height={120} color="var(--chart-net-recv)" /></div>
-      </div>
-      <div className="chart-section">
-        <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Upload <span className="chart-unit">Mb/s</span></div>
-        <div className="chart-wrap" style={{ padding: '6px 8px' }}><AreaChart data={spark?.sent?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.sent || [0]))} height={120} color="var(--chart-net-sent)" /></div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--gap)' }}>
+        <div className="chart-section">
+          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Download <span className="chart-unit">Mb/s</span></div>
+          <div className="chart-wrap" style={{ padding: '6px 8px' }}>
+            <AreaChart data={spark?.recv?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.recv || [0]))} height={160} color="var(--chart-net-recv)" />
+          </div>
+        </div>
+        <div className="chart-section">
+          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Upload <span className="chart-unit">Mb/s</span></div>
+          <div className="chart-wrap" style={{ padding: '6px 8px' }}>
+            <AreaChart data={spark?.sent?.map(v => ({ v }))} accessor={d => d.v} yMax={Math.max(100, ...(spark?.sent || [0]))} height={160} color="var(--chart-net-sent)" />
+          </div>
+        </div>
       </div>
     </div>
   );
