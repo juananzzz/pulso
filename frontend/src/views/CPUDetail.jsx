@@ -90,8 +90,6 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
     }
   };
 
-  const top = current?.top_cpu_proc;
-
   return (
     <div className="detail">
       <div className="detail-title">CPU</div>
@@ -109,17 +107,6 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Usage <span className="chart-unit">%</span></div>
         <div className="chart-wrap" style={{ padding: '6px 8px' }}><AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={90} color="var(--chart-cpu)" /></div>
       </div>
-
-      {top && (
-        <div className="chart-section" style={{ marginBottom: 8 }}>
-          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Top process <span className="chart-unit">{top.name} · PID {top.pid}</span></div>
-          <div className="top-proc-box" style={{ padding: '10px 14px' }}>
-            <span className="top-proc-name">{top.name}</span>
-            <span className="top-proc-pct" style={{ color: cpuColor(top.cpu) }}>{top.cpu}%</span>
-            <span className="top-proc-pid">PID {top.pid}</span>
-          </div>
-        </div>
-      )}
 
       <div className="chart-section" style={{ cursor: 'pointer', marginBottom: 8 }} onClick={() => openChart('temp')}>
         <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Temperature <span className="chart-unit">°C</span></div>
