@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ALERT_COLOR_DEFAULT, BUFFER_SIZE, DEMO_DATA, CARD_TYPES, DEFAULT_DASHBOARD_SLOTS, migrateLayout } from './constants';
+import { ALERT_COLOR_DEFAULT, BUFFER_SIZE, DEMO_DATA } from './constants';
 import { relTime, computeAlerts } from './utils';
 import Header from './components/Header';
 import TabBar from './components/TabBar';
@@ -24,28 +24,6 @@ export default function App() {
   const [lastRefresh, setLastRefresh] = useState(null);
   const [view, setView]         = useState('home');
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [slotLayout, setSlotLayout] = useState(null);
-
-  const saveSlots = slots => {
-    setSlotLayout(slots);
-    lss('p-dashboard-layout', JSON.stringify(slots));
-  };
-
-  const resetSlots = () => {
-    const def = DEFAULT_DASHBOARD_SLOTS.map(s => ({ ...s }));
-    setSlotLayout(def);
-    lss('p-dashboard-layout', JSON.stringify(def));
-  };
-
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(ls('p-dashboard-layout'));
-      setSlotLayout(migrateLayout(saved));
-    } catch {
-      setSlotLayout(DEFAULT_DASHBOARD_SLOTS.map(s => ({ ...s })));
-    }
-  }, []);
 
   const [settings, setSettings] = useState({
     theme:        ls('p-theme')  || 'light',
@@ -134,7 +112,7 @@ export default function App() {
 
   return (
     <>
-      <Header sysInfo={sysInfo} current={effCurrent} onLogoClick={() => setView('home')} onSettingsClick={() => setSettingsOpen(true)} editMode={editMode} onEditToggle={() => setEditMode(e => !e)} onResetLayout={resetSlots} />
+      <Header sysInfo={sysInfo} current={effCurrent} onLogoClick={() => setView('home')} onSettingsClick={() => setSettingsOpen(true)} />
       <TabBar view={view} onNavigate={setView} alertsCount={alerts.length} alertBadge={settings.alertBadge} />
 
       <div className="main">
@@ -144,9 +122,6 @@ export default function App() {
             disks={effDisks}
             sysInfo={sysInfo}
             onNavigate={setView}
-            editMode={editMode}
-            slotLayout={slotLayout}
-            onLayoutChange={saveSlots}
           />
         )}
         {view === 'cpu'        && <CPUDetail      sysInfo={sysInfo} current={effCurrent} spark={spark} cpuCores={cpuCores} />}

@@ -1,7 +1,6 @@
-import { PenLine, Check, RotateCcw } from 'lucide-react';
 import { formatUptime } from '../utils';
 
-export default function Header({ sysInfo, current, onLogoClick, onSettingsClick, editMode, onEditToggle, onResetLayout }) {
+export default function Header({ sysInfo, current, onLogoClick, onSettingsClick }) {
   const subTitle = sysInfo
     ? [sysInfo.hostname, sysInfo.os, sysInfo.kernel ? `Linux ${sysInfo.kernel}` : null].filter(Boolean).join(' · ')
     : '—';
@@ -18,14 +17,6 @@ export default function Header({ sysInfo, current, onLogoClick, onSettingsClick,
             <span className="uptime-dot" />
             up {formatUptime(current.uptime_seconds)}
           </div>
-        )}
-        <button className="settings-btn" onClick={onEditToggle} title={editMode ? 'Done editing' : 'Edit dashboard'} style={{ color: editMode ? 'var(--chart-ram)' : undefined }}>
-          {editMode ? <Check size={18} /> : <PenLine size={18} />}
-        </button>
-        {editMode && (
-          <button className="settings-btn" onClick={onResetLayout} title="Reset default layout">
-            <RotateCcw size={16} />
-          </button>
         )}
         <button className="settings-btn" onClick={onSettingsClick} title="Settings">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
