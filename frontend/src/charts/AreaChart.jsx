@@ -4,7 +4,7 @@ export default function AreaChart({
   xRangeSeconds = 60,
 }) {
   const W = 800, H = height;
-  const PL = 52, PR = 8, PT = 8, PB = 24;
+  const PL = 38, PR = 8, PT = 8, PB = 24;
   const cW = W - PL - PR, cH = H - PT - PB;
 
   if (data.length < 2) return (
@@ -46,7 +46,7 @@ export default function AreaChart({
         return (
           <g key={t}>
             <line x1={PL} y1={y} x2={PL + cW} y2={y} stroke="var(--border)" strokeWidth={1} />
-            <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={10} fill="var(--text-dim)">{label}{yUnit}</text>
+            <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="var(--text-dim)">{label}{yUnit}</text>
           </g>
         );
       })}

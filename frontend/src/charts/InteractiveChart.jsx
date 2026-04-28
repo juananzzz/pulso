@@ -10,7 +10,7 @@ export default function InteractiveChart({
   const [hoverX, setHoverX] = useState(null);
 
   const W = 800, H = height;
-  const PL = 56, PR = 12, PT = 8, PB = 48;
+  const PL = 40, PR = 12, PT = 8, PB = 48;
   const cW = W - PL - PR, cH = H - PT - PB;
   const range = yMax - yMin || 1;
   const n = Math.max(data.length - 1, 1);
@@ -111,7 +111,7 @@ export default function InteractiveChart({
             return (
               <g key={t}>
                 <line x1={PL} y1={y} x2={PL + cW} y2={y} stroke="var(--border)" strokeWidth={1} />
-                <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={10} fill="var(--text-dim)">{label}</text>
+                <text x={PL - 4} y={y + 4} textAnchor="end" fontSize={8} fill="var(--text-dim)">{label}</text>
               </g>
             );
           })}
