@@ -14,18 +14,26 @@ export function relTime(ts) {
   return `refreshed ${Math.floor(d / 60)}m ago`;
 }
 
-export const cpuColor = pct => pct < 70 ? 'var(--ok)' : pct < 85 ? 'var(--warn)' : 'var(--alert)';
-export const diskColor = pct => pct < 70 ? 'var(--ok)' : pct < 85 ? 'var(--warn)' : 'var(--alert)';
-export const ramColor = pct => pct < 70 ? 'var(--ok)' : pct < 85 ? 'var(--warn)' : 'var(--alert)';
-export const swapColor = pct => pct < 50 ? 'var(--ok)' : pct < 75 ? 'var(--warn)' : 'var(--alert)';
+export const cpuColor = pct => pct < 70 ? 'var(--ok)' : pct < 90 ? 'var(--warn)' : 'var(--alert)';
+export const diskColor = pct => pct < 70 ? 'var(--ok)' : pct < 90 ? 'var(--warn)' : 'var(--alert)';
+export const ramColor = pct => pct < 70 ? 'var(--ok)' : pct < 90 ? 'var(--warn)' : 'var(--alert)';
+export const swapColor = pct => pct < 40 ? 'var(--ok)' : pct < 70 ? 'var(--warn)' : 'var(--alert)';
 export const tempColor = t => t < 45 ? 'var(--ok)' : t < 55 ? 'var(--warn)' : 'var(--alert)';
 
 export function computeAlerts(current, disks) {
   const alerts = [];
   if (!current) return alerts;
-  disks.forEach(d => { if (d.percent > 92) alerts.push({ text: `${d.mountpoint} almost full`, tag: `${d.percent}%` }); });
+  disks.forEach(d => {
+    if (d.percent > 90) alerts.push({ text: `${d.mountpoint} almost full`, tag: `${d.percent}%` });
+    else if (d.percent > 80) alerts.push({ text: `${d.mountpoint} high usage`, tag: `${d.percent}%` });
+  });
   if (current.cpu_percent > 85) alerts.push({ text: 'CPU high', tag: `${current.cpu_percent}%` });
+  else if (current.cpu_percent > 70) alerts.push({ text: 'CPU elevated', tag: `${current.cpu_percent}%` });
   if (current.temp_cpu > 78) alerts.push({ text: 'CPU temp', tag: `${current.temp_cpu}°C` });
   if (current.ram_percent > 85) alerts.push({ text: 'RAM high', tag: `${current.ram_percent}%` });
+  else if (current.ram_percent > 70) alerts.push({ text: 'RAM elevated', tag: `${current.ram_percent}%` });
+  const swapPct = current.swap_total_gb > 0 ? (current.swap_used_gb / current.swap_total_gb * 100) : 0;
+  if (swapPct > 70) alerts.push({ text: 'Swap high', tag: `${Math.round(swapPct)}%` });
+  else if (swapPct > 40) alerts.push({ text: 'Swap elevated', tag: `${Math.round(swapPct)}%` });
   return alerts;
 }

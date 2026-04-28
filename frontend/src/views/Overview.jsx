@@ -88,10 +88,21 @@ function RAMCard({ data, spark, onClick }) {
   const avail   = data?.ram_available_gb || 0;
   const used    = total > 0 ? +(total - avail).toFixed(1) : (data?.ram_used_gb || 0);
   const pct     = data?.ram_percent != null ? Math.round(data.ram_percent) : null;
+  const cached  = data?.ram_cached_gb || 0;
+  const buffers = data?.ram_buffers_gb || 0;
+  const free    = avail;
+  const apps    = Math.max(0, +(used - cached - buffers).toFixed(1));
   const swapUsed  = data?.swap_used_gb  || 0;
   const swapTotal = data?.swap_total_gb || 0;
   const swapPct   = swapTotal > 0 ? Math.round(swapUsed / swapTotal * 100) : 0;
   const pctColor = pct != null ? ramColor(pct) : 'var(--text)';
+
+  const segments = [
+    { label: 'Apps', value: apps, color: 'var(--chart-ram)' },
+    { label: 'Cached', value: cached, color: 'var(--distrib-cached)' },
+    { label: 'Buffers', value: buffers, color: 'var(--distrib-buffers)' },
+    { label: 'Free', value: free, color: 'var(--distrib-libre)' },
+  ].filter(s => s.value > 0);
 
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
@@ -112,10 +123,22 @@ function RAMCard({ data, spark, onClick }) {
 
       <Bar pct={pct} color={pctColor} />
 
-      <div className="ov-chip-row">
-        <StatChip label="CACHED"    value={data?.ram_cached_gb?.toFixed(1)}    unit="GB" />
-        <StatChip label="BUFFERS"   value={data?.ram_buffers_gb?.toFixed(1)}   unit="GB" />
-        <StatChip label="DISPONIBLE" value={avail > 0 ? avail.toFixed(1) : null} unit="GB" />
+      {/* Stacked distribution bar */}
+      {total > 0 && (
+        <div style={{ margin: '12px 0 6px', display: 'flex', height: 14, borderRadius: 4, overflow: 'hidden', background: 'var(--border)' }}>
+          {segments.map(s => (
+            <div key={s.label} style={{ flex: s.value / total, background: s.color, minWidth: 2, position: 'relative' }} title={`${s.label}: ${s.value.toFixed(1)} GB`} />
+          ))}
+        </div>
+      )}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
+        {segments.map(s => (
+          <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 7, height: 7, borderRadius: 2, background: s.color, flexShrink: 0 }} />
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{s.label}</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, fontFamily: 'var(--num-font)' }}>{s.value.toFixed(1)}</span>
+          </div>
+        ))}
       </div>
 
       <div className="ov-spark-row">
@@ -129,11 +152,11 @@ function RAMCard({ data, spark, onClick }) {
       <div className="ov-swap-row">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
           <span className="ov-micro-label">SWAP</span>
-          <span style={{ fontSize: '0.78rem', color: swapColor(swapPct) }}>
+          <span style={{ fontSize: '0.78rem', color: swapColor(swapPct), fontWeight: swapPct > 40 ? 600 : undefined }}>
             {swapUsed.toFixed(1)} / {swapTotal} GB
           </span>
         </div>
-        <Bar pct={swapPct} color={swapColor(swapPct)} height={3} />
+        <Bar pct={swapPct} color={swapColor(swapPct)} height={swapPct > 40 ? 5 : 3} />
       </div>
     </div>
   );
@@ -157,7 +180,7 @@ function NetworkCard({ data, spark, onClick }) {
           </div>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <SparkLine data={spark?.recv} color="var(--chart-net-recv)" height={84} fill />
+          <SparkLine data={spark?.recv} color="var(--chart-net-recv)" height={84} fill minMax={10} />
         </div>
       </div>
 
@@ -170,7 +193,7 @@ function NetworkCard({ data, spark, onClick }) {
           </div>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <SparkLine data={spark?.sent} color="var(--chart-net-sent)" height={84} fill />
+          <SparkLine data={spark?.sent} color="var(--chart-net-sent)" height={84} fill minMax={10} />
         </div>
       </div>
 
@@ -195,7 +218,7 @@ function DisksCard({ disks, onClick }) {
         <div className="ov-card-label">Discos</div>
         <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', opacity: 0.6 }}>{disks.length} montados</span>
       </div>
-      {disks.slice(0, 6).map(d => (
+      {disks.map(d => (
         <div className="disk-row" key={d.mountpoint}>
           <div style={{ display: 'flex', flexDirection: 'column', width: 100, flexShrink: 0 }}>
             <span className="disk-mount">{d.mountpoint}</span>
