@@ -96,17 +96,34 @@ export default function MemoryDetail({ current, spark }) {
           <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{swapUsed} / {swapTotal} GB usado</span>
         </div>
         {swapTotal > 0 && (
-          <div className="chart-wrap" style={{ padding: '4px 6px' }}>
-            <AreaChart
-              data={swapChartData}
-              accessor={d => d.v}
-              yMax={swapTotal}
-              yMin={0}
-              yUnit=" GB"
-              height={80}
-              color="var(--chart-swap)"
-            />
-          </div>
+          <>
+            <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 6, background: 'var(--border)' }}>
+              <div style={{ width: `${Math.min(swapPct, 100)}%`, height: '100%', background: swapColor(swapPct), borderRadius: 4, transition: 'width 0.3s' }} />
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 8, fontSize: '0.78rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: swapColor(swapPct), display: 'inline-block' }} />
+                <span style={{ color: 'var(--text-dim)' }}>En uso</span>
+                <span style={{ fontWeight: 600 }}>{swapUsed.toFixed(1)} GB</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--border)', display: 'inline-block' }} />
+                <span style={{ color: 'var(--text-dim)' }}>Libre</span>
+                <span style={{ fontWeight: 600 }}>{(swapTotal - swapUsed).toFixed(1)} GB</span>
+              </div>
+            </div>
+            <div className="chart-wrap" style={{ padding: '4px 6px' }}>
+              <AreaChart
+                data={swapChartData}
+                accessor={d => d.v}
+                yMax={swapTotal}
+                yMin={0}
+                yUnit=" GB"
+                height={80}
+                color="var(--chart-swap)"
+              />
+            </div>
+          </>
         )}
       </div>
     </div>
