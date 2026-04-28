@@ -76,7 +76,9 @@ export default function InteractiveChart({
   };
 
   const tooltipX = tooltipPoint ? Math.min(Math.max(tooltipPoint.x, PL + 70), PL + cW - 70) : PL + 70;
-  const tooltipY = PT + cH + 22;
+  const tooltipY = tooltipPoint
+    ? (tooltipPoint.y < PT + cH / 2 ? tooltipPoint.y + 14 : tooltipPoint.y - 28)
+    : PT + cH + 22;
 
   return (
     <div style={{ position: 'relative' }}>
