@@ -44,12 +44,12 @@ export default function MemoryDetail({ current, spark }) {
           <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>RAM</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
             <span style={{ fontSize: '1.6rem', fontWeight: 700, color: ramColor(usedPct), lineHeight: 1 }}>{usedPct}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>%</span></span>
-            <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{usedApparent} / {total} GB used</span>
+            <span style={{ fontSize: '1rem', color: 'var(--text-dim)' }}>{usedApparent} / {total} GB used</span>
           </div>
           <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 4, background: 'var(--border)' }}>
             <div style={{ width: `${Math.min(usedPct, 100)}%`, height: '100%', background: ramColor(usedPct), borderRadius: 4, transition: 'width 0.3s' }} />
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 4, fontSize: '0.78rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 4, fontSize: '0.82rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: ramColor(usedPct), display: 'inline-block' }} />
               <span style={{ color: 'var(--text-dim)' }}>Used</span>
@@ -68,7 +68,7 @@ export default function MemoryDetail({ current, spark }) {
               yMax={total}
               yMin={0}
               yUnit=" GB"
-              height={110}
+              height={160}
               color="var(--chart-ram)"
             />
           </div>
@@ -79,12 +79,12 @@ export default function MemoryDetail({ current, spark }) {
             <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>SWAP</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
               <span style={{ fontSize: '1.6rem', fontWeight: 700, color: swapColor(swapPct), lineHeight: 1 }}>{swapPct}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>%</span></span>
-              <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{swapUsed} / {swapTotal} GB used</span>
+              <span style={{ fontSize: '1rem', color: 'var(--text-dim)' }}>{swapUsed} / {swapTotal} GB used</span>
             </div>
             <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 4, background: 'var(--border)' }}>
               <div style={{ width: `${Math.min(swapPct, 100)}%`, height: '100%', background: swapColor(swapPct), borderRadius: 4, transition: 'width 0.3s' }} />
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 4, fontSize: '0.78rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 4, fontSize: '0.82rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: swapColor(swapPct), display: 'inline-block' }} />
                 <span style={{ color: 'var(--text-dim)' }}>Used</span>
@@ -103,7 +103,7 @@ export default function MemoryDetail({ current, spark }) {
                 yMax={swapTotal}
                 yMin={0}
                 yUnit=" GB"
-                height={110}
+                height={160}
                 color="var(--chart-swap)"
               />
             </div>
