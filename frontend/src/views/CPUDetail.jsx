@@ -103,14 +103,19 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         <div className="stat-box"><div className="stat-box-label">Load Avg</div><div className="stat-box-val" style={{ fontSize: '1rem', paddingTop: '6px' }}>{current?.load_1} · {current?.load_5} · {current?.load_15}</div></div>
       </div>
 
-      <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('usage')}>
-        <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Usage <span className="chart-unit">%</span></div>
-        <div className="chart-wrap" style={{ padding: '6px 8px' }}><AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={120} color="var(--chart-cpu)" /></div>
-      </div>
-
-      <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('temp')}>
-        <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Temperature <span className="chart-unit">°C</span></div>
-        <div className="chart-wrap" style={{ padding: '6px 8px' }}><AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={120} color="var(--chart-temp)" /></div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--gap)' }}>
+        <div className="chart-section">
+          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Usage <span className="chart-unit">%</span></div>
+          <div className="chart-wrap" style={{ padding: '6px 8px', cursor: 'pointer' }} onClick={() => openChart('usage')}>
+            <AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-cpu)" />
+          </div>
+        </div>
+        <div className="chart-section">
+          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Temperature <span className="chart-unit">°C</span></div>
+          <div className="chart-wrap" style={{ padding: '6px 8px', cursor: 'pointer' }} onClick={() => openChart('temp')}>
+            <AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-temp)" />
+          </div>
+        </div>
       </div>
 
       {cpuCores.length > 0 && (
