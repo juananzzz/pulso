@@ -3,7 +3,6 @@ import { ALERT_COLOR_DEFAULT, BUFFER_SIZE, DEMO_DATA } from './constants';
 import { relTime, computeAlerts } from './utils';
 import Header from './components/Header';
 import TabBar from './components/TabBar';
-import AlertsStrip from './components/AlertsStrip';
 import SettingsPanel from './components/SettingsPanel';
 import Overview from './views/Overview';
 import CPUDetail from './views/CPUDetail';
@@ -11,6 +10,7 @@ import MemoryDetail from './views/MemoryDetail';
 import StorageDetail from './views/StorageDetail';
 import NetworkDetail from './views/NetworkDetail';
 import ProcessesDetail from './views/ProcessesDetail';
+import AlertsView from './views/AlertsView';
 
 const ls = k => { try { return localStorage.getItem(k); } catch { return null; } };
 const lss = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
@@ -111,9 +111,7 @@ export default function App() {
   return (
     <>
       <Header sysInfo={sysInfo} current={effCurrent} onLogoClick={() => setView('home')} onSettingsClick={() => setSettingsOpen(true)} />
-      <TabBar view={view} onNavigate={setView} />
-
-      {view === 'home' && <AlertsStrip alerts={alerts} />}
+      <TabBar view={view} onNavigate={setView} alertsCount={alerts.length} />
 
       <div className="main">
         {view === 'home' && (
@@ -129,6 +127,7 @@ export default function App() {
         {view === 'storage'    && <StorageDetail  disks={effDisks} />}
         {view === 'network'    && <NetworkDetail  current={effCurrent} spark={spark} />}
         {view === 'processes'  && <ProcessesDetail />}
+        {view === 'alerts'     && <AlertsView alerts={alerts} />}
       </div>
 
       <div className="footer">

@@ -145,6 +145,11 @@ body {
 }
 .tab-item:hover { color: var(--text); }
 .tab-item.active { color: var(--text); border-bottom-color: var(--text); font-weight: 600; }
+.tab-badge {
+  display: inline-block; margin-left: 6px; padding: 0 6px; min-width: 16px; height: 16px;
+  line-height: 16px; text-align: center; font-size: 0.65rem; font-weight: 700;
+  background: var(--alert); color: #fff; border-radius: 8px; vertical-align: top;
+}
 
 /* ALERTS */
 .alerts-strip {

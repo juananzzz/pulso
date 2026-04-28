@@ -8,6 +8,7 @@ export const TABS = [
   { id: 'storage',   label: 'Disks' },
   { id: 'network',   label: 'Network' },
   { id: 'processes', label: 'Processes' },
+  { id: 'alerts',    label: 'Alerts' },
 ];
 
 export const DEMO_DATA = {
