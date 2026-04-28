@@ -150,10 +150,6 @@ export default function NetworkDetail({ current, spark }) {
               <span className="net-legend-item"><span className="net-legend-line" style={{ background: 'var(--chart-net-sent)' }} /> Upload</span>
             </div>
           </div>
-          <div className="net-legend">
-            <span className="net-legend-item"><span className="net-legend-line" style={{ background: 'var(--chart-net-recv)' }} /> Download</span>
-            <span className="net-legend-item"><span className="net-legend-line" style={{ background: 'var(--chart-net-sent)' }} /> Upload</span>
-          </div>
         </div>
 
         {/* Interface card */}
@@ -166,14 +162,6 @@ export default function NetworkDetail({ current, spark }) {
               <span className="net-iface-status" style={{ color: 'var(--ok)' }}>Active</span>
             </div>
             <div className="net-iface-detail">
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Download</span>
-                <span className="net-meta-val" style={{ color: 'var(--chart-net-recv)' }}>↓ {recv ?? '—'} Mb/s</span>
-              </div>
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Upload</span>
-                <span className="net-meta-val" style={{ color: 'var(--chart-net-sent)' }}>↑ {sent ?? '—'} Mb/s</span>
-              </div>
               <div className="net-iface-detail-row">
                 <span className="net-meta-label">Latency</span>
                 <span className="net-meta-val">{latency ?? '—'} ms</span>
