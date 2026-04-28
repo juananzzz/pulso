@@ -1,4 +1,3 @@
-import SparkLine from '../charts/SparkLine';
 import { cpuColor, diskColor, ramColor, swapColor, tempColor } from '../utils';
 
 function fmt(gb) {
@@ -56,10 +55,6 @@ function CPUCard({ data, spark, onClick }) {
         <StatChip label="LOAD 15m" value={data?.load_15} />
       </div>
 
-      <div className="ov-chart-bottom">
-        <span className="ov-micro-label">Uso · últimos 60s</span>
-        <SparkLine data={spark} color="var(--chart-cpu)" height={80} fill />
-      </div>
     </div>
   );
 }
@@ -130,10 +125,6 @@ function RAMCard({ data, spark, onClick }) {
         <Bar pct={swapPct} color={swapColor(swapPct)} height={swapPct > 40 ? 5 : 3} />
       </div>
 
-      <div className="ov-chart-bottom">
-        <span className="ov-micro-label">Uso · últimos 60s</span>
-        <SparkLine data={spark} color="var(--chart-ram)" height={80} fill />
-      </div>
     </div>
   );
 }
@@ -164,28 +155,22 @@ function NetworkCard({ data, spark, onClick }) {
       </div>
 
       <div className="ov-net-line">
-        <div className="ov-net-label-col" style={{ width: 80 }}>
-          <div className="ov-micro-label">↓ RECV</div>
+        <div className="ov-net-label-col" style={{ width: 'auto' }}>
+          <div className="ov-micro-label">↓ DESCARGA</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
             <span className="ov-net-num">{data?.net_recv_mbps ?? '—'}</span>
             <span className="ov-net-unit">Mb/s</span>
           </div>
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <SparkLine data={spark?.recv} color="var(--chart-net-recv)" height={100} fill minMax={10} />
-        </div>
       </div>
 
       <div className="ov-net-line" style={{ marginTop: 12 }}>
-        <div className="ov-net-label-col" style={{ width: 80 }}>
-          <div className="ov-micro-label">↑ SENT</div>
+        <div className="ov-net-label-col" style={{ width: 'auto' }}>
+          <div className="ov-micro-label">↑ SUBIDA</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
             <span className="ov-net-num">{data?.net_sent_mbps ?? '—'}</span>
             <span className="ov-net-unit">Mb/s</span>
           </div>
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <SparkLine data={spark?.sent} color="var(--chart-net-sent)" height={100} fill minMax={10} />
         </div>
       </div>
 
