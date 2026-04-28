@@ -4,8 +4,6 @@ import ProgressArc from '../charts/ProgressArc';
 import MemStatBox from '../components/MemStatBox';
 import { ramColor, swapColor } from '../utils';
 
-const RANGE_SECS = { '1m': 90, '1h': 3600, '24h': 86400 };
-
 export default function MemoryDetail({ current, spark }) {
   const [range, setRange] = useState('1m');
   const [histData, setHistData] = useState([]);
@@ -79,7 +77,6 @@ export default function MemoryDetail({ current, spark }) {
                 yUnit=" GB"
                 height={320}
                 color="var(--chart-ram)"
-                xRangeSeconds={RANGE_SECS[range]}
               />
             </div>
           </div>
@@ -121,7 +118,6 @@ export default function MemoryDetail({ current, spark }) {
                 yUnit=" GB"
                 height={180}
                 color="var(--chart-swap)"
-                xRangeSeconds={RANGE_SECS[range]}
               />
             </div>
           </div>
