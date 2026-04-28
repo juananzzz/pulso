@@ -120,7 +120,6 @@ export default function App() {
           <Overview
             current={effCurrent}
             disks={effDisks}
-            spark={spark}
             onNavigate={setView}
           />
         )}

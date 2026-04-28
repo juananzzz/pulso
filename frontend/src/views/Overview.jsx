@@ -17,170 +17,132 @@ function Bar({ pct, color, height = 5 }) {
   );
 }
 
-function CardLabel({ text }) {
-  return <div className="ov-card-label">{text}</div>;
+function Gauge({ pct, color, size = 100, stroke = 7 }) {
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const off = circ - (Math.min(pct || 0, 100) / 100) * circ;
+  const fs = size * 0.28;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke}
+        strokeDasharray={circ} strokeDashoffset={off}
+        strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+      />
+      <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central"
+        fill="var(--text)" fontSize={fs} fontWeight={700} fontFamily="var(--num-font)">
+        {pct != null ? `${Math.round(pct)}%` : '—'}
+      </text>
+    </svg>
+  );
+}
+
+function CardTitle({ text }) {
+  return <div className="ov-card-title">{text}</div>;
 }
 
 // ── CPU ──────────────────────────────────────────────────────────
-function CPUCard({ data, spark, onClick }) {
+function CPUCard({ data, onClick }) {
   const pct = data?.cpu_percent != null ? Math.round(data.cpu_percent) : null;
+  const freq = data?.cpu_freq_ghz;
+  const temp = data?.temp_cpu;
 
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
-        <CardLabel text="CPU" />
-        {data?.cpu_freq_ghz && (
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>{data.cpu_freq_ghz} GHz</span>
-        )}
+        <CardTitle text="CPU" />
+        {freq && <span className="ov-meta">{freq} GHz</span>}
       </div>
-
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, marginBottom: 4 }}>
-        <div>
-          <span className="ov-big-num" style={{ color: cpuColor(pct) }}>{pct ?? '—'}</span>
-          <span className="ov-big-unit">%</span>
+      <div className="ov-gauge-row">
+        <Gauge pct={pct} color={cpuColor(pct)} size={110} stroke={8} />
+        <div className="ov-gauge-side">
+          {temp != null && (
+            <div>
+              <div className="ov-micro-label">TEMP</div>
+              <span className="ov-side-num" style={{ color: tempColor(temp) }}>{temp}<span className="ov-side-unit">°C</span></span>
+            </div>
+          )}
         </div>
-        {data?.temp_cpu != null && (
-          <div>
-            <span className="ov-big-num" style={{ color: tempColor(data.temp_cpu) }}>{data.temp_cpu}</span>
-            <span className="ov-big-unit">°C</span>
-          </div>
-        )}
       </div>
-
       <Bar pct={pct} color={cpuColor(pct)} />
-
-      <div className="ov-chip-row">
-        <StatChip label="LOAD 1m"  value={data?.load_1}  />
-        <StatChip label="LOAD 5m"  value={data?.load_5}  />
-        <StatChip label="LOAD 15m" value={data?.load_15} />
-      </div>
-
     </div>
   );
 }
 
 // ── RAM ──────────────────────────────────────────────────────────
-function RAMCard({ data, spark, onClick }) {
+function RAMCard({ data, onClick }) {
   const total   = data?.ram_total_gb  || 0;
   const avail   = data?.ram_available_gb || 0;
   const used    = total > 0 ? +(total - avail).toFixed(1) : (data?.ram_used_gb || 0);
   const pct     = data?.ram_percent != null ? Math.round(data.ram_percent) : null;
-  const cached  = data?.ram_cached_gb || 0;
-  const buffers = data?.ram_buffers_gb || 0;
-  const free    = avail;
-  const apps    = Math.max(0, +(used - cached - buffers).toFixed(1));
+  const pctColor = pct != null ? ramColor(pct) : 'var(--text)';
   const swapUsed  = data?.swap_used_gb  || 0;
   const swapTotal = data?.swap_total_gb || 0;
   const swapPct   = swapTotal > 0 ? Math.round(swapUsed / swapTotal * 100) : 0;
-  const pctColor = pct != null ? ramColor(pct) : 'var(--text)';
-
-  const segments = [
-    { label: 'Apps', value: apps, color: 'var(--chart-ram)' },
-    { label: 'Cached', value: cached, color: 'var(--distrib-cached)' },
-    { label: 'Buffers', value: buffers, color: 'var(--distrib-buffers)' },
-    { label: 'Free', value: free, color: 'var(--distrib-libre)' },
-  ].filter(s => s.value > 0);
 
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
-        <CardLabel text="RAM" />
-        <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>{total} GB total</span>
+        <CardTitle text="RAM" />
+        <span className="ov-meta">{total} GB total</span>
       </div>
-
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
-        <span className="ov-big-num" style={{ color: pctColor }}>{used.toFixed(1)}</span>
-        <span className="ov-big-unit">GB</span>
-        {pct != null && (
-          <span style={{ fontSize: '1rem', color: pctColor, marginLeft: 2, fontWeight: 600 }}>({pct}%)</span>
-        )}
+      <div className="ov-gauge-row">
+        <Gauge pct={pct} color={pctColor} size={110} stroke={8} />
+        <div className="ov-gauge-side">
+          <div>
+            <div className="ov-micro-label">EN USO</div>
+            <span className="ov-side-num" style={{ color: pctColor }}>{used.toFixed(1)}<span className="ov-side-unit">GB</span></span>
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <div className="ov-micro-label">DE</div>
+            <span className="ov-side-num">{total}<span className="ov-side-unit">GB</span></span>
+          </div>
+        </div>
       </div>
-
       <Bar pct={pct} color={pctColor} />
 
-      {total > 0 && (
-        <div style={{ margin: '12px 0 6px', display: 'flex', height: 14, borderRadius: 4, overflow: 'hidden', background: 'var(--border)' }}>
-          {segments.map(s => (
-            <div key={s.label} style={{ flex: s.value / total, background: s.color, minWidth: 2 }} title={`${s.label}: ${s.value.toFixed(1)} GB`} />
-          ))}
-        </div>
-      )}
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 6 }}>
-        {segments.map(s => (
-          <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ width: 7, height: 7, borderRadius: 2, background: s.color, flexShrink: 0 }} />
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>{s.label}</span>
-            <span style={{ fontSize: '0.78rem', fontWeight: 600, fontFamily: 'var(--num-font)' }}>{s.value.toFixed(1)}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="ov-swap-row" style={{ marginTop: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-          <span className="ov-micro-label">SWAP</span>
-          <span style={{ fontSize: '0.78rem', color: swapColor(swapPct), fontWeight: swapPct > 40 ? 600 : undefined }}>
+      <div className="ov-swap-section">
+        <div className="ov-swap-header">
+          <span className="ov-swap-label">SWAP</span>
+          <span className="ov-swap-val" style={{ color: swapColor(swapPct) }}>
             {swapUsed.toFixed(1)} / {swapTotal} GB
           </span>
+          {swapPct > 0 && (
+            <span className="ov-swap-pct" style={{ background: swapColor(swapPct) }}>{swapPct}%</span>
+          )}
         </div>
-        <Bar pct={swapPct} color={swapColor(swapPct)} height={swapPct > 40 ? 5 : 3} />
+        <Bar pct={swapPct} color={swapColor(swapPct)} height={6} />
       </div>
-
-    </div>
-  );
-}
-
-function StatChip({ label, value, unit, color }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <div className="ov-micro-label">{label}</div>
-      <span style={{
-        fontSize: '1.15rem', fontWeight: 700,
-        fontFamily: 'var(--num-font)',
-        color: color || 'var(--text)',
-      }}>
-        {value ?? '—'}
-        {unit && <span style={{ fontSize: '0.82rem', color: 'var(--text-mid)', marginLeft: 2 }}>{unit}</span>}
-      </span>
     </div>
   );
 }
 
 // ── Network ──────────────────────────────────────────────────────
-function NetworkCard({ data, spark, onClick }) {
+function NetworkCard({ data, onClick }) {
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
-        <CardLabel text="Red" />
-        <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>{data?.net_iface || '—'}</span>
+        <CardTitle text="RED" />
+        <span className="ov-meta">{data?.net_iface || '—'}</span>
       </div>
-
-      <div className="ov-net-line">
-        <div className="ov-net-label-col" style={{ width: 'auto' }}>
+      <div className="ov-net-wrapper">
+        <div className="ov-net-block">
           <div className="ov-micro-label">↓ DESCARGA</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <span className="ov-net-num">{data?.net_recv_mbps ?? '—'}</span>
-            <span className="ov-net-unit">Mb/s</span>
-          </div>
+          <span className="ov-stat-big">{data?.net_recv_mbps ?? '—'}</span>
+          <span className="ov-stat-unit">Mb/s</span>
         </div>
-      </div>
-
-      <div className="ov-net-line" style={{ marginTop: 12 }}>
-        <div className="ov-net-label-col" style={{ width: 'auto' }}>
+        <div className="ov-net-block">
           <div className="ov-micro-label">↑ SUBIDA</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <span className="ov-net-num">{data?.net_sent_mbps ?? '—'}</span>
-            <span className="ov-net-unit">Mb/s</span>
-          </div>
+          <span className="ov-stat-big">{data?.net_sent_mbps ?? '—'}</span>
+          <span className="ov-stat-unit">Mb/s</span>
         </div>
       </div>
-
       {data?.net_latency_ms != null && (
-        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="ov-lat-row">
           <span className="ov-micro-label">LATENCIA</span>
-          <span style={{ fontSize: '1.4rem', fontWeight: 700, fontFamily: 'var(--num-font)' }}>
-            {data.net_latency_ms}
-          </span>
-          <span style={{ fontSize: '0.82rem', color: 'var(--text-mid)' }}>ms</span>
+          <span className="ov-lat-num">{data.net_latency_ms}</span>
+          <span className="ov-stat-unit">ms</span>
         </div>
       )}
     </div>
@@ -193,20 +155,33 @@ function DisksCard({ disks, onClick }) {
   const used = disks.reduce((s, d) => s + d.used_gb, 0);
   const readSum = disks.reduce((s, d) => s + (d.read_mbps || 0), 0);
   const writeSum = disks.reduce((s, d) => s + (d.write_mbps || 0), 0);
+  const diskPct = total > 0 ? Math.round(used / total * 100) : 0;
 
   return (
     <div className="card clickable" onClick={onClick}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-        <CardLabel text="Discos" />
-        <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', opacity: 0.7 }}>
-          {disks.length} montados · {fmt(used)} / {fmt(total)}
-        </span>
+      <div className="ov-main-header" style={{ marginBottom: 14 }}>
+        <CardTitle text="DISCO" />
+        <span className="ov-meta">{disks.length} montados</span>
       </div>
 
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-        <div><span style={{ fontSize: '0.65rem', color: 'var(--text-dim)' }}>USADO</span><br /><span style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'var(--num-font)' }}>{fmt(used)}</span></div>
-                  <div><span style={{ fontSize: '0.65rem', color: 'var(--text-dim)' }}>↓ READS</span><br /><span style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'var(--num-font)' }}>{readSum.toFixed(1)}<span style={{ fontSize: '0.7rem', color: 'var(--text-mid)', marginLeft: 2 }}>MB/s</span></span></div>
-        <div><span style={{ fontSize: '0.65rem', color: 'var(--text-dim)' }}>↑ WRITES</span><br /><span style={{ fontSize: '1.1rem', fontWeight: 700, fontFamily: 'var(--num-font)' }}>{writeSum.toFixed(1)}<span style={{ fontSize: '0.7rem', color: 'var(--text-mid)', marginLeft: 2 }}>MB/s</span></span></div>
+      <div className="disk-total-row">
+        <div className="disk-total-stat">
+          <div className="ov-micro-label">USADO</div>
+          <span className="disk-total-num">{fmt(used)}</span>
+        </div>
+        <div className="disk-total-divider">/</div>
+        <div className="disk-total-stat">
+          <div className="ov-micro-label">TOTAL</div>
+          <span className="disk-total-num">{fmt(total)}</span>
+        </div>
+        <div className="disk-total-pct" style={{ color: diskColor(diskPct) }}>{diskPct}%</div>
+      </div>
+
+      <Bar pct={diskPct} color={diskColor(diskPct)} />
+
+      <div className="disk-total-io">
+        <span className="ov-micro-label">↓ {readSum.toFixed(1)} <span style={{ fontWeight: 400 }}>MB/s</span></span>
+        <span className="ov-micro-label">↑ {writeSum.toFixed(1)} <span style={{ fontWeight: 400 }}>MB/s</span></span>
       </div>
 
       {disks.map(d => (
@@ -239,13 +214,13 @@ function DisksCard({ disks, onClick }) {
 }
 
 // ── Main Overview ─────────────────────────────────────────────────
-export default function Overview({ current, disks, spark, onNavigate }) {
+export default function Overview({ current, disks, onNavigate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--gap) * 1.5)' }}>
       <div className="overview-grid-3" style={{ alignItems: 'stretch' }}>
-        <CPUCard     data={current} spark={spark?.cpu}    onClick={() => onNavigate('cpu')} />
-        <RAMCard     data={current} spark={spark?.ram}    onClick={() => onNavigate('memory')} />
-        <NetworkCard data={current} spark={spark}         onClick={() => onNavigate('network')} />
+        <CPUCard     data={current} onClick={() => onNavigate('cpu')} />
+        <RAMCard     data={current} onClick={() => onNavigate('memory')} />
+        <NetworkCard data={current} onClick={() => onNavigate('network')} />
       </div>
       <DisksCard disks={disks} onClick={() => onNavigate('storage')} />
     </div>

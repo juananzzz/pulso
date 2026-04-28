@@ -302,6 +302,33 @@ body {
 .ov-net-num { font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; font-family: var(--num-font); line-height: 1; }
 .ov-net-unit { font-size: 0.82rem; color: var(--text-mid); }
 
+.ov-card-title {
+  font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--text); line-height: 1;
+}
+.ov-meta { font-size: 0.78rem; color: var(--text-dim); }
+.ov-gauge-row { display: flex; align-items: center; gap: 20px; margin: 6px 0 4px; }
+.ov-gauge-side { display: flex; flex-direction: column; gap: 2px; }
+.ov-side-num { font-size: 2.2rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }
+.ov-side-unit { font-size: 1rem; color: var(--text-mid); margin-left: 2px; }
+.ov-swap-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ov-swap-header { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.ov-swap-label { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text); }
+.ov-swap-val { font-size: 0.88rem; font-weight: 600; font-family: var(--num-font); margin-left: auto; }
+.ov-swap-pct { font-size: 0.65rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; color: white; line-height: 1.5; }
+.ov-net-wrapper { display: flex; gap: 24px; margin: 12px 0; }
+.ov-net-block { flex: 1; }
+.ov-stat-big { font-size: 2.8rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }
+.ov-stat-unit { font-size: 0.82rem; color: var(--text-mid); margin-left: 2px; }
+.ov-lat-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ov-lat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--num-font); }
+.disk-total-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+.disk-total-stat { display: flex; flex-direction: column; }
+.disk-total-num { font-size: 2.4rem; font-weight: 700; font-family: var(--num-font); line-height: 1; }
+.disk-total-divider { font-size: 2rem; color: var(--text-dim); margin: 0 4px; }
+.disk-total-pct { font-size: 1.2rem; font-weight: 700; font-family: var(--num-font); margin-left: auto; }
+.disk-total-io { display: flex; gap: 16px; margin: 2px 0 8px; }
+
 /* OVERVIEW REDESIGN */
 .overview-section { margin-bottom: calc(var(--gap) * 2); }
 .section-header {

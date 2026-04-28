@@ -188,8 +188,8 @@ def api_current():
         for p in psutil.process_iter(['pid', 'name']):
             try:
                 pp = psutil.Process(p.pid)
-                cpu = pp.cpu_percent(interval=0)
-                procs.append({'pid': p.pid, 'name': p.info['name'], 'cpu': round(cpu, 1)})
+                p_cpu = pp.cpu_percent(interval=0)
+                procs.append({'pid': p.pid, 'name': p.info['name'], 'cpu': round(p_cpu, 1)})
             except Exception:
                 pass
         if procs:
