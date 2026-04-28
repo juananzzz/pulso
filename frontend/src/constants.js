@@ -7,7 +7,6 @@ export const TABS = [
   { id: 'memory',    label: 'Memory' },
   { id: 'storage',   label: 'Disks' },
   { id: 'network',   label: 'Network' },
-  { id: 'processes', label: 'Processes' },
   { id: 'alerts',    label: 'Alerts' },
 ];
 
