@@ -838,6 +838,32 @@ body {
 }
 .ov-hero-card-big { padding: 18px 20px; }
 
+/* Intermediate mode */
+.ov-simple-card-wide { grid-column: span 1; }
+.ov-simple-mid-row { display: flex; gap: 16px; align-items: stretch; flex: 1; }
+.ov-simple-mid-row > div:first-child { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.ov-simple-meta-col { display: flex; flex-direction: column; gap: 2px; min-width: 140px; justify-content: center; }
+.ov-simple-meta {
+  font-size: 0.78rem; color: var(--text-dim);
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* Detailed mode */
+.ov-detailed-row { display: flex; gap: 16px; align-items: center; flex: 1; }
+.ov-detailed-gauge { flex-shrink: 0; }
+.ov-detailed-metrics { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.ov-detailed-metric {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.82rem; font-family: var(--num-font); font-variant-numeric: tabular-nums;
+  padding: 2px 0; border-bottom: 1px solid var(--border);
+}
+.ov-detailed-metric:last-child { border-bottom: none; }
+.ov-sysinfo {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow);
+}
+.ov-sysinfo-grid { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 0.82rem; color: var(--text-mid); }
+
 /* ── NETWORK DETAIL ── */
 .net-primary {
   display: flex; justify-content: space-between; align-items: flex-start;
