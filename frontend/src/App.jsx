@@ -31,6 +31,7 @@ export default function App() {
     alertColor:   ls('p-alert')  || ALERT_COLOR_DEFAULT,
     animations:   ls('p-anim')   !== 'false',
     visualStyle:  ls('p-vstyle') || 'minimal',
+    alertBadge:   ls('p-alert-badge') !== 'false',
     demoScenario: 'normal',
   });
 
@@ -41,6 +42,7 @@ export default function App() {
     if (key === 'alertColor')  lss('p-alert', val);
     if (key === 'animations')  lss('p-anim', val);
     if (key === 'visualStyle') lss('p-vstyle', val);
+    if (key === 'alertBadge')  lss('p-alert-badge', val);
   };
 
   useEffect(() => {
@@ -111,7 +113,7 @@ export default function App() {
   return (
     <>
       <Header sysInfo={sysInfo} current={effCurrent} onLogoClick={() => setView('home')} onSettingsClick={() => setSettingsOpen(true)} />
-      <TabBar view={view} onNavigate={setView} alertsCount={alerts.length} />
+      <TabBar view={view} onNavigate={setView} alertsCount={alerts.length} alertBadge={settings.alertBadge} />
 
       <div className="main">
         {view === 'home' && (

@@ -1,5 +1,5 @@
 export default function SettingsPanel({ settings, onChange, onClose, hostname }) {
-  const { theme, density, animations, demoScenario, visualStyle } = settings;
+  const { theme, density, animations, demoScenario, visualStyle, alertBadge } = settings;
   return (
     <div className="settings-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="settings-panel">
@@ -60,6 +60,12 @@ export default function SettingsPanel({ settings, onChange, onClose, hostname })
           <span className="settings-row-label">Animations</span>
           <div className="toggle-wrap">
             <button className={`toggle${animations ? ' on' : ''}`} onClick={() => onChange('animations', !animations)} />
+          </div>
+        </div>
+        <div className="settings-row">
+          <span className="settings-row-label">Alert Badge</span>
+          <div className="toggle-wrap">
+            <button className={`toggle${alertBadge ? ' on' : ''}`} onClick={() => onChange('alertBadge', !alertBadge)} />
           </div>
         </div>
 
