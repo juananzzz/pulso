@@ -36,14 +36,11 @@ export default function AreaChart({
       })}
       <path d={area} fill={color} fillOpacity={0.12} />
       <path d={line} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" />
-      {endLabel && pts.length > 0 && (() => {
-        const last = pts[pts.length - 1];
-        return (
-          <text x={last.x + 6} y={last.y + 4} fontSize={9} fill={color} fontWeight={600}>
-            {endLabel}
-          </text>
-        );
-      })()}
+      {endLabel && (
+        <text x={PL + cW - 4} y={PT + 12} textAnchor="end" fontSize={9} fill={color} fontWeight={600}>
+          {endLabel}
+        </text>
+      )}
     </svg>
   );
 }
