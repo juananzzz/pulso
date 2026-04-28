@@ -817,6 +817,14 @@ body {
   display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap);
   margin-bottom: 24px;
 }
+.net-details-grid .chart-section {
+  display: flex;
+  flex-direction: column;
+}
+.net-details-grid .chart-wrap,
+.net-details-grid .net-iface-card {
+  flex: 1;
+}
 .net-legend { display: flex; gap: 16px; margin-top: 6px; font-size: 0.75rem; color: var(--text-dim); }
 .net-legend-item { display: flex; align-items: center; gap: 5px; }
 .net-legend-line { width: 14px; height: 3px; border-radius: 2px; }
