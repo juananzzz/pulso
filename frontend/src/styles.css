@@ -17,11 +17,11 @@
   --num-font: inherit;
   /* chart colors – distinct per metric */
   --chart-cpu: #00d4aa;
-  --chart-ram: #f59e0b;
+  --chart-ram: #3b82f6;
   --chart-temp: #f87171;
   --chart-net-recv: #60a5fa;
   --chart-net-sent: #a78bfa;
-  --chart-swap: #fb923c;
+  --chart-swap: #ec4899;
   /* distribution colors – minimal: neutral monochrome */
   --distrib-apps: var(--text-mid);
   --distrib-cached: var(--text-dim);
@@ -57,11 +57,11 @@
   --shadow: 0 2px 10px rgba(0,0,0,0.6);
   --num-font: 'JetBrains Mono','Fira Code','Courier New',monospace;
   --chart-cpu: #00d4aa;
-  --chart-ram: #f59e0b;
+  --chart-ram: #3b82f6;
   --chart-temp: #f87171;
   --chart-net-recv: #60a5fa;
   --chart-net-sent: #a78bfa;
-  --chart-swap: #fb923c;
+  --chart-swap: #ec4899;
   /* distribution colors – tech: colorful */
   --distrib-apps: #60a5fa;
   --distrib-cached: #34d399;
