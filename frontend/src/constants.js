@@ -1,6 +1,27 @@
 export const ALERT_COLOR_DEFAULT = '#E63946';
 export const BUFFER_SIZE = 30;
 
+export const DEFAULT_DASHBOARD_LAYOUT = [
+  { id: 'cpu',     type: 'cpu',     size: 'medium' },
+  { id: 'ram',     type: 'ram',     size: 'medium' },
+  { id: 'swap',    type: 'swap',    size: 'medium' },
+  { id: 'disks',   type: 'disks',   size: 'wide'   },
+  { id: 'network', type: 'network', size: 'wide'   },
+];
+
+export const CARD_META = {
+  cpu:     { label: 'CPU',     icon: 'Cpu' },
+  ram:     { label: 'RAM',     icon: 'MemoryStick' },
+  swap:    { label: 'SWAP',    icon: 'ArrowRightLeft' },
+  disks:   { label: 'Disks',   icon: 'HardDrive' },
+  network: { label: 'Network', icon: 'Network' },
+  temp:    { label: 'Temperature', icon: 'Thermometer' },
+  gpu:     { label: 'GPU',     icon: 'Monitor' },
+  docker:  { label: 'Docker',  icon: 'Container' },
+  processes: { label: 'Processes', icon: 'List' },
+  load:    { label: 'Load',    icon: 'Activity' },
+};
+
 export const TABS = [
   { id: 'home',      label: 'Overview' },
   { id: 'cpu',       label: 'CPU' },

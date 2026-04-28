@@ -1,5 +1,10 @@
-import { Cpu, MemoryStick, ArrowRightLeft, HardDrive, Network } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Cpu, MemoryStick, ArrowRightLeft, HardDrive, Network, GripVertical, X, Maximize2, Minimize2 } from 'lucide-react';
 import { cpuColor, diskColor, ramColor, swapColor, tempColor } from '../utils';
+import { CARD_META } from '../constants';
 
 function fmt(gb) {
   return gb >= 1000 ? `${(gb / 1000).toFixed(2)} TB` : `${gb.toFixed(0)} GB`;
@@ -204,17 +209,156 @@ function DisksCard({ disks, onClick }) {
   );
 }
 
+// ── Sortable Card Wrapper ─────────────────────────────────────────
+function SortableWrap({ id, children, editMode, onRemove, size, onSizeChange }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    position: 'relative',
+    gridColumn: size === 'wide' ? 'span 2' : 'span 1',
+  };
+
+  const nextSize = size === 'wide' ? 'medium' : 'wide';
+  const nextIcon = size === 'wide' ? <Minimize2 size={14} /> : <Maximize2 size={14} />;
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      {editMode && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 10,
+          border: '2px solid var(--chart-ram)',
+          borderRadius: 8, pointerEvents: 'none',
+        }} />
+      )}
+      {editMode && (
+        <div style={{ position: 'absolute', top: 4, left: 4, zIndex: 20, display: 'flex', gap: 4, alignItems: 'center' }}>
+          <button {...attributes} {...listeners} style={{
+            background: 'var(--card-bg)', border: '1px solid var(--border)',
+            borderRadius: 4, cursor: 'grab', padding: '2px 4px',
+            display: 'flex', alignItems: 'center', color: 'var(--text-dim)',
+          }}>
+            <GripVertical size={16} />
+          </button>
+          <button onClick={e => { e.stopPropagation(); onSizeChange(id, nextSize); }} style={{
+            background: 'var(--card-bg)', border: '1px solid var(--border)',
+            borderRadius: 4, cursor: 'pointer', padding: '2px 4px',
+            display: 'flex', alignItems: 'center', color: 'var(--text-dim)',
+          }}>
+            {nextIcon}
+          </button>
+        </div>
+      )}
+      {editMode && (
+        <div style={{ position: 'absolute', top: 4, right: 4, zIndex: 20 }}>
+          <button onClick={e => { e.stopPropagation(); onRemove(id); }} style={{
+            background: 'var(--card-bg)', border: '1px solid var(--border)',
+            borderRadius: 4, cursor: 'pointer', padding: '2px 4px',
+            display: 'flex', alignItems: 'center', color: 'var(--alert)',
+          }}>
+            <X size={16} />
+          </button>
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
 // ── Main Overview ─────────────────────────────────────────────────
-export default function Overview({ current, disks, sysInfo, onNavigate }) {
+export default function Overview({ current, disks, sysInfo, onNavigate, editMode, layout, onLayoutChange }) {
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+
+  const handleDragEnd = useCallback((event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIdx = layout.findIndex(i => i.id === active.id);
+    const newIdx = layout.findIndex(i => i.id === over.id);
+    if (oldIdx === -1 || newIdx === -1) return;
+    const arr = [...layout];
+    const [moved] = arr.splice(oldIdx, 1);
+    arr.splice(newIdx, 0, moved);
+    onLayoutChange(arr);
+  }, [layout, onLayoutChange]);
+
+  const handleRemove = useCallback((id) => {
+    onLayoutChange(layout.filter(i => i.id !== id));
+  }, [layout, onLayoutChange]);
+
+  const handleSizeChange = useCallback((id, size) => {
+    onLayoutChange(layout.map(i => i.id === id ? { ...i, size } : i));
+  }, [layout, onLayoutChange]);
+
+  const cards = {
+    cpu:     <CPUCard     data={current} cpuModel={sysInfo?.cpu_model} onClick={editMode ? undefined : () => onNavigate('cpu')} />,
+    ram:     <RAMCard     data={current}                              onClick={editMode ? undefined : () => onNavigate('memory')} />,
+    swap:    <SwapCard    data={current}                              onClick={editMode ? undefined : () => onNavigate('memory')} />,
+    disks:   <DisksCard   disks={disks}                               onClick={editMode ? undefined : () => onNavigate('storage')} />,
+    network: <NetworkCard data={current}                              onClick={editMode ? undefined : () => onNavigate('network')} />,
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--gap) * 1.5)' }}>
-      <div className="overview-grid-3" style={{ alignItems: 'stretch' }}>
-        <CPUCard  data={current} cpuModel={sysInfo?.cpu_model} onClick={() => onNavigate('cpu')} />
-        <RAMCard  data={current}                              onClick={() => onNavigate('memory')} />
-        <SwapCard data={current}                              onClick={() => onNavigate('memory')} />
+      {editMode && (
+        <CardBank layout={layout} onLayoutChange={onLayoutChange} />
+      )}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={layout.map(i => i.id)} strategy={rectSortingStrategy}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 'var(--gap)',
+            alignItems: 'stretch',
+          }}>
+            {layout.map(item => {
+              const card = cards[item.type];
+              if (!card) return null;
+              return (
+                <SortableWrap key={item.id} id={item.id} editMode={editMode}
+                  onRemove={handleRemove} size={item.size} onSizeChange={handleSizeChange}>
+                  {card}
+                </SortableWrap>
+              );
+            })}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+}
+
+// ── Card Bank ─────────────────────────────────────────────────────
+function CardBank({ layout, onLayoutChange }) {
+  const added = new Set(layout.map(i => i.type));
+  const available = Object.entries(CARD_META).filter(([type]) => !added.has(type));
+
+  if (available.length === 0) return null;
+
+  return (
+    <div style={{
+      background: 'var(--card-bg)', border: '1px solid var(--border)',
+      borderRadius: 8, padding: '12px 16px',
+    }}>
+      <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-dim)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        Card Bank — Click to add
       </div>
-      <DisksCard   disks={disks}   onClick={() => onNavigate('storage')} />
-      <NetworkCard data={current}  onClick={() => onNavigate('network')} />
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        {available.map(([type, meta]) => (
+          <button key={type} onClick={() => {
+            onLayoutChange([...layout, { id: type + '-' + Date.now(), type, size: 'medium' }]);
+          }} style={{
+            background: 'var(--bg)', border: '1px solid var(--border)',
+            borderRadius: 6, cursor: 'pointer', padding: '6px 12px',
+            fontSize: '0.82rem', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 6,
+            transition: 'border-color 0.2s',
+          }} onMouseOver={e => e.target.style.borderColor = 'var(--text-mid)'}
+             onMouseOut={e => e.target.style.borderColor = ''}>
+            + {meta.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

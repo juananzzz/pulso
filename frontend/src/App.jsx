@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ALERT_COLOR_DEFAULT, BUFFER_SIZE, DEMO_DATA } from './constants';
+import { ALERT_COLOR_DEFAULT, BUFFER_SIZE, DEMO_DATA, DEFAULT_DASHBOARD_LAYOUT } from './constants';
 import { relTime, computeAlerts } from './utils';
 import Header from './components/Header';
 import TabBar from './components/TabBar';
@@ -24,6 +24,26 @@ export default function App() {
   const [lastRefresh, setLastRefresh] = useState(null);
   const [view, setView]         = useState('home');
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [dashboardLayout, setDashboardLayout] = useState(null);
+
+  const saveLayout = layout => {
+    setDashboardLayout(layout);
+    lss('p-dashboard-layout', JSON.stringify(layout));
+  };
+
+  const resetLayout = () => {
+    const def = DEFAULT_DASHBOARD_LAYOUT;
+    setDashboardLayout(def);
+    lss('p-dashboard-layout', JSON.stringify(def));
+  };
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(ls('p-dashboard-layout'));
+      if (saved?.length) setDashboardLayout(saved);
+    } catch {}
+  }, []);
 
   const [settings, setSettings] = useState({
     theme:        ls('p-theme')  || 'light',
@@ -112,7 +132,7 @@ export default function App() {
 
   return (
     <>
-      <Header sysInfo={sysInfo} current={effCurrent} onLogoClick={() => setView('home')} onSettingsClick={() => setSettingsOpen(true)} />
+      <Header sysInfo={sysInfo} current={effCurrent} onLogoClick={() => setView('home')} onSettingsClick={() => setSettingsOpen(true)} editMode={editMode} onEditToggle={() => setEditMode(e => !e)} onResetLayout={resetLayout} />
       <TabBar view={view} onNavigate={setView} alertsCount={alerts.length} alertBadge={settings.alertBadge} />
 
       <div className="main">
@@ -122,6 +142,9 @@ export default function App() {
             disks={effDisks}
             sysInfo={sysInfo}
             onNavigate={setView}
+            editMode={editMode}
+            layout={dashboardLayout || DEFAULT_DASHBOARD_LAYOUT}
+            onLayoutChange={saveLayout}
           />
         )}
         {view === 'cpu'        && <CPUDetail      sysInfo={sysInfo} current={effCurrent} spark={spark} cpuCores={cpuCores} />}
