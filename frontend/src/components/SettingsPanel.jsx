@@ -1,7 +1,5 @@
-import { ALERT_COLOR_DEFAULT } from '../constants';
-
 export default function SettingsPanel({ settings, onChange, onClose, hostname }) {
-  const { theme, density, alertColor, animations, demoScenario, visualStyle } = settings;
+  const { theme, animations, demoScenario, visualStyle } = settings;
   return (
     <div className="settings-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="settings-panel">
@@ -46,25 +44,6 @@ export default function SettingsPanel({ settings, onChange, onClose, hostname })
         )}
 
         <hr className="settings-divider" />
-        <div className="settings-section-label">Appearance</div>
-        <div className="settings-row">
-          <span className="settings-row-label">Density</span>
-          <div className="seg-control">
-            {['compact', 'regular', 'comfy'].map(d => (
-              <button key={d} className={`seg-btn${density === d ? ' active' : ''}`} onClick={() => onChange('density', d)}>
-                {d.charAt(0).toUpperCase() + d.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="settings-row">
-          <span className="settings-row-label">Alert color</span>
-          <div className="color-picker-row">
-            <input type="color" className="color-swatch" value={alertColor} onChange={e => onChange('alertColor', e.target.value)} style={{ background: alertColor }} />
-            <span className="color-hex">{alertColor.toUpperCase()}</span>
-            <button className="color-reset" onClick={() => onChange('alertColor', ALERT_COLOR_DEFAULT)}>Reset</button>
-          </div>
-        </div>
         <div className="settings-row">
           <span className="settings-row-label">Animations</span>
           <div className="toggle-wrap">
