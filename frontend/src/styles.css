@@ -602,6 +602,34 @@ body {
 .mem-big-sub { font-size: 1.1rem; color: var(--text-mid); margin-top: 4px; font-weight: 500; }
 .mem-available-label { font-size: 0.82rem; color: var(--text-dim); margin-top: 2px; }
 
+/* Memory mode selector */
+.mem-mode-selector { display: flex; gap: 2px; background: var(--bg); border-radius: 6px; padding: 2px; }
+.mem-mode-btn {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 4px 10px; border: none; border-radius: 4px; cursor: pointer;
+  background: transparent; color: var(--text-dim); transition: all var(--transition);
+  font-family: inherit;
+}
+.mem-mode-btn.active { background: var(--card-bg); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.mem-mode-btn:hover:not(.active) { color: var(--text-mid); }
+
+/* Simple mode */
+.mem-simple { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 24px 0; }
+.mem-simple-gauge { margin-bottom: 4px; }
+.mem-simple-stats { display: flex; gap: 32px; }
+.mem-simple-stat { text-align: center; }
+.mem-simple-stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-dim); margin-bottom: 4px; }
+.mem-simple-stat-val { font-size: 2.2rem; font-weight: 800; font-family: var(--num-font); font-variant-numeric: tabular-nums; line-height: 1; }
+.mem-simple-unit { font-size: 1rem; color: var(--text-mid); margin-left: 2px; }
+.mem-simple-bar { width: 100%; max-width: 400px; }
+.mem-simple-bar-track { height: 16px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.mem-simple-bar-fill { height: 100%; border-radius: 8px; transition: width 0.5s ease; }
+.mem-simple-status { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.mem-meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
+.mem-meta-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; box-shadow: var(--shadow); }
+.mem-meta-val { font-size: 1.5rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; line-height: 1; }
+.mem-detail-meta { margin-bottom: 24px; }
+
 /* Memory breakdown */
 .mem-breakdown {
   background: var(--card-bg); border: 1px solid var(--border);
