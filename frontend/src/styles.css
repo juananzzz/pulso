@@ -580,3 +580,117 @@ body {
   border-radius: 2px; overflow: hidden;
 }
 .cpu-proc-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+
+/* ── MEMORY REDESIGN ── */
+.mem-primary {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 20px; gap: 16px;
+}
+.mem-primary-left { display: flex; flex-direction: column; gap: 8px; }
+.mem-status-row { display: flex; align-items: center; gap: 8px; }
+.mem-status-indicator {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+.mem-status-text { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.01em; }
+.mem-primary-right { flex-shrink: 0; text-align: right; }
+.mem-big-pct {
+  font-size: 3.6rem; font-weight: 800; font-variant-numeric: tabular-nums;
+  font-family: var(--num-font); line-height: 1; letter-spacing: -0.03em;
+}
+.mem-big-unit { font-size: 1.5rem; font-weight: 400; color: var(--text-mid); margin-left: 4px; }
+.mem-big-sub { font-size: 1.1rem; color: var(--text-mid); margin-top: 4px; font-weight: 500; }
+.mem-available-label { font-size: 0.82rem; color: var(--text-dim); margin-top: 2px; }
+
+/* Memory breakdown */
+.mem-breakdown {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px 18px; margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.mem-breakdown-header {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px;
+}
+.mem-stacked-bar {
+  display: flex; height: 14px; border-radius: 4px; overflow: hidden;
+  background: var(--border);
+}
+.mem-stacked-seg {
+  height: 100%; transition: width 0.4s ease; cursor: help;
+  position: relative;
+}
+.mem-stacked-seg:first-child { border-radius: 4px 0 0 4px; }
+.mem-stacked-seg:last-child { border-radius: 0 4px 4px 0; }
+.mem-stacked-seg:only-child { border-radius: 4px; }
+.mem-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px;
+}
+.mem-legend-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.78rem; cursor: help;
+}
+.mem-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.mem-legend-label { color: var(--text-dim); }
+.mem-legend-val { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+
+.mem-details-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap);
+  margin-bottom: 24px;
+}
+
+/* SWAP section */
+.mem-swap-section { }
+.mem-swap-status { font-size: 0.72rem; font-weight: 600; }
+.mem-swap-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px 18px; box-shadow: var(--shadow);
+}
+.mem-swap-header {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px;
+}
+.mem-swap-pct {
+  font-size: 2rem; font-weight: 700; font-family: var(--num-font);
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.mem-swap-detail {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.85rem; color: var(--text-dim);
+}
+.mem-swap-alert-badge {
+  font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px;
+  background: var(--alert); color: white; line-height: 1.4;
+}
+.mem-swap-bar-track {
+  height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  margin-bottom: 12px;
+}
+.mem-swap-bar-fill {
+  height: 100%; border-radius: 3px; transition: width 0.4s ease;
+}
+.mem-swap-chart { margin-top: 4px; }
+.mem-swap-chart .chart-wrap { padding: 4px 6px; }
+
+/* Memory processes */
+.mem-procs-section { margin-bottom: 24px; }
+.mem-procs-grid { display: flex; flex-direction: column; gap: 4px; }
+.mem-proc-row {
+  display: grid; grid-template-columns: 24px 1fr auto 48px;
+  gap: 8px; align-items: center;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 12px; box-shadow: var(--shadow);
+  transition: border-color var(--transition);
+}
+.mem-proc-row:hover { border-color: var(--border-strong); }
+.mem-proc-rank {
+  font-size: 0.7rem; font-weight: 700; color: var(--text-dim);
+  text-align: center; font-variant-numeric: tabular-nums;
+}
+.mem-proc-name { font-size: 0.85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mem-proc-pid { font-size: 0.72rem; color: var(--text-dim); font-family: var(--num-font); }
+.mem-proc-pct { font-size: 0.85rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; text-align: right; }
+.mem-proc-bar-track {
+  grid-column: 1 / -1; height: 3px; background: var(--border);
+  border-radius: 2px; overflow: hidden;
+}
+.mem-proc-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
