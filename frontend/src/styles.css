@@ -835,8 +835,14 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
+.net-iface-speed-row {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 10px; margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.net-iface-speed-val { font-size: 1.1rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; }
+.net-iface-speed-div { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
 .net-legend { display: flex; gap: 16px; margin-top: 6px; font-size: 0.75rem; color: var(--text-dim); }
 .net-legend-item { display: flex; align-items: center; gap: 5px; }
 .net-legend-line { width: 14px; height: 3px; border-radius: 2px; }

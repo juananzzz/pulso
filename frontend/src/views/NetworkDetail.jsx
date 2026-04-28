@@ -161,6 +161,15 @@ export default function NetworkDetail({ current, spark }) {
               <span className="net-iface-name">{iface || '—'}</span>
               <span className="net-iface-status" style={{ color: 'var(--ok)' }}>Active</span>
             </div>
+            <div className="net-iface-speed-row">
+              <span className="net-iface-speed-val" style={{ color: 'var(--chart-net-recv)' }}>
+                ↓ {recv ?? '—'} <span className="net-speed-unit">Mb/s</span>
+              </span>
+              <span className="net-iface-speed-div" />
+              <span className="net-iface-speed-val" style={{ color: 'var(--chart-net-sent)' }}>
+                ↑ {sent ?? '—'} <span className="net-speed-unit">Mb/s</span>
+              </span>
+            </div>
             <div className="net-iface-detail">
               <div className="net-iface-detail-row">
                 <span className="net-meta-label">Latency</span>
