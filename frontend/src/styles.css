@@ -642,34 +642,15 @@ body {
 /* SWAP section */
 .mem-swap-section { }
 .mem-swap-status { font-size: 0.72rem; font-weight: 600; }
-.mem-swap-card {
-  background: var(--card-bg); border: 1px solid var(--border);
-  border-radius: 10px; padding: 16px 18px; box-shadow: var(--shadow);
+.mem-swap-footer {
+  display: flex; align-items: center; gap: 10px; margin-top: 10px;
+  flex-wrap: wrap;
 }
-.mem-swap-header {
-  display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px;
-}
-.mem-swap-pct {
-  font-size: 2rem; font-weight: 700; font-family: var(--num-font);
-  font-variant-numeric: tabular-nums; line-height: 1;
-}
-.mem-swap-detail {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.85rem; color: var(--text-dim);
-}
-.mem-swap-alert-badge {
-  font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px;
-  background: var(--alert); color: white; line-height: 1.4;
-}
-.mem-swap-bar-track {
-  height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
-  margin-bottom: 12px;
-}
-.mem-swap-bar-fill {
-  height: 100%; border-radius: 3px; transition: width 0.4s ease;
-}
-.mem-swap-chart { margin-top: 4px; }
-.mem-swap-chart .chart-wrap { padding: 4px 6px; }
+.mem-swap-pct { font-size: 1.4rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; line-height: 1; }
+.mem-swap-detail { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-dim); }
+.mem-swap-alert-badge { font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: var(--alert); color: white; line-height: 1.4; }
+.mem-swap-bar-track { flex: 1; min-width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.mem-swap-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
 
 /* Memory processes */
 .mem-procs-section { margin-bottom: 24px; }

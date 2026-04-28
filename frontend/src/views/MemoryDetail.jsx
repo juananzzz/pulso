@@ -141,34 +141,32 @@ export default function MemoryDetail({ current, spark }) {
         </div>
 
         {/* SWAP section */}
-        <div className="mem-swap-section">
+        <div className="chart-section">
           <div className="chart-label">
             <span>SWAP</span>
             <span className="mem-swap-status" style={{ color: swapStat.color }}>{swapStat.label}</span>
           </div>
-          <div className="mem-swap-card">
-            <div className="mem-swap-header">
-              <div className="mem-swap-pct" style={{ color: swapColor(swapPct) }}>
-                {swapPct}<span className="mem-metric-unit">%</span>
-              </div>
-              <div className="mem-swap-detail">
-                <span>{swapUsed.toFixed(1)} / {swapTotal} GB</span>
-                {swapPct > 70 && <span className="mem-swap-alert-badge">High</span>}
-              </div>
+          <div className="chart-wrap">
+            <AreaChart
+              data={swapChartData}
+              accessor={d => d.v}
+              yMax={swapTotal || 8}
+              yMin={0}
+              yUnit=" GB"
+              height={200}
+              color="var(--chart-swap)"
+            />
+          </div>
+          <div className="mem-swap-footer">
+            <div className="mem-swap-pct" style={{ color: swapColor(swapPct) }}>
+              {swapPct}<span className="mem-metric-unit">%</span>
+            </div>
+            <div className="mem-swap-detail">
+              <span>{swapUsed.toFixed(1)} / {swapTotal} GB</span>
+              {swapPct > 70 && <span className="mem-swap-alert-badge">High</span>}
             </div>
             <div className="mem-swap-bar-track">
               <div className="mem-swap-bar-fill" style={{ width: `${Math.min(swapPct, 100)}%`, background: swapColor(swapPct) }} />
-            </div>
-            <div className="mem-swap-chart">
-              <AreaChart
-                data={swapChartData}
-                accessor={d => d.v}
-                yMax={swapTotal || 8}
-                yMin={0}
-                yUnit=" GB"
-                height={100}
-                color="var(--chart-swap)"
-              />
             </div>
           </div>
         </div>
