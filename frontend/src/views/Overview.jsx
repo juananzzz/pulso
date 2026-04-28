@@ -55,7 +55,7 @@ function CPUCard({ data, cpuModel, onClick }) {
         <CardTitle text="CPU" />
         <Cpu size={18} color="var(--text-dim)" />
       </div>
-      <div className="ov-gauge-row">
+      <div className="ov-gauge-row" style={{ flex: 1 }}>
         <Gauge pct={pct} color={cpuColor(pct)} size={110} stroke={8} />
         <div className="ov-gauge-side">
           {temp != null && (
@@ -85,7 +85,7 @@ function RAMCard({ data, onClick }) {
         <CardTitle text="RAM" />
         <MemoryStick size={18} color="var(--text-dim)" />
       </div>
-      <div className="ov-gauge-row">
+      <div className="ov-gauge-row" style={{ flex: 1 }}>
         <Gauge pct={pct} color={pctColor} size={110} stroke={8} />
         <div className="ov-gauge-side">
           <div>
@@ -93,7 +93,7 @@ function RAMCard({ data, onClick }) {
             <span className="ov-side-num" style={{ color: pctColor }}>{used.toFixed(1)}<span className="ov-side-unit">GB</span></span>
           </div>
           <div style={{ marginTop: 8 }}>
-            <div className="ov-micro-label">OF</div>
+            <div className="ov-micro-label">DE</div>
             <span className="ov-side-num">{total}<span className="ov-side-unit">GB</span></span>
           </div>
         </div>
@@ -118,7 +118,7 @@ function SwapCard({ data, onClick }) {
       </div>
       {swapTotal > 0 ? (
         <>
-          <div className="ov-gauge-row">
+          <div className="ov-gauge-row" style={{ flex: 1 }}>
             <Gauge pct={swapPct} color={pctColor} size={110} stroke={8} />
             <div className="ov-gauge-side">
               <div>
@@ -131,7 +131,7 @@ function SwapCard({ data, onClick }) {
               </div>
             </div>
           </div>
-          <Bar pct={swapPct} color={pctColor} height={6} />
+          <Bar pct={swapPct} color={pctColor} />
         </>
       ) : (
         <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.95rem' }}>
