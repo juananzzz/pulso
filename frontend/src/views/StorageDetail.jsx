@@ -16,8 +16,8 @@ export default function StorageDetail({ disks }) {
       <div className="detail-title">Storage</div>
       <div className="detail-sub">{disks.length} disks · {fmt(total)} total</div>
       <div className="stat-boxes">
-        <div className="stat-box"><div className="stat-box-label">Used</div><div className="stat-box-val" style={{ fontSize: '1.3rem' }}>{fmt(used)}</div></div>
-        <div className="stat-box"><div className="stat-box-label">Free</div><div className="stat-box-val" style={{ fontSize: '1.3rem' }}>{fmt(free)}</div></div>
+        <div className="stat-box"><div className="stat-box-label">Used</div><div className="stat-box-val">{fmt(used)}</div></div>
+        <div className="stat-box"><div className="stat-box-label">Free</div><div className="stat-box-val">{fmt(free)}</div></div>
         <div className="stat-box"><div className="stat-box-label">Read</div><div className="stat-box-val">{readSum.toFixed(1)}<span className="stat-box-unit">MB/s</span></div></div>
         <div className="stat-box"><div className="stat-box-label">Write</div><div className="stat-box-val">{writeSum.toFixed(1)}<span className="stat-box-unit">MB/s</span></div></div>
       </div>
