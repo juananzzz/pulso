@@ -795,24 +795,6 @@ body {
 .net-speed-val { font-size: 1.8rem; font-weight: 800; font-family: var(--num-font); font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -0.02em; }
 .net-speed-unit { font-size: 0.8rem; font-weight: 400; color: var(--text-mid); margin-left: 2px; }
 
-.net-secondary {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap);
-  margin-bottom: 24px;
-}
-.net-metric {
-  background: var(--card-bg); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow);
-}
-.net-metric-label {
-  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em;
-  text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;
-}
-.net-metric-val {
-  font-size: 1.4rem; font-weight: 700; font-family: var(--num-font);
-  font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -0.01em;
-}
-.net-metric-unit { font-size: 0.82rem; color: var(--text-mid); margin-left: 2px; }
-
 .net-details-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap);
   margin-bottom: 24px;
@@ -821,18 +803,23 @@ body {
 .net-legend-item { display: flex; align-items: center; gap: 5px; }
 .net-legend-line { width: 14px; height: 3px; border-radius: 2px; }
 
-.net-iface-card {
-  background: var(--card-bg); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow);
+/* Interface panel — balanced with chart */
+.net-iface-header {
+  display: flex; align-items: center; gap: 8px;
+  padding-bottom: 8px; margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
 }
-.net-iface-row {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
-  padding-bottom: 10px; border-bottom: 1px solid var(--border);
+.net-iface-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.net-iface-name { font-size: 0.88rem; font-weight: 700; margin-right: auto; }
+.net-iface-speed { font-size: 0.85rem; font-weight: 600; font-family: var(--num-font); font-variant-numeric: tabular-nums; }
+.net-iface-chart { margin-bottom: 8px; }
+.net-iface-stats { display: flex; gap: 8px; }
+.net-iface-stat {
+  flex: 1; background: var(--bg); border-radius: 6px; padding: 6px 10px; text-align: center;
 }
-.net-iface-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.net-iface-name { font-size: 1rem; font-weight: 700; }
-.net-iface-status { font-size: 0.78rem; font-weight: 600; margin-left: auto; }
-.net-iface-detail { display: flex; flex-direction: column; gap: 6px; }
-.net-iface-detail-row { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; }
-.net-meta-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); width: 72px; flex-shrink: 0; }
-.net-meta-val { font-family: var(--num-font); font-variant-numeric: tabular-nums; }
+.net-iface-stat-label {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 2px;
+}
+.net-iface-stat-val { font-size: 0.95rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; }
+.net-iface-status-badge { font-size: 0.72rem; font-weight: 600; }

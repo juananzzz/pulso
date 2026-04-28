@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import AreaChart from '../charts/AreaChart';
 
 function netStatus(recv, sent) {
   const total = (recv || 0) + (sent || 0);
@@ -62,27 +63,7 @@ export default function NetworkDetail({ current, spark }) {
         </div>
       </div>
 
-      {/* Level 2: Secondary metrics */}
-      <div className="net-secondary">
-        <div className="net-metric">
-          <div className="net-metric-label">Latency</div>
-          <div className="net-metric-val">{latency ?? '—'}<span className="net-metric-unit">ms</span></div>
-        </div>
-        <div className="net-metric">
-          <div className="net-metric-label">Interface</div>
-          <div className="net-metric-val" style={{ fontSize: '1.2rem' }}>{iface || '—'}</div>
-        </div>
-        <div className="net-metric">
-          <div className="net-metric-label">Total Received</div>
-          <div className="net-metric-val">{totalRecv?.toFixed(1) ?? '—'}<span className="net-metric-unit">GB</span></div>
-        </div>
-        <div className="net-metric">
-          <div className="net-metric-label">Total Sent</div>
-          <div className="net-metric-val">{totalSent?.toFixed(1) ?? '—'}<span className="net-metric-unit">GB</span></div>
-        </div>
-      </div>
-
-      {/* Level 3: Details */}
+      {/* Level 2: Details grid — balanced and symmetrical */}
       <div className="net-details-grid">
         {/* Dual throughput chart */}
         <div className="chart-section">
@@ -102,7 +83,6 @@ export default function NetworkDetail({ current, spark }) {
                   </g>
                 );
               })}
-              {/* Reference line at 90% */}
               {(() => {
                 const y90 = 8 + 164 - 0.9 * 164;
                 return (
@@ -113,7 +93,6 @@ export default function NetworkDetail({ current, spark }) {
                   </g>
                 );
               })()}
-              {/* Download area + line */}
               {recvData.length > 1 && (() => {
                 const pts = recvData.map((d, i) => ({
                   x: 38 + (i / (recvData.length - 1)) * 754,
@@ -128,7 +107,6 @@ export default function NetworkDetail({ current, spark }) {
                   </>
                 );
               })()}
-              {/* Upload line */}
               {sentData.length > 1 && (() => {
                 const pts = sentData.map((d, i) => ({
                   x: 38 + (i / (sentData.length - 1)) * 754,
@@ -139,7 +117,6 @@ export default function NetworkDetail({ current, spark }) {
                   <path d={d} fill="none" stroke="var(--chart-net-sent)" strokeWidth={2} strokeLinejoin="round" />
                 );
               })()}
-              {/* Peak markers */}
               {peakRecv.map(i => {
                 if (i < 0 || i >= recvData.length) return null;
                 const x = 38 + (i / (recvData.length - 1)) * 754;
@@ -156,35 +133,46 @@ export default function NetworkDetail({ current, spark }) {
           </div>
         </div>
 
-        {/* Interface card */}
+        {/* Interface activity — same structure as throughput */}
         <div className="chart-section">
-          <div className="chart-label"><span>Interface</span></div>
-          <div className="net-iface-card">
-            <div className="net-iface-row">
+          <div className="chart-label">
+            <span>Interface <span className="chart-unit">{iface || ''}</span></span>
+            <span className="net-iface-status-badge" style={{ color: 'var(--ok)' }}>Active</span>
+          </div>
+          <div className="chart-wrap">
+            <div className="net-iface-header">
               <span className="net-iface-dot" style={{ background: 'var(--ok)' }} />
               <span className="net-iface-name">{iface || '—'}</span>
-              <span className="net-iface-status" style={{ color: 'var(--ok)' }}>Active</span>
+              <span className="net-iface-speed" style={{ color: 'var(--chart-net-recv)' }}>
+                ↓ {recv ?? '—'} <span className="net-speed-unit">Mb/s</span>
+              </span>
+              <span className="net-iface-speed" style={{ color: 'var(--chart-net-sent)' }}>
+                ↑ {sent ?? '—'} <span className="net-speed-unit">Mb/s</span>
+              </span>
             </div>
-            <div className="net-iface-detail">
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Download</span>
-                <span className="net-meta-val" style={{ color: 'var(--chart-net-recv)' }}>↓ {recv ?? '—'} Mb/s</span>
+            <div className="net-iface-chart">
+              <AreaChart
+                data={recvData}
+                accessor={d => d.v}
+                yMax={maxVal}
+                yMin={0}
+                yUnit=" Mb/s"
+                height={140}
+                color="var(--chart-net-recv)"
+              />
+            </div>
+            <div className="net-iface-stats">
+              <div className="net-iface-stat">
+                <span className="net-iface-stat-label">Latency</span>
+                <span className="net-iface-stat-val">{latency ?? '—'}<span className="net-speed-unit">ms</span></span>
               </div>
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Upload</span>
-                <span className="net-meta-val" style={{ color: 'var(--chart-net-sent)' }}>↑ {sent ?? '—'} Mb/s</span>
+              <div className="net-iface-stat">
+                <span className="net-iface-stat-label">Total DL</span>
+                <span className="net-iface-stat-val">{totalRecv?.toFixed(1) ?? '—'}<span className="net-speed-unit">GB</span></span>
               </div>
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Latency</span>
-                <span className="net-meta-val">{latency ?? '—'} ms</span>
-              </div>
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Total DL</span>
-                <span className="net-meta-val">{totalRecv?.toFixed(1) ?? '—'} GB</span>
-              </div>
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Total UL</span>
-                <span className="net-meta-val">{totalSent?.toFixed(1) ?? '—'} GB</span>
+              <div className="net-iface-stat">
+                <span className="net-iface-stat-label">Total UL</span>
+                <span className="net-iface-stat-val">{totalSent?.toFixed(1) ?? '—'}<span className="net-speed-unit">GB</span></span>
               </div>
             </div>
           </div>
