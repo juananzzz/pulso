@@ -1,3 +1,4 @@
+import { Cpu, MemoryStick, ArrowRightLeft, HardDrive } from 'lucide-react';
 import { cpuColor, diskColor, ramColor, swapColor, tempColor } from '../utils';
 
 function fmt(gb) {
@@ -52,6 +53,7 @@ function CPUCard({ data, cpuModel, onClick }) {
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
         <CardTitle text="CPU" />
+        <Cpu size={18} color="var(--text-dim)" />
       </div>
       <div className="ov-gauge-row">
         <Gauge pct={pct} color={cpuColor(pct)} size={110} stroke={8} />
@@ -81,6 +83,7 @@ function RAMCard({ data, onClick }) {
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
         <CardTitle text="RAM" />
+        <MemoryStick size={18} color="var(--text-dim)" />
       </div>
       <div className="ov-gauge-row">
         <Gauge pct={pct} color={pctColor} size={110} stroke={8} />
@@ -111,6 +114,7 @@ function SwapCard({ data, onClick }) {
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
         <CardTitle text="SWAP" />
+        <ArrowRightLeft size={18} color="var(--text-dim)" />
       </div>
       {swapTotal > 0 ? (
         <>
@@ -172,6 +176,7 @@ function DisksCard({ disks, onClick }) {
     <div className="card clickable" onClick={onClick}>
       <div className="ov-main-header">
         <CardTitle text="DISKS" />
+        <HardDrive size={18} color="var(--text-dim)" />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
