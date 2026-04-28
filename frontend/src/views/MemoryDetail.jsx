@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import AreaChart from '../charts/AreaChart';
 import { ramColor, swapColor } from '../utils';
 
+const DISTRIB_COLORS = {
+  'In use': '#3b82f6',
+  Cached: '#22c55e',
+  Buffers: '#06b6d4',
+  Free: '#64748b',
+};
+
 export default function MemoryDetail({ current, spark }) {
   const [range, setRange] = useState('1m');
   const [histData, setHistData] = useState([]);
@@ -36,18 +43,18 @@ export default function MemoryDetail({ current, spark }) {
     : histData.map(d => ({ v: d.swap != null ? +d.swap.toFixed(1) : 0 }));
 
   const distribItems = [
-    { label: 'En uso', value: used,    color: 'var(--distrib-apps)' },
-    { label: 'Cached',  value: cached,  color: 'var(--distrib-cached)' },
-    { label: 'Buffers', value: buffers, color: 'var(--distrib-buffers)' },
-    { label: 'Libre',   value: free,    color: 'var(--distrib-libre)' },
+    { label: 'In use', value: used,    color: DISTRIB_COLORS['In use'] },
+    { label: 'Cached',  value: cached,  color: DISTRIB_COLORS['Cached'] },
+    { label: 'Buffers', value: buffers, color: DISTRIB_COLORS['Buffers'] },
+    { label: 'Free',    value: free,    color: DISTRIB_COLORS['Free'] },
   ];
 
   return (
     <div className="detail">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
         <div>
-          <div className="detail-title">Memoria</div>
-          <div className="detail-sub" style={{ margin: 0 }}>{total} GB RAM · {swapTotal} GB SWAP</div>
+          <div className="detail-title">Memory</div>
+          <div className="detail-sub" style={{ margin: 0 }}>{total} GB RAM &middot; {swapTotal} GB SWAP</div>
         </div>
         <div className="range-selector">
           {['1m', '1h', '24h'].map(r => (
@@ -60,9 +67,24 @@ export default function MemoryDetail({ current, spark }) {
         <div className="chart-label" style={{ fontSize: '0.85rem', marginBottom: 6 }}>RAM</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
           <span style={{ fontSize: '1.6rem', fontWeight: 700, color: ramColor(usedPct), lineHeight: 1 }}>{usedPct}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>%</span></span>
-          <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{usedApparent} / {total} GB usado</span>
+          <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{usedApparent} / {total} GB used</span>
         </div>
-        <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', display: 'flex', marginBottom: 6, background: 'var(--border)' }}>
+        <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: 4, background: 'var(--border)' }}>
+          <div style={{ width: `${Math.min(usedPct, 100)}%`, height: '100%', background: ramColor(usedPct), borderRadius: 4, transition: 'width 0.3s' }} />
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 4, fontSize: '0.78rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: ramColor(usedPct), display: 'inline-block' }} />
+            <span style={{ color: 'var(--text-dim)' }}>Used</span>
+            <span style={{ fontWeight: 600 }}>{usedApparent.toFixed(1)} GB</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--border)', display: 'inline-block' }} />
+            <span style={{ color: 'var(--text-dim)' }}>Free</span>
+            <span style={{ fontWeight: 600 }}>{(total - usedApparent).toFixed(1)} GB</span>
+          </div>
+        </div>
+        <div style={{ height: 6, borderRadius: 3, overflow: 'hidden', display: 'flex', marginBottom: 4, background: 'var(--border)' }}>
           {distribItems.filter(d => d.value > 0).map(seg => (
             <div key={seg.label} style={{ width: `${seg.value / total * 100}%`, background: seg.color, minWidth: seg.value > 0 ? 2 : 0 }} />
           ))}
@@ -93,7 +115,7 @@ export default function MemoryDetail({ current, spark }) {
         <div className="chart-label" style={{ fontSize: '0.85rem', marginBottom: 6 }}>SWAP</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
           <span style={{ fontSize: '1.5rem', fontWeight: 700, color: swapColor(swapPct), lineHeight: 1 }}>{swapPct}<span style={{ fontSize: '0.85rem', fontWeight: 400 }}>%</span></span>
-          <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{swapUsed} / {swapTotal} GB usado</span>
+          <span style={{ fontSize: '0.92rem', color: 'var(--text-dim)' }}>{swapUsed} / {swapTotal} GB used</span>
         </div>
         {swapTotal > 0 && (
           <>
@@ -103,12 +125,12 @@ export default function MemoryDetail({ current, spark }) {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 8, fontSize: '0.78rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: swapColor(swapPct), display: 'inline-block' }} />
-                <span style={{ color: 'var(--text-dim)' }}>En uso</span>
+                <span style={{ color: 'var(--text-dim)' }}>Used</span>
                 <span style={{ fontWeight: 600 }}>{swapUsed.toFixed(1)} GB</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--border)', display: 'inline-block' }} />
-                <span style={{ color: 'var(--text-dim)' }}>Libre</span>
+                <span style={{ color: 'var(--text-dim)' }}>Free</span>
                 <span style={{ fontWeight: 600 }}>{(swapTotal - swapUsed).toFixed(1)} GB</span>
               </div>
             </div>
