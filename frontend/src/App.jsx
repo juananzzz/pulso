@@ -129,17 +129,12 @@ export default function App() {
       </div>
 
       <div className="footer">
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <a href="https://github.com/juananzzz/pulso" target="_blank" rel="noopener noreferrer"
-            style={{ color: 'var(--text-dim)', textDecoration: 'none', fontSize: '0.72rem' }}
-            onMouseOver={e => e.target.style.color = 'var(--text)'}
-            onMouseOut={e => e.target.style.color = 'var(--text-dim)'}>
-            github.com/juananzzz/pulso
-          </a>
-          <span style={{ opacity: 0.3 }}>·</span>
-          <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)' }}>v0.1.0</span>
-        </span>
-        <span>{relTimeStr}</span>
+        <a href="https://github.com/juananzzz/pulso" target="_blank" rel="noopener noreferrer"
+          style={{ color: 'var(--text-dim)', textDecoration: 'none', fontSize: '0.72rem' }}
+          onMouseOver={e => e.target.style.color = 'var(--text)'}
+          onMouseOut={e => e.target.style.color = 'var(--text-dim)'}>
+          Pulso
+        </a>
       </div>
 
       {settingsOpen && (
