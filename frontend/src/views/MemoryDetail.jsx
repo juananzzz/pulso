@@ -1,21 +1,11 @@
 import AreaChart from '../charts/AreaChart';
 import { ramColor, swapColor } from '../utils';
 
-const DISTRIB_COLORS = {
-  'In use': '#3b82f6',
-  Cached: '#22c55e',
-  Buffers: '#06b6d4',
-  Free: '#64748b',
-};
-
 export default function MemoryDetail({ current, spark }) {
   const total = current?.ram_total_gb || 32;
   const available = current?.ram_available_gb || 0;
   const cached = current?.ram_cached_gb || 0;
-  const buffers = current?.ram_buffers_gb || 0;
-  const used = current?.ram_used_gb || 0;
   const usedApparent = +(total - available).toFixed(1);
-  const free = available;
   const usedPct = total > 0 ? Math.round(usedApparent / total * 100) : 0;
 
   const swapUsed = current?.swap_used_gb || 0;
@@ -24,13 +14,6 @@ export default function MemoryDetail({ current, spark }) {
 
   const ramChartData = (spark?.ramGb || []).map(v => ({ v }));
   const swapChartData = (spark?.swapGb || []).map(v => ({ v }));
-
-  const distribItems = [
-    { label: 'In use', value: used,    color: DISTRIB_COLORS['In use'] },
-    { label: 'Cached',  value: cached,  color: DISTRIB_COLORS['Cached'] },
-    { label: 'Buffers', value: buffers, color: DISTRIB_COLORS['Buffers'] },
-    { label: 'Free',    value: free,    color: DISTRIB_COLORS['Free'] },
-  ];
 
   return (
     <div className="detail">
@@ -77,20 +60,6 @@ export default function MemoryDetail({ current, spark }) {
               <span style={{ color: 'var(--text-dim)' }}>Free</span>
               <span style={{ fontWeight: 600 }}>{(total - usedApparent).toFixed(1)} GB</span>
             </div>
-          </div>
-          <div style={{ height: 6, borderRadius: 3, overflow: 'hidden', display: 'flex', marginBottom: 4, background: 'var(--border)' }}>
-            {distribItems.filter(d => d.value > 0).map(seg => (
-              <div key={seg.label} style={{ width: `${seg.value / total * 100}%`, background: seg.color, minWidth: seg.value > 0 ? 2 : 0 }} />
-            ))}
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginBottom: 8, fontSize: '0.78rem' }}>
-            {distribItems.filter(d => d.value > 0).map(seg => (
-              <div key={seg.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: seg.color, display: 'inline-block' }} />
-                <span style={{ color: 'var(--text-dim)' }}>{seg.label}</span>
-                <span style={{ fontWeight: 600 }}>{seg.value.toFixed(1)} GB</span>
-              </div>
-            ))}
           </div>
           <div className="chart-wrap" style={{ padding: '4px 6px' }}>
             <AreaChart
