@@ -730,7 +730,7 @@ body {
 .sto-disk-card {
   background: var(--card-bg); border: 1px solid var(--border);
   border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow);
-  cursor: pointer; transition: border-color var(--transition);
+  transition: border-color var(--transition);
 }
 .sto-disk-card:hover { border-color: var(--border-strong); }
 .sto-disk-card.sto-critical { border-left: 3px solid var(--alert); }
@@ -765,16 +765,6 @@ body {
   text-transform: uppercase; color: var(--text-dim);
 }
 .sto-meta-val { color: var(--text-mid); font-variant-numeric: tabular-nums; }
-
-.sto-disk-expanded {
-  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
-  display: flex; flex-direction: column; gap: 6px;
-}
-.sto-disk-expanded-row {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.78rem;
-}
-.sto-disk-expanded-row .sto-meta-label { width: 100px; flex-shrink: 0; }
 
 /* ── OVERVIEW LAYOUT ── */
 .overview { display: flex; flex-direction: column; gap: calc(var(--gap) * 1.5); padding-top: var(--gap); }

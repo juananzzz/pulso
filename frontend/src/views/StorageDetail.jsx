@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { diskColor, tempColor } from '../utils';
 
 function fmt(gb) {
@@ -24,7 +24,6 @@ export default function StorageDetail({ disks }) {
   const free = useMemo(() => disks.reduce((s, d) => s + d.free_gb, 0), [disks]);
   const pct = total > 0 ? Math.round(used / total * 100) : 0;
 
-  const [expandedDisk, setExpandedDisk] = useState(null);
   const status = stoStatus(disks);
 
   return (
@@ -68,14 +67,12 @@ export default function StorageDetail({ disks }) {
         <div className="sto-disk-list">
           {sorted.map(d => {
             const barColor = diskColor(d.percent);
-            const isExpanded = expandedDisk === d.mountpoint;
             const isCritical = d.percent >= 85;
             const isWarn = d.percent >= 70 && d.percent < 85;
             return (
               <div
                 key={d.mountpoint}
                 className={`sto-disk-card${isCritical ? ' sto-critical' : ''}${isWarn ? ' sto-warn' : ''}`}
-                onClick={() => setExpandedDisk(isExpanded ? null : d.mountpoint)}
               >
                 <div className="sto-disk-header">
                   <div className="sto-disk-info">
@@ -94,7 +91,7 @@ export default function StorageDetail({ disks }) {
 
                 <div className="sto-disk-meta">
                   {d.model && (
-                    <div className="sto-disk-meta-item" title={d.model}>
+                    <div className="sto-disk-meta-item">
                       <span className="sto-meta-label">MODEL</span>
                       <span className="sto-meta-val">{d.model.length > 24 ? d.model.slice(0, 24) + '…' : d.model}</span>
                     </div>
@@ -105,12 +102,12 @@ export default function StorageDetail({ disks }) {
                       {d.temp != null ? `${d.temp}°C` : '—'}
                     </span>
                   </div>
-                  <div className="sto-disk-meta-item" title="Lectura / Escritura">
+                  <div className="sto-disk-meta-item">
                     <span className="sto-meta-label">I/O</span>
                     <span className="sto-meta-val">↓ {d.read_mbps ?? 0} · ↑ {d.write_mbps ?? 0} MB/s</span>
                   </div>
                   {d.smart_ok != null && (
-                    <div className="sto-disk-meta-item" title="SMART self-test">
+                    <div className="sto-disk-meta-item">
                       <span className="sto-meta-label">SMART</span>
                       <span className="sto-meta-val" style={{ color: d.smart_ok ? 'var(--ok)' : 'var(--alert)' }}>
                         {d.smart_ok ? '✓ ok' : '✗ fail'}
@@ -118,33 +115,6 @@ export default function StorageDetail({ disks }) {
                     </div>
                   )}
                 </div>
-
-                {isExpanded && (
-                  <div className="sto-disk-expanded">
-                    <div className="sto-disk-expanded-row">
-                      <span className="sto-meta-label">Capacity</span>
-                      <span className="sto-meta-val">{fmt(d.total_gb)} total · {fmt(d.used_gb)} used · {fmt(d.free_gb)} free</span>
-                    </div>
-                    {d.temp != null && (
-                      <div className="sto-disk-expanded-row">
-                        <span className="sto-meta-label">Temperature</span>
-                        <span className="sto-meta-val" style={{ color: tempColor(d.temp) }}>{d.temp}°C {d.temp > 55 ? '⚠ Alta' : ''}</span>
-                      </div>
-                    )}
-                    {d.smart_ok != null && (
-                      <div className="sto-disk-expanded-row">
-                        <span className="sto-meta-label">SMART Status</span>
-                        <span className="sto-meta-val" style={{ color: d.smart_ok ? 'var(--ok)' : 'var(--alert)' }}>
-                          {d.smart_ok ? 'PASSED' : 'FAILED'}
-                        </span>
-                      </div>
-                    )}
-                    <div className="sto-disk-expanded-row">
-                      <span className="sto-meta-label">Device</span>
-                      <span className="sto-meta-val">{d.device}</span>
-                    </div>
-                  </div>
-                )}
               </div>
             );
           })}
