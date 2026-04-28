@@ -114,19 +114,24 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
 
       {/* RAM + SWAP */}
       <div className="ov-simple-card ov-simple-card-wide" onClick={() => onNavigate('memory')}>
-        <div className="ov-simple-card-header"><MemoryStick size={20} /> RAM <Chip text={ramChip} color={ramChipCol} big /></div>
+        <div className="ov-simple-card-header"><MemoryStick size={20} /> Memory <Chip text={ramChip} color={ramChipCol} big /></div>
         <div className="ov-simple-mid-row">
           <div>
             <div className="ov-simple-card-main" style={{ color: ramColor(ramPct) }}>{ramPct}<span className="ov-simple-unit">%</span></div>
             <Bar pct={ramPct} color={ramColor(ramPct)} height={10} />
+            <div className="ov-simple-meta-col" style={{ marginTop: 4 }}>
+              <div className="ov-simple-meta">Used {ramUsed.toFixed(1)} GB</div>
+              <div className="ov-simple-meta">Cached {ramCached.toFixed(1)} GB</div>
+              <div className="ov-simple-meta">Buf {ramBuf.toFixed(1)} GB</div>
+              <div className="ov-simple-meta">Avail {ramAvail.toFixed(1)} GB</div>
+            </div>
           </div>
-          <div className="ov-simple-meta-col">
-            <div className="ov-simple-meta">Used {ramUsed.toFixed(1)} GB</div>
-            <div className="ov-simple-meta">Cached {ramCached.toFixed(1)} GB</div>
-            <div className="ov-simple-meta">Buf {ramBuf.toFixed(1)} GB</div>
-            <div className="ov-simple-meta">Avail {ramAvail.toFixed(1)} GB</div>
-            <div className="ov-simple-meta" style={{ marginTop: 4, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
-              SWAP {swapUsed.toFixed(1)} / {swapTotal} GB <span style={{ color: swapColor(swapPct) }}>({swapPct}%)</span>
+          <div>
+            <div className="ov-simple-card-main" style={{ color: swapColor(swapPct) }}>{swapPct}<span className="ov-simple-unit">%</span></div>
+            <Bar pct={swapPct} color={swapColor(swapPct)} height={10} />
+            <div className="ov-simple-meta-col" style={{ marginTop: 4 }}>
+              <div className="ov-simple-meta">Used {swapUsed.toFixed(1)} GB</div>
+              <div className="ov-simple-meta">Total {swapTotal} GB</div>
             </div>
           </div>
         </div>
