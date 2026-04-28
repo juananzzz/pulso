@@ -166,60 +166,31 @@ function NetworkCard({ data, onClick }) {
 function DisksCard({ disks, onClick }) {
   const total = disks.reduce((s, d) => s + d.total_gb, 0);
   const used = disks.reduce((s, d) => s + d.used_gb, 0);
-  const readSum = disks.reduce((s, d) => s + (d.read_mbps || 0), 0);
-  const writeSum = disks.reduce((s, d) => s + (d.write_mbps || 0), 0);
   const diskPct = total > 0 ? Math.round(used / total * 100) : 0;
 
   return (
     <div className="card clickable" onClick={onClick}>
-      <div className="ov-main-header" style={{ marginBottom: 14 }}>
+      <div className="ov-main-header">
         <CardTitle text="DISKS" />
-        <span className="ov-meta">{disks.length} mounted</span>
       </div>
 
-      <div className="disk-total-row">
-        <div className="disk-total-stat">
-          <div className="ov-micro-label">USED</div>
-          <span className="disk-total-num">{fmt(used)}</span>
-        </div>
-        <div className="disk-total-divider">/</div>
-        <div className="disk-total-stat">
-          <div className="ov-micro-label">TOTAL</div>
-          <span className="disk-total-num">{fmt(total)}</span>
-        </div>
-        <div className="disk-total-pct" style={{ color: diskColor(diskPct) }}>{diskPct}%</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+        <span className="disk-total-num">{fmt(used)}</span>
+        <span style={{ color: 'var(--text-dim)', fontSize: '1.3rem' }}>/</span>
+        <span className="disk-total-num">{fmt(total)}</span>
       </div>
 
       <Bar pct={diskPct} color={diskColor(diskPct)} />
 
-      <div className="disk-total-io">
-        <span className="ov-micro-label">↓ {readSum.toFixed(1)} <span style={{ fontWeight: 400 }}>MB/s</span></span>
-        <span className="ov-micro-label">↑ {writeSum.toFixed(1)} <span style={{ fontWeight: 400 }}>MB/s</span></span>
-      </div>
-
       {disks.map(d => (
-        <div className="disk-row" key={d.mountpoint} style={{ flexWrap: 'wrap', padding: '6px 0' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 100, flexShrink: 0 }}>
-            <span className="disk-mount">{d.mountpoint}</span>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 1 }}>
-              {d.temp != null && (
-                <span style={{ fontSize: '0.78rem', color: tempColor(d.temp) }}>{d.temp}°C</span>
-              )}
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>{d.device?.split('/').pop() || ''}</span>
-            </div>
-          </div>
-          <div className="disk-bar-wrap" style={{ minWidth: 80, flex: 1 }}>
+        <div className="disk-row" key={d.mountpoint}>
+          <span className="disk-mount">{d.mountpoint}</span>
+          <div className="disk-bar-wrap">
             <div className="disk-bar" style={{ width: `${d.percent}%`, background: diskColor(d.percent) }} />
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
-            <span className="disk-pct" style={{ color: diskColor(d.percent), width: 40, textAlign: 'right' }}>{d.percent}%</span>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontFamily: 'var(--num-font)', whiteSpace: 'nowrap' }}>
-              {fmt(d.used_gb)} / {fmt(d.total_gb)}
-            </span>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontFamily: 'var(--num-font)', whiteSpace: 'nowrap', minWidth: 70, textAlign: 'right' }}>
-              ↓{d.read_mbps} ↑{d.write_mbps}
-            </span>
-          </div>
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', fontFamily: 'var(--num-font)', whiteSpace: 'nowrap' }}>
+            {fmt(d.used_gb)} / {fmt(d.total_gb)}
+          </span>
         </div>
       ))}
     </div>
