@@ -608,7 +608,9 @@ body {
   background: var(--card-bg); border: 1px solid var(--border);
   border-radius: 12px; padding: 24px; box-shadow: var(--shadow);
   display: flex; flex-direction: column; align-items: center; gap: 12px;
+  cursor: pointer; transition: border-color var(--transition);
 }
+.mem-simple-card:hover { border-color: var(--border-strong); }
 .mem-simple-label { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
 .mem-simple-gauge-wrap { margin: 4px 0; }
 .mem-simple-stats { display: flex; gap: 28px; }

@@ -1,5 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import InteractiveChart from '../charts/InteractiveChart';
 import { ramColor, swapColor } from '../utils';
+
+const RANGES = [
+  { label: '1m',  value: '1m' },
+  { label: '1h',  value: '1h' },
+  { label: '8h',  value: '8h' },
+  { label: '24h', value: '24h' },
+];
 
 function memStatus(pct) {
   if (pct == null) return { label: 'No data', color: 'var(--text-dim)' };
@@ -15,9 +23,45 @@ function swapStatus(pct) {
   return { label: 'Intensive usage', color: 'var(--alert)' };
 }
 
-function SimpleGauge({ pct, used, total, label, status, colorFn, unit }) {
+function ChartModal({ chart, chartData, chartRange, onTimeRangeChange, onClose, ramTotal, swapTotal }) {
+  const titles = { ram: 'RAM Usage', swap: 'SWAP Usage' };
+  const colors = { ram: 'var(--chart-ram)', swap: 'var(--chart-swap)' };
+  const yMaxs = { ram: ramTotal || 32, swap: swapTotal || 8 };
   return (
-    <div className="mem-simple-card">
+    <div className="chart-modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="chart-modal">
+        <div className="chart-modal-header">
+          <h2 className="chart-modal-title">{titles[chart]}</h2>
+          <div className="range-selector">
+            {RANGES.map(r => (
+              <button key={r.value}
+                className={`range-btn${chartRange === r.value ? ' active' : ''}`}
+                onClick={() => onTimeRangeChange(r.value)}>{r.label}</button>
+            ))}
+          </div>
+          <button className="chart-modal-close" onClick={onClose}>×</button>
+        </div>
+        <div className="chart-modal-body">
+          <InteractiveChart
+            data={chartData || []}
+            color={colors[chart]}
+            yMax={yMaxs[chart]}
+            title={titles[chart]}
+            timeRange={chartRange}
+            ranges={RANGES}
+            onTimeRangeChange={onTimeRangeChange}
+            onClose={onClose}
+            modal
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SimpleGauge({ pct, used, total, label, status, colorFn, unit, onClick }) {
+  return (
+    <div className="mem-simple-card clickable" onClick={onClick}>
       <div className="mem-simple-label">{label}</div>
       <div className="mem-simple-gauge-wrap">
         <svg width="180" height="180" viewBox="0 0 180 180">
@@ -68,6 +112,49 @@ export default function MemoryDetail({ current, spark }) {
   const swapPct = swapTotal > 0 ? Math.round(swapUsed / swapTotal * 100) : 0;
   const swapStat = swapStatus(swapPct);
 
+  const [expandedChart, setExpandedChart] = useState(null);
+  const [chartRange, setChartRange] = useState('1h');
+  const [chartData, setChartData] = useState(null);
+  const frozenSpark = useRef(null);
+
+  const fetchHistory = useCallback((chart, range) => {
+    fetch(`/api/history?range=${range}`)
+      .then(r => r.json())
+      .then(data => {
+        const field = chart === 'ram' ? 'ram_used_gb' : 'swap_used_gb';
+        setChartData(data.map(d => ({ ts: d.ts * 1000, v: d[field] })));
+      })
+      .catch(() => setChartData([]));
+  }, []);
+
+  const openChart = useCallback((chart) => {
+    frozenSpark.current = spark;
+    setExpandedChart(chart);
+    if (chartRange === '1m') {
+      const src = chart === 'ram' ? spark?.ramGb : spark?.swapGb;
+      setChartData((src || []).map((v, i) => ({ ts: Date.now() - (src.length - i) * 3000, v })));
+    } else {
+      fetchHistory(chart, chartRange);
+    }
+  }, [chartRange, spark, fetchHistory]);
+
+  const closeChart = useCallback(() => {
+    setExpandedChart(null);
+    setChartData(null);
+    frozenSpark.current = null;
+  }, []);
+
+  const handleRangeChange = useCallback((range) => {
+    setChartRange(range);
+    if (range === '1m' && frozenSpark.current) {
+      const chart = expandedChart;
+      const src = chart === 'ram' ? frozenSpark.current?.ramGb : frozenSpark.current?.swapGb;
+      setChartData((src || []).map((v, i) => ({ ts: Date.now() - (src.length - i) * 3000, v })));
+    } else if (expandedChart) {
+      fetchHistory(expandedChart, range);
+    }
+  }, [expandedChart, fetchHistory]);
+
   const [topProcs, setTopProcs] = useState([]);
   useEffect(() => {
     fetch('/api/processes/top')
@@ -100,22 +187,14 @@ export default function MemoryDetail({ current, spark }) {
 
       <div className="mem-gauges-row">
         <SimpleGauge
-          pct={ramPct}
-          used={used.toFixed(1)}
-          total={total}
-          label="RAM"
-          status={ramStatus}
-          colorFn={ramColor}
-          unit="GB"
+          pct={ramPct} used={used.toFixed(1)} total={total}
+          label="RAM" status={ramStatus} colorFn={ramColor} unit="GB"
+          onClick={() => openChart('ram')}
         />
         <SimpleGauge
-          pct={swapPct}
-          used={swapUsed.toFixed(1)}
-          total={swapTotal || '—'}
-          label="SWAP"
-          status={swapStat}
-          colorFn={swapColor}
-          unit="GB"
+          pct={swapPct} used={swapUsed.toFixed(1)} total={swapTotal || '—'}
+          label="SWAP" status={swapStat} colorFn={swapColor} unit="GB"
+          onClick={() => openChart('swap')}
         />
       </div>
 
@@ -136,6 +215,18 @@ export default function MemoryDetail({ current, spark }) {
             ))}
           </div>
         </div>
+      )}
+
+      {expandedChart && (
+        <ChartModal
+          chart={expandedChart}
+          chartData={chartData}
+          chartRange={chartRange}
+          onTimeRangeChange={handleRangeChange}
+          onClose={closeChart}
+          ramTotal={total}
+          swapTotal={swapTotal}
+        />
       )}
     </div>
   );
