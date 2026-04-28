@@ -88,7 +88,8 @@
 [data-vstyle="tech"] .card-num,
 [data-vstyle="tech"] .stat-box-val { font-family: var(--num-font); }
 [data-vstyle="tech"] .tab-bar { border-bottom-color: rgba(80,100,200,0.2); }
-[data-vstyle="tech"] .tab-item.active { color: #00d4aa; border-bottom-color: #00d4aa; }
+[data-vstyle="tech"] .tab-item.active { color: #00d4aa; }
+[data-vstyle="tech"] .tab-item.active::after { background: #00d4aa; }
 
 [data-density="compact"] { --pad: 16px; --gap: 10px; --card-pad: 16px; }
 [data-density="regular"] { --pad: 24px; --gap: 14px; --card-pad: 22px; }
@@ -141,10 +142,15 @@ body {
   padding: 10px 18px; font-size: 0.88rem;
   color: var(--text-dim); border-bottom: 2px solid transparent;
   margin-bottom: -1px; white-space: nowrap;
-  transition: color var(--transition), border-color var(--transition);
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+  position: relative;
 }
-.tab-item:hover { color: var(--text); }
-.tab-item.active { color: var(--text); border-bottom-color: var(--text); font-weight: 600; }
+.tab-item:hover { color: var(--text); background: var(--border); border-radius: 4px 4px 0 0; }
+.tab-item.active { color: var(--text); border-bottom-color: var(--chart-cpu); font-weight: 700; }
+.tab-item.active::after {
+  content: ''; position: absolute; bottom: -1px; left: 18px; right: 18px;
+  height: 2px; background: var(--chart-cpu); border-radius: 1px;
+}
 .tab-badge {
   display: inline-block; margin-left: 6px; padding: 0 6px; min-width: 16px; height: 16px;
   line-height: 16px; text-align: center; font-size: 0.65rem; font-weight: 700;
@@ -485,3 +491,98 @@ body {
 .proc-cell-pid { color: var(--text-dim); font-family: var(--num-font); font-variant-numeric: tabular-nums; }
 .proc-cell-num { font-family: var(--num-font); font-variant-numeric: tabular-nums; text-align: right; }
 .proc-empty { padding: 20px 16px; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
+
+/* ── CPU REDESIGN ── */
+.cpu-primary {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 20px; gap: 16px;
+}
+.cpu-primary-left { display: flex; flex-direction: column; gap: 8px; }
+.cpu-status-row { display: flex; align-items: center; gap: 8px; }
+.cpu-status-indicator {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+.cpu-status-text { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.01em; }
+.cpu-primary-right { flex-shrink: 0; }
+.cpu-big-pct {
+  font-size: 3.6rem; font-weight: 800; font-variant-numeric: tabular-nums;
+  font-family: var(--num-font); line-height: 1; letter-spacing: -0.03em;
+}
+.cpu-big-unit { font-size: 1.5rem; font-weight: 400; color: var(--text-mid); margin-left: 4px; }
+
+.cpu-secondary {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap);
+  margin-bottom: 24px;
+}
+.cpu-metric {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px 18px; box-shadow: var(--shadow);
+}
+.cpu-metric-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.cpu-metric-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.cpu-metric-val {
+  font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  font-family: var(--num-font); line-height: 1; letter-spacing: -0.01em;
+}
+.cpu-metric-unit { font-size: 0.9rem; color: var(--text-mid); margin-left: 2px; }
+.cpu-load-val { display: flex; align-items: baseline; gap: 8px; }
+.cpu-load-val > span:first-child { font-size: 1.7rem; font-weight: 700; font-family: var(--num-font); }
+.cpu-load-sub { font-size: 1rem; color: var(--text-mid); font-weight: 500; font-family: var(--num-font); }
+
+.cpu-details-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap);
+  margin-bottom: 24px;
+}
+
+.chart-time-label { font-size: 0.72rem; color: var(--text-dim); font-weight: 400; }
+
+/* Per-core horizontal bars */
+.cores-hbars { display: flex; flex-direction: column; gap: 6px; }
+.core-hbar { display: flex; flex-direction: column; gap: 3px; }
+.core-hbar-label {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.78rem;
+}
+.core-hbar-num { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.core-hbar-pct { font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; font-size: 0.82rem; }
+.core-hbar-track {
+  height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+}
+.core-hbar-fill {
+  height: 100%; border-radius: 3px; transition: width 0.4s ease;
+}
+
+.cpu-imbalance-note {
+  margin-top: 10px; padding: 8px 12px;
+  background: var(--alert-bg); border: 1px solid var(--alert-border);
+  border-radius: 6px; font-size: 0.75rem; color: var(--alert);
+}
+
+/* Top CPU processes */
+.cpu-procs-section { margin-bottom: 24px; }
+.cpu-procs-grid { display: flex; flex-direction: column; gap: 4px; }
+.cpu-proc-row {
+  display: grid; grid-template-columns: 24px 1fr auto 48px;
+  gap: 8px; align-items: center;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 12px; box-shadow: var(--shadow);
+  transition: border-color var(--transition);
+}
+.cpu-proc-row:hover { border-color: var(--border-strong); }
+.cpu-proc-rank {
+  font-size: 0.7rem; font-weight: 700; color: var(--text-dim);
+  text-align: center; font-variant-numeric: tabular-nums;
+}
+.cpu-proc-name { font-size: 0.85rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cpu-proc-pid { font-size: 0.72rem; color: var(--text-dim); font-family: var(--num-font); }
+.cpu-proc-pct { font-size: 0.85rem; font-weight: 700; font-family: var(--num-font); font-variant-numeric: tabular-nums; text-align: right; }
+.cpu-proc-bar-track {
+  grid-column: 1 / -1; height: 3px; background: var(--border);
+  border-radius: 2px; overflow: hidden;
+}
+.cpu-proc-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }

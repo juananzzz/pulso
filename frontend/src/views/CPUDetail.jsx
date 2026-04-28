@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import AreaChart from '../charts/AreaChart';
 import InteractiveChart from '../charts/InteractiveChart';
 import { cpuColor, tempColor } from '../utils';
@@ -8,6 +8,18 @@ const RANGES = [
   { label: '1h',  value: '1h' },
   { label: '8h',  value: '8h' },
   { label: '24h', value: '24h' },
+];
+
+function cpuStatus(pct) {
+  if (pct == null) return { label: 'Sin datos', color: 'var(--text-dim)' };
+  if (pct < 70) return { label: 'Uso normal', color: 'var(--ok)' };
+  if (pct < 90) return { label: 'Carga moderada', color: 'var(--warn)' };
+  return { label: 'Carga crítica', color: 'var(--alert)' };
+}
+
+const REF_LINES = [
+  { value: 70, label: '70%', color: 'var(--warn)' },
+  { value: 90, label: '90%', color: 'var(--alert)' },
 ];
 
 function ChartModal({ chart, chartData, chartRange, onTimeRangeChange, onClose }) {
@@ -50,9 +62,37 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
   const [expandedChart, setExpandedChart] = useState(null);
   const [chartRange, setChartRange] = useState('1h');
   const [chartData, setChartData] = useState(null);
+  const [topProcs, setTopProcs] = useState([]);
   const frozenSpark = useRef(null);
 
-  const fetchHistory = (chart, range) => {
+  const pct = current?.cpu_percent;
+  const status = cpuStatus(pct);
+  const temp = current?.temp_cpu;
+  const freq = current?.cpu_freq_ghz;
+  const load1 = current?.load_1;
+  const load5 = current?.load_5;
+  const load15 = current?.load_15;
+
+  useEffect(() => {
+    fetch('/api/processes/top')
+      .then(r => r.json())
+      .then(d => setTopProcs(d.top_cpu || []))
+      .catch(() => setTopProcs([]));
+  }, []);
+
+  const sortedCores = useMemo(() =>
+    [...cpuCores].sort((a, b) => b.percent - a.percent),
+  [cpuCores]);
+
+  const peakIndices = useMemo(() => {
+    if (!spark?.cpu) return [];
+    return spark.cpu.reduce((acc, v, i) => {
+      if (v >= 90) acc.push(i);
+      return acc;
+    }, []);
+  }, [spark]);
+
+  const fetchHistory = useCallback((chart, range) => {
     fetch(`/api/history?range=${range}`)
       .then(r => r.json())
       .then(data => {
@@ -60,9 +100,9 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         setChartData(data.map(d => ({ ts: d.ts * 1000, v: d[field] })));
       })
       .catch(() => setChartData([]));
-  };
+  }, []);
 
-  const openChart = (chart) => {
+  const openChart = useCallback((chart) => {
     frozenSpark.current = spark;
     setExpandedChart(chart);
     if (chartRange === '1m') {
@@ -71,15 +111,15 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
     } else {
       fetchHistory(chart, chartRange);
     }
-  };
+  }, [chartRange, spark, fetchHistory]);
 
-  const closeChart = () => {
+  const closeChart = useCallback(() => {
     setExpandedChart(null);
     setChartData(null);
     frozenSpark.current = null;
-  };
+  }, []);
 
-  const handleRangeChange = (range) => {
+  const handleRangeChange = useCallback((range) => {
     setChartRange(range);
     if (range === '1m' && frozenSpark.current) {
       const chart = expandedChart;
@@ -88,45 +128,132 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
     } else if (expandedChart) {
       fetchHistory(expandedChart, range);
     }
-  };
+  }, [expandedChart, fetchHistory]);
+
+  const maxCorePct = sortedCores.length > 1 ? sortedCores[0].percent : 0;
+  const minCorePct = sortedCores.length > 1 ? sortedCores[sortedCores.length - 1].percent : 0;
+  const imbalance = maxCorePct - minCorePct;
 
   return (
     <div className="detail">
-      <div className="detail-title">CPU</div>
-      <div className="detail-sub">
-        {[sysInfo?.cpu_model, sysInfo?.cpu_threads && `${sysInfo.cpu_threads} threads`, current?.cpu_freq_ghz && `${current.cpu_freq_ghz} GHz`].filter(Boolean).join(' · ')}
-      </div>
-      <div className="stat-boxes">
-        <div className="stat-box"><div className="stat-box-label">Usage</div><div className="stat-box-val" style={{ color: cpuColor(current?.cpu_percent) }}>{current?.cpu_percent ?? '—'}<span className="stat-box-unit">%</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Temperature</div><div className="stat-box-val" style={{ color: tempColor(current?.temp_cpu) }}>{current?.temp_cpu ?? '—'}<span className="stat-box-unit">°C</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Frequency</div><div className="stat-box-val">{current?.cpu_freq_ghz ?? '—'}<span className="stat-box-unit">GHz</span></div></div>
-        <div className="stat-box"><div className="stat-box-label">Load Avg</div><div className="stat-box-val" style={{ fontSize: '1rem', paddingTop: '6px' }}>{current?.load_1} · {current?.load_5} · {current?.load_15}</div></div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--gap)' }}>
-        <div className="chart-section">
-          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Usage <span className="chart-unit">%</span></div>
-          <div className="chart-wrap" style={{ padding: '6px 8px', cursor: 'pointer' }} onClick={() => openChart('usage')}>
-            <AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-cpu)" />
+      {/* Level 1: Primary status */}
+      <div className="cpu-primary">
+        <div className="cpu-primary-left">
+          <div className="detail-title" style={{ marginBottom: 0 }}>CPU</div>
+          <div className="detail-sub" style={{ marginBottom: 0 }}>
+            {[sysInfo?.cpu_model, sysInfo?.cpu_threads && `${sysInfo.cpu_threads} threads`].filter(Boolean).join(' · ')}
+          </div>
+          <div className="cpu-status-row">
+            <span className="cpu-status-indicator" style={{ background: status.color }} />
+            <span className="cpu-status-text" style={{ color: status.color }}>{status.label}</span>
           </div>
         </div>
-        <div className="chart-section">
-          <div className="chart-label" style={{ marginBottom: 4, fontSize: '0.78rem' }}>Temperature <span className="chart-unit">°C</span></div>
-          <div className="chart-wrap" style={{ padding: '6px 8px', cursor: 'pointer' }} onClick={() => openChart('temp')}>
-            <AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-temp)" />
+        <div className="cpu-primary-right">
+          <div className="cpu-big-pct" style={{ color: cpuColor(pct) }}>
+            {pct ?? '—'}<span className="cpu-big-unit">%</span>
           </div>
         </div>
       </div>
 
-      {cpuCores.length > 0 && (
-        <div className="cores-section">
-          <div className="cores-label">Per core <span style={{ color: 'var(--text-dim)' }}>{cpuCores.length} cores</span></div>
-          <div className="cores-grid">
-            {cpuCores.map(c => (
-              <div className="core-block" key={c.core}>
-                <div className="core-num">{String(c.core).padStart(2, '0')}</div>
-                <div className="core-pct" style={{ color: cpuColor(c.percent) }}>{c.percent}%</div>
-                <div className="core-bar-wrap"><div className="core-bar-fill" style={{ height: `${c.percent}%`, background: cpuColor(c.percent) }} /></div>
+      {/* Level 2: Secondary metrics */}
+      <div className="cpu-secondary">
+        <div className="cpu-metric">
+          <div className="cpu-metric-label">
+            Temperature
+            <span className="cpu-metric-dot" style={{ background: tempColor(temp) }} />
+          </div>
+          <div className="cpu-metric-val" style={{ color: tempColor(temp) }}>
+            {temp ?? '—'}<span className="cpu-metric-unit">°C</span>
+          </div>
+        </div>
+        <div className="cpu-metric">
+          <div className="cpu-metric-label">Frequency</div>
+          <div className="cpu-metric-val">
+            {freq != null ? freq.toFixed(2) : '—'}<span className="cpu-metric-unit">GHz</span>
+          </div>
+        </div>
+        <div className="cpu-metric" title="1·5·15 min average">
+          <div className="cpu-metric-label">Load Average</div>
+          <div className="cpu-load-val">
+            <span>{load1 ?? '—'}</span>
+            <span className="cpu-load-sub">{load5 ?? '—'}</span>
+            <span className="cpu-load-sub">{load15 ?? '—'}</span>
+          </div>
+        </div>
+        <div className="cpu-metric">
+          <div className="cpu-metric-label">Cores</div>
+          <div className="cpu-metric-val">{cpuCores.length || sysInfo?.cpu_threads || '—'}</div>
+        </div>
+      </div>
+
+      {/* Level 3: Charts + per-core + processes */}
+      <div className="cpu-details-grid">
+        {/* CPU Usage chart */}
+        <div className="chart-section">
+          <div className="chart-label">
+            <span>Usage <span className="chart-unit">%</span></span>
+            <span className="chart-time-label">Últimos 90s</span>
+          </div>
+          <div className="chart-wrap" style={{ cursor: 'pointer' }} onClick={() => openChart('usage')}>
+            <AreaChart
+              data={spark?.cpu?.map(v => ({ v }))}
+              accessor={d => d.v}
+              yMax={100}
+              height={200}
+              color="var(--chart-cpu)"
+              refLines={REF_LINES}
+              highlightIndices={peakIndices}
+              endLabel={`${pct ?? 0}%`}
+            />
+          </div>
+        </div>
+
+        {/* Per-core horizontal bars */}
+        {sortedCores.length > 0 && (
+          <div className="cores-section">
+            <div className="chart-label">
+              <span>Per Core</span>
+              <span className="chart-unit">{sortedCores.length} cores</span>
+            </div>
+            <div className="cores-hbars">
+              {sortedCores.map(c => (
+                <div className="core-hbar" key={c.core}>
+                  <div className="core-hbar-label">
+                    <span className="core-hbar-num">Core {String(c.core).padStart(2, '0')}</span>
+                    <span className="core-hbar-pct" style={{ color: cpuColor(c.percent) }}>{c.percent}%</span>
+                  </div>
+                  <div className="core-hbar-track">
+                    <div
+                      className="core-hbar-fill"
+                      style={{ width: `${Math.min(c.percent, 100)}%`, background: cpuColor(c.percent) }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            {imbalance > 30 && (
+              <div className="cpu-imbalance-note">
+                Desequilibrio detectado: core {sortedCores[0].core} al {maxCorePct}% vs core {sortedCores[sortedCores.length - 1].core} al {minCorePct}%
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Top CPU processes */}
+      {topProcs.length > 0 && (
+        <div className="cpu-procs-section">
+          <div className="chart-label">Top Procesos</div>
+          <div className="cpu-procs-grid">
+            {topProcs.map((p, i) => (
+              <div className="cpu-proc-row" key={p.pid || i}>
+                <span className="cpu-proc-rank">{i + 1}</span>
+                <span className="cpu-proc-name">{p.name || '—'}</span>
+                <span className="cpu-proc-pid">PID {p.pid}</span>
+                <span className="cpu-proc-pct" style={{ color: cpuColor(p.cpu_percent) }}>{p.cpu_percent}%</span>
+                <div className="cpu-proc-bar-track">
+                  <div className="cpu-proc-bar-fill" style={{ width: `${Math.min(p.cpu_percent, 100)}%`, background: cpuColor(p.cpu_percent) }} />
+                </div>
               </div>
             ))}
           </div>
