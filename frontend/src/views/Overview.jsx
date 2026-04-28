@@ -1,4 +1,4 @@
-import { Cpu, MemoryStick, ArrowRightLeft, HardDrive } from 'lucide-react';
+import { Cpu, MemoryStick, ArrowRightLeft, HardDrive, Network } from 'lucide-react';
 import { cpuColor, diskColor, ramColor, swapColor, tempColor } from '../utils';
 
 function fmt(gb) {
@@ -148,7 +148,7 @@ function NetworkCard({ data, onClick }) {
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
         <CardTitle text="NETWORK" />
-        <span className="ov-meta">{data?.net_iface || '—'}</span>
+        <Network size={18} color="var(--text-dim)" />
       </div>
       <div className="ov-net-wrapper">
         <div className="ov-net-block">
