@@ -38,11 +38,12 @@ export default function AreaChart({
       {refLines.map(rl => {
         const y = PT + cH - (rl.value - yMin) / range * cH;
         if (y < PT || y > PT + cH) return null;
+        const lw = rl.label.length * 5.5 + 10;
         return (
           <g key={rl.value}>
             <line x1={PL} y1={y} x2={PL + cW} y2={y}
               stroke={rl.color || 'var(--text-dim)'} strokeWidth={1.5} strokeDasharray="5 4" opacity={0.5} />
-            <rect x={PL + cW - 30} y={y - 10} width={30} height={10} rx={3} fill={rl.color || 'var(--text-dim)'} opacity={0.85} />
+            <rect x={PL + cW - lw} y={y - 10} width={lw} height={10} rx={3} fill={rl.color || 'var(--text-dim)'} opacity={0.85} />
             <text x={PL + cW - 4} y={y - 2} textAnchor="end" fontSize={8} fill="#fff" fontWeight={600}>{rl.label}</text>
           </g>
         );

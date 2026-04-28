@@ -53,6 +53,15 @@ export default function MemoryDetail({ current, spark }) {
     ];
   }, [total]);
 
+  const peakIndices = useMemo(() => {
+    if (!spark?.ramGb) return [];
+    const pct90 = total * 0.9;
+    return spark.ramGb.reduce((acc, v, i) => {
+      if (v >= pct90) acc.push(i);
+      return acc;
+    }, []);
+  }, [spark, total]);
+
   const segs = [
     { key: 'used', label: 'Used', value: used, pct: total > 0 ? used / total * 100 : 0, color: 'var(--chart-ram)' },
     { key: 'cached', label: 'Cached', value: cached, pct: total > 0 ? cached / total * 100 : 0, color: 'var(--distrib-cached)' },
@@ -155,9 +164,10 @@ export default function MemoryDetail({ current, spark }) {
             yMax={total}
             yMin={0}
             yUnit=" GB"
-            height={200}
+            height={140}
             color="var(--chart-ram)"
             refLines={refLines}
+            highlightIndices={peakIndices}
           />
         </div>
       </div>
