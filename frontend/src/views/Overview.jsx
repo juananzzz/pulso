@@ -91,7 +91,7 @@ function RAMCard({ data, onClick }) {
         <Gauge pct={pct} color={pctColor} size={110} stroke={8} />
         <div className="ov-gauge-side">
           <div>
-            <div className="ov-micro-label">EN USO</div>
+            <div className="ov-micro-label">IN USE</div>
             <span className="ov-side-num" style={{ color: pctColor }}>{used.toFixed(1)}<span className="ov-side-unit">GB</span></span>
           </div>
           <div style={{ marginTop: 8 }}>
@@ -124,11 +124,11 @@ function SwapCard({ data, onClick }) {
             <Gauge pct={swapPct} color={pctColor} size={110} stroke={8} />
             <div className="ov-gauge-side">
               <div>
-                <div className="ov-micro-label">EN USO</div>
+                <div className="ov-micro-label">IN USE</div>
                 <span className="ov-side-num" style={{ color: pctColor }}>{swapUsed.toFixed(1)}<span className="ov-side-unit">GB</span></span>
               </div>
               <div style={{ marginTop: 8 }}>
-                <div className="ov-micro-label">DE</div>
+                <div className="ov-micro-label">OF</div>
                 <span className="ov-side-num">{swapTotal}<span className="ov-side-unit">GB</span></span>
               </div>
             </div>
@@ -137,7 +137,7 @@ function SwapCard({ data, onClick }) {
         </>
       ) : (
         <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.95rem' }}>
-          No hay swap configurado
+          No swap configured
         </div>
       )}
     </div>
@@ -149,24 +149,24 @@ function NetworkCard({ data, onClick }) {
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
       <div className="ov-main-header">
-        <CardTitle text="RED" />
+        <CardTitle text="NETWORK" />
         <span className="ov-meta">{data?.net_iface || '—'}</span>
       </div>
       <div className="ov-net-wrapper">
         <div className="ov-net-block">
-          <div className="ov-micro-label">↓ DESCARGA</div>
+          <div className="ov-micro-label">↓ DOWNLOAD</div>
           <span className="ov-stat-big">{data?.net_recv_mbps ?? '—'}</span>
           <span className="ov-stat-unit">Mb/s</span>
         </div>
         <div className="ov-net-block">
-          <div className="ov-micro-label">↑ SUBIDA</div>
+          <div className="ov-micro-label">↑ UPLOAD</div>
           <span className="ov-stat-big">{data?.net_sent_mbps ?? '—'}</span>
           <span className="ov-stat-unit">Mb/s</span>
         </div>
       </div>
       {data?.net_latency_ms != null && (
         <div className="ov-lat-row">
-          <span className="ov-micro-label">LATENCIA</span>
+          <span className="ov-micro-label">LATENCY</span>
           <span className="ov-lat-num">{data.net_latency_ms}</span>
           <span className="ov-stat-unit">ms</span>
         </div>
@@ -186,13 +186,13 @@ function DisksCard({ disks, onClick }) {
   return (
     <div className="card clickable" onClick={onClick}>
       <div className="ov-main-header" style={{ marginBottom: 14 }}>
-        <CardTitle text="DISCO" />
-        <span className="ov-meta">{disks.length} montados</span>
+        <CardTitle text="DISKS" />
+        <span className="ov-meta">{disks.length} mounted</span>
       </div>
 
       <div className="disk-total-row">
         <div className="disk-total-stat">
-          <div className="ov-micro-label">USADO</div>
+          <div className="ov-micro-label">USED</div>
           <span className="disk-total-num">{fmt(used)}</span>
         </div>
         <div className="disk-total-divider">/</div>
