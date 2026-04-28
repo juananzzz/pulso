@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, useSortable, rectSortingStrategy, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Cpu, MemoryStick, ArrowRightLeft, HardDrive, Network, GripVertical, X, Maximize2, Minimize2 } from 'lucide-react';
 import { cpuColor, diskColor, ramColor, swapColor, tempColor } from '../utils';
@@ -276,7 +276,10 @@ export default function Overview({ current, disks, sysInfo, onNavigate, editMode
     if (!over || active.id === over.id) return;
     const oldIdx = layout.findIndex(i => i.id === active.id);
     const newIdx = layout.findIndex(i => i.id === over.id);
-    if (oldIdx === -1 || newIdx === -1) return;
+    if (oldIdx === -1 || newIdx === -1) {
+      console.warn('[Dashboard] drag target not found in layout', { activeId: active.id, overId: over.id, oldIdx, newIdx });
+      return;
+    }
     const arr = [...layout];
     const [moved] = arr.splice(oldIdx, 1);
     arr.splice(newIdx, 0, moved);
@@ -291,13 +294,17 @@ export default function Overview({ current, disks, sysInfo, onNavigate, editMode
     onLayoutChange(layout.map(i => i.id === id ? { ...i, size } : i));
   }, [layout, onLayoutChange]);
 
-  const cards = {
+  const cards = useMemo(() => ({
     cpu:     <CPUCard     data={current} cpuModel={sysInfo?.cpu_model} onClick={editMode ? undefined : () => onNavigate('cpu')} />,
     ram:     <RAMCard     data={current}                              onClick={editMode ? undefined : () => onNavigate('memory')} />,
     swap:    <SwapCard    data={current}                              onClick={editMode ? undefined : () => onNavigate('memory')} />,
     disks:   <DisksCard   disks={disks}                               onClick={editMode ? undefined : () => onNavigate('storage')} />,
     network: <NetworkCard data={current}                              onClick={editMode ? undefined : () => onNavigate('network')} />,
-  };
+  }), [current, disks, sysInfo, editMode, onNavigate]);
+
+  const sortableIds = useMemo(() => layout.map(i => i.id), [layout]);
+  const sortingStrategy = editMode ? verticalListSortingStrategy : rectSortingStrategy;
+  const gridCols = editMode ? '1fr' : 'repeat(3, 1fr)';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--gap) * 1.5)' }}>
@@ -305,10 +312,10 @@ export default function Overview({ current, disks, sysInfo, onNavigate, editMode
         <CardBank layout={layout} onLayoutChange={onLayoutChange} />
       )}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={layout.map(i => i.id)} strategy={rectSortingStrategy}>
+        <SortableContext items={sortableIds} strategy={sortingStrategy}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: gridCols,
             gap: 'var(--gap)',
             alignItems: 'stretch',
           }}>
