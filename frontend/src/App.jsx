@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BUFFER_SIZE, DEMO_DATA } from './constants';
+import { ALERT_COLOR_DEFAULT, BUFFER_SIZE, DEMO_DATA } from './constants';
 import { relTime, computeAlerts } from './utils';
 import Header from './components/Header';
 import TabBar from './components/TabBar';
@@ -28,6 +28,8 @@ export default function App() {
 
   const [settings, setSettings] = useState({
     theme:        ls('p-theme')  || 'light',
+    density:      ls('p-density') || 'regular',
+    alertColor:   ls('p-alert')  || ALERT_COLOR_DEFAULT,
     animations:   ls('p-anim')   !== 'false',
     visualStyle:  ls('p-vstyle') || 'minimal',
     demoScenario: 'normal',
@@ -36,6 +38,8 @@ export default function App() {
   const changeSetting = (key, val) => {
     setSettings(s => ({ ...s, [key]: val }));
     if (key === 'theme')       lss('p-theme', val);
+    if (key === 'density')     lss('p-density', val);
+    if (key === 'alertColor')  lss('p-alert', val);
     if (key === 'animations')  lss('p-anim', val);
     if (key === 'visualStyle') lss('p-vstyle', val);
   };
@@ -44,8 +48,12 @@ export default function App() {
     const isTech = settings.visualStyle === 'tech';
     document.documentElement.setAttribute('data-theme',   isTech ? 'dark' : settings.theme);
     document.documentElement.setAttribute('data-vstyle',  settings.visualStyle);
+    document.documentElement.setAttribute('data-density', settings.density);
     document.documentElement.setAttribute('data-anim',    settings.animations ? 'true' : 'false');
-  }, [settings.theme, settings.animations, settings.visualStyle]);
+    document.documentElement.style.setProperty('--alert',        settings.alertColor);
+    document.documentElement.style.setProperty('--alert-bg',     settings.alertColor + '12');
+    document.documentElement.style.setProperty('--alert-border', settings.alertColor + '40');
+  }, [settings.theme, settings.density, settings.animations, settings.alertColor, settings.visualStyle]);
 
   const demo = settings.demoScenario !== 'normal' ? DEMO_DATA[settings.demoScenario] : null;
   const effCurrent = demo?.current || current;
