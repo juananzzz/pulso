@@ -176,13 +176,6 @@ export default function MemoryDetail({ current, spark }) {
             <span className="mem-status-text" style={{ color: ramStatus.color }}>{ramStatus.label}</span>
           </div>
         </div>
-        <div className="mem-primary-right">
-          <div className="mem-big-pct" style={{ color: ramColor(ramPct) }}>
-            {ramPct}<span className="mem-big-unit">%</span>
-          </div>
-          <div className="mem-big-sub">{used.toFixed(1)} / {total} GB used</div>
-          <div className="mem-available-label">{available.toFixed(1)} GB available</div>
-        </div>
       </div>
 
       <div className="mem-gauges-row">
