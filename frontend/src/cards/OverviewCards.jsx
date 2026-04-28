@@ -1,4 +1,3 @@
-import { Network } from 'lucide-react';
 import SparkLine from '../charts/SparkLine';
 
 export function CPUCard({ data, spark, onClick }) {
@@ -97,7 +96,7 @@ export function NetworkCard({ data, spark, onClick }) {
   if (!data) return <div className="card wide clickable" />;
   return (
     <div className="card wide clickable" onClick={onClick}>
-      <div className="card-header"><span className="card-label">Network</span><Network size={18} color="var(--text-dim)" /></div>
+      <div className="card-header"><span className="card-label">Network</span><span className="card-meta">{data.net_iface}</span></div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
         <div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: '2px' }}>↓ recv</div>
