@@ -1,11 +1,12 @@
 import SparkLine from '../charts/SparkLine';
+import { cpuColor, diskColor, ramColor, swapColor, tempColor } from '../utils';
 
-function Bar({ pct, color, warn = false, height = 5 }) {
+function Bar({ pct, color, height = 5 }) {
   return (
     <div style={{ height, background: 'var(--border)', borderRadius: 3, margin: '8px 0' }}>
       <div style={{
         height: '100%', borderRadius: 3,
-        background: warn ? 'var(--alert)' : color,
+        background: color,
         width: `${Math.min(pct || 0, 100)}%`,
         transition: 'width 0.5s',
       }} />
@@ -17,14 +18,14 @@ function CardLabel({ text }) {
   return <div className="ov-card-label">{text}</div>;
 }
 
-function StatChip({ label, value, unit, warn = false }) {
+function StatChip({ label, value, unit, color }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <div className="ov-micro-label">{label}</div>
       <span style={{
         fontSize: '0.92rem', fontWeight: 700,
         fontFamily: 'var(--num-font)',
-        color: warn ? 'var(--alert)' : 'var(--text)',
+        color: color || 'var(--text)',
       }}>
         {value ?? '—'}
         {unit && <span style={{ fontSize: '0.72rem', color: 'var(--text-mid)', marginLeft: 2 }}>{unit}</span>}
@@ -36,8 +37,6 @@ function StatChip({ label, value, unit, warn = false }) {
 // ── CPU ──────────────────────────────────────────────────────────
 function CPUCard({ data, spark, onClick }) {
   const pct = data?.cpu_percent != null ? Math.round(data.cpu_percent) : null;
-  const warn = (pct || 0) > 85;
-  const tempWarn = (data?.temp_cpu || 0) > 78;
 
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
@@ -45,7 +44,7 @@ function CPUCard({ data, spark, onClick }) {
         <CardLabel text="CPU" />
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           {data?.temp_cpu != null && (
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: tempWarn ? 'var(--alert)' : 'var(--text-mid)' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: tempColor(data.temp_cpu) }}>
               {data.temp_cpu}°C
             </span>
           )}
@@ -56,13 +55,13 @@ function CPUCard({ data, spark, onClick }) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
-        <span className="ov-big-num" style={{ color: warn ? 'var(--alert)' : 'var(--text)' }}>
+        <span className="ov-big-num" style={{ color: cpuColor(pct) }}>
           {pct ?? '—'}
         </span>
         <span className="ov-big-unit">%</span>
       </div>
 
-      <Bar pct={pct} color="var(--chart-cpu)" warn={warn} />
+      <Bar pct={pct} color={cpuColor(pct)} />
 
       <div className="ov-chip-row">
         <StatChip label="LOAD 1m"  value={data?.load_1}  />
@@ -86,10 +85,10 @@ function RAMCard({ data, onClick }) {
   const avail   = data?.ram_available_gb || 0;
   const used    = total > 0 ? +(total - avail).toFixed(1) : (data?.ram_used_gb || 0);
   const pct     = data?.ram_percent != null ? Math.round(data.ram_percent) : null;
-  const warn    = (pct || 0) > 85;
   const swapUsed  = data?.swap_used_gb  || 0;
   const swapTotal = data?.swap_total_gb || 0;
   const swapPct   = swapTotal > 0 ? Math.round(swapUsed / swapTotal * 100) : 0;
+  const pctColor = pct != null ? ramColor(pct) : 'var(--text)';
 
   return (
     <div className="card clickable ov-main-card" onClick={onClick}>
@@ -99,16 +98,16 @@ function RAMCard({ data, onClick }) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
-        <span className="ov-big-num" style={{ color: warn ? 'var(--alert)' : 'var(--text)' }}>
+        <span className="ov-big-num" style={{ color: pctColor }}>
           {used.toFixed(1)}
         </span>
         <span className="ov-big-unit">GB</span>
         {pct != null && (
-          <span style={{ fontSize: '1rem', color: 'var(--text-dim)', marginLeft: 2 }}>({pct}%)</span>
+          <span style={{ fontSize: '1rem', color: pctColor, marginLeft: 2, fontWeight: 600 }}>({pct}%)</span>
         )}
       </div>
 
-      <Bar pct={pct} color="var(--chart-ram)" warn={warn} />
+      <Bar pct={pct} color={pctColor} />
 
       <div className="ov-chip-row">
         <StatChip label="CACHED"    value={data?.ram_cached_gb?.toFixed(1)}    unit="GB" />
@@ -120,11 +119,11 @@ function RAMCard({ data, onClick }) {
       <div className="ov-swap-row">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
           <span className="ov-micro-label">SWAP</span>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
+          <span style={{ fontSize: '0.78rem', color: swapColor(swapPct) }}>
             {swapUsed.toFixed(1)} / {swapTotal} GB
           </span>
         </div>
-        <Bar pct={swapPct} color="var(--chart-swap)" height={3} />
+        <Bar pct={swapPct} color={swapColor(swapPct)} height={3} />
       </div>
     </div>
   );
@@ -178,12 +177,6 @@ function NetworkCard({ data, spark, onClick }) {
   );
 }
 
-function diskBarColor(pct) {
-  if (pct < 70) return 'var(--ok)';
-  if (pct < 85) return '#eab308';
-  return 'var(--alert)';
-}
-
 // ── Disks ────────────────────────────────────────────────────────
 function DisksCard({ disks, onClick }) {
   return (
@@ -196,9 +189,9 @@ function DisksCard({ disks, onClick }) {
         <div className="disk-row" key={d.mountpoint}>
           <span className="disk-mount">{d.mountpoint}</span>
           <div className="disk-bar-wrap">
-            <div className="disk-bar" style={{ width: `${d.percent}%`, background: diskBarColor(d.percent) }} />
+            <div className="disk-bar" style={{ width: `${d.percent}%`, background: diskColor(d.percent) }} />
           </div>
-          <span className="disk-pct" style={{ color: d.percent >= 85 ? 'var(--alert)' : undefined, fontWeight: d.percent >= 85 ? 600 : undefined }}>{d.percent}%</span>
+          <span className="disk-pct" style={{ color: diskColor(d.percent) }}>{d.percent}%</span>
         </div>
       ))}
     </div>

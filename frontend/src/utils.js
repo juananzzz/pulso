@@ -14,6 +14,12 @@ export function relTime(ts) {
   return `refreshed ${Math.floor(d / 60)}m ago`;
 }
 
+export const cpuColor = pct => pct < 70 ? 'var(--ok)' : pct < 85 ? 'var(--warn)' : 'var(--alert)';
+export const diskColor = pct => pct < 70 ? 'var(--ok)' : pct < 85 ? 'var(--warn)' : 'var(--alert)';
+export const ramColor = pct => pct < 70 ? 'var(--ok)' : pct < 85 ? 'var(--warn)' : 'var(--alert)';
+export const swapColor = pct => pct < 50 ? 'var(--ok)' : pct < 75 ? 'var(--warn)' : 'var(--alert)';
+export const tempColor = t => t < 45 ? 'var(--ok)' : t < 55 ? 'var(--warn)' : 'var(--alert)';
+
 export function computeAlerts(current, disks) {
   const alerts = [];
   if (!current) return alerts;

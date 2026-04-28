@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import AreaChart from '../charts/AreaChart';
 import ProgressArc from '../charts/ProgressArc';
 import MemStatBox from '../components/MemStatBox';
+import { ramColor, swapColor } from '../utils';
 
 const RANGE_SECS = { '1m': 90, '1h': 3600, '24h': 86400 };
 
@@ -54,10 +55,10 @@ export default function MemoryDetail({ current, spark }) {
       </div>
 
       <div className="stat-boxes mem-stat-boxes" style={{ marginBottom: 'var(--gap)' }}>
-        <MemStatBox label="RAM usada"  value={usedApparent} total={total}     unit="GB" color="var(--chart-ram)" />
-        <MemStatBox label="Disponible" value={free}                            unit="GB" sub={total > 0 ? `${Math.round(free / total * 100)}% libre` : ''} />
-        <MemStatBox label="Cached"     value={cached}                          unit="GB" sub={buffers > 0 ? `buffers ${buffers} GB` : ''} />
-        <MemStatBox label="Swap"       value={swapUsed}      total={swapTotal} unit="GB" color="var(--chart-swap)" swapWarn={swapTotal > 0 && swapUsed / swapTotal > 0.75} swapMid={swapTotal > 0 && swapUsed / swapTotal > 0.5} />
+        <MemStatBox label="RAM usada"  value={usedApparent} total={total} unit="GB" color={ramColor(usedPct)} pct={usedPct} />
+        <MemStatBox label="Disponible" value={free}                           unit="GB" sub={total > 0 ? `${Math.round(free / total * 100)}% libre` : ''} />
+        <MemStatBox label="Cached"     value={cached}                         unit="GB" sub={buffers > 0 ? `buffers ${buffers} GB` : ''} />
+        <MemStatBox label="Swap"       value={swapUsed} total={swapTotal}     unit="GB" color={swapColor(swapTotal > 0 ? (swapUsed / swapTotal * 100) : 0)} swapPct={swapTotal > 0 ? (swapUsed / swapTotal * 100) : 0} />
       </div>
 
       <div className="mem-body">
