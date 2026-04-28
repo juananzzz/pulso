@@ -24,10 +24,6 @@ function swapStatus(pct) {
 }
 
 const MEM_TOOLTIPS = {
-  used: 'Memoria utilizada por aplicaciones y procesos del sistema',
-  cached: 'Datos cacheados en RAM para acelerar acceso a disco. Se libera automáticamente si es necesario.',
-  buffers: 'Búferes temporales del kernel para operaciones de E/S.',
-  free: 'Memoria completamente libre y disponible de inmediato.',
 };
 
 export default function MemoryDetail({ current, spark }) {
@@ -102,19 +98,18 @@ export default function MemoryDetail({ current, spark }) {
         <div className="mem-breakdown-header">
           <span>Memory Distribution</span>
         </div>
-        <div className="mem-stacked-bar" title={`Used ${used.toFixed(1)} GB · Cached ${cached.toFixed(1)} GB · Buffers ${buffers.toFixed(1)} GB · Free ${freeMem.toFixed(1)} GB`}>
+        <div className="mem-stacked-bar">
           {segs.map(s => s.pct > 0.5 && (
             <div
               key={s.key}
               className="mem-stacked-seg"
               style={{ width: `${s.pct}%`, background: s.color }}
-              title={`${s.label}: ${s.value.toFixed(1)} GB (${s.pct.toFixed(1)}%) — ${MEM_TOOLTIPS[s.key] || ''}`}
             />
           ))}
         </div>
         <div className="mem-legend">
           {segs.filter(s => s.pct > 0.5).map(s => (
-            <div className="mem-legend-item" key={s.key} title={MEM_TOOLTIPS[s.key]}>
+            <div className="mem-legend-item" key={s.key}>
               <span className="mem-legend-dot" style={{ background: s.color }} />
               <span className="mem-legend-label">{s.label}</span>
               <span className="mem-legend-val">{s.value.toFixed(1)} GB</span>
