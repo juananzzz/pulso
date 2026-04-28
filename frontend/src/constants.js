@@ -1,6 +1,44 @@
 export const ALERT_COLOR_DEFAULT = '#E63946';
 export const BUFFER_SIZE = 30;
 
+export const CARD_TYPES = [
+  { id: 'cpu',     label: 'CPU',     icon: 'Cpu' },
+  { id: 'ram',     label: 'RAM',     icon: 'MemoryStick' },
+  { id: 'swap',    label: 'SWAP',    icon: 'ArrowRightLeft' },
+  { id: 'disks',   label: 'Disks',   icon: 'HardDrive' },
+  { id: 'network', label: 'Network', icon: 'Network' },
+];
+
+export const DEFAULT_DASHBOARD_SLOTS = [
+  { slot: 0, cardType: 'cpu' },
+  { slot: 1, cardType: 'ram' },
+  { slot: 2, cardType: 'swap' },
+  { slot: 3, cardType: 'disks' },
+  { slot: 4, cardType: 'network' },
+  { slot: 5, cardType: null },
+];
+
+export function migrateLayout(saved) {
+  if (!saved) return DEFAULT_DASHBOARD_SLOTS.map(s => ({ ...s }));
+  if (Array.isArray(saved) && saved.length > 0 && 'slot' in saved[0]) return saved;
+  if (Array.isArray(saved) && saved.length > 0 && 'id' in saved[0]) {
+    const order = ['cpu', 'ram', 'swap', 'disks', 'network'];
+    const active = saved.filter(i => i.type).map(i => i.type);
+    const slots = [];
+    for (let i = 0; i < 6; i++) {
+      slots.push({ slot: i, cardType: active[i] || null });
+    }
+    return slots;
+  }
+  const order = ['cpu', 'ram', 'swap', 'disks', 'network'];
+  const active = Array.isArray(saved) ? saved.filter(Boolean) : order;
+  const slots = [];
+  for (let i = 0; i < 6; i++) {
+    slots.push({ slot: i, cardType: active[i] || null });
+  }
+  return slots;
+}
+
 export const TABS = [
   { id: 'home',      label: 'Overview' },
   { id: 'cpu',       label: 'CPU' },
