@@ -103,11 +103,17 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
           <div>
             <div className="ov-simple-card-main" style={{ color: cpuColor(cpuPct) }}>{cpuPct ?? '—'}<span className="ov-simple-unit">%</span></div>
             <Bar pct={cpuPct} color={cpuColor(cpuPct)} height={10} />
+            <div className="ov-simple-meta-col" style={{ marginTop: 4 }}>
+              <div className="ov-simple-meta"><Clock size={12} /> {freq?.toFixed(2) ?? '—'} GHz</div>
+              <div className="ov-simple-meta"><Activity size={12} /> Load {load1?.toFixed(1) ?? '—'}</div>
+            </div>
           </div>
-          <div className="ov-simple-meta-col">
-            {temp != null && <div className="ov-simple-meta"><Thermometer size={12} /> {temp}°C</div>}
-            <div className="ov-simple-meta"><Clock size={12} /> {freq?.toFixed(2) ?? '—'} GHz</div>
-            <div className="ov-simple-meta"><Activity size={12} /> Load {load1?.toFixed(1) ?? '—'}</div>
+          <div>
+            <div className="ov-simple-card-main" style={{ color: temp != null ? tempColor(temp) : 'var(--text-dim)' }}>{temp ?? '—'}<span className="ov-simple-unit">°C</span></div>
+            <Bar pct={temp != null ? Math.round(temp / 100 * 100) : 0} color={tempColor(temp)} height={10} />
+            <div className="ov-simple-meta-col" style={{ marginTop: 4 }}>
+              <div className="ov-simple-meta"><Thermometer size={12} /> Temperature</div>
+            </div>
           </div>
         </div>
       </div>
