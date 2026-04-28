@@ -230,6 +230,46 @@ body {
 
 /* SETTINGS */
 .settings-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.35); display: flex; justify-content: flex-end; backdrop-filter: blur(2px); }
+
+/* CHART MODAL */
+.chart-modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px;
+}
+.chart-modal {
+  background: var(--card-bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+.chart-modal-header {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.chart-modal-title {
+  font-size: 1.2rem; font-weight: 700; margin: 0; flex-shrink: 0;
+}
+.chart-modal-close {
+  margin-left: auto;
+  background: var(--border); border: none; cursor: pointer;
+  color: var(--text); width: 30px; height: 30px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; transition: background 0.2s;
+}
+.chart-modal-close:hover { background: var(--border-strong); }
+.chart-modal-body {
+  padding: 20px 22px 22px;
+  overflow-y: auto;
+}
 .settings-panel { width: 320px; background: var(--card-bg); height: 100vh; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; box-shadow: -4px 0 24px rgba(0,0,0,0.2); }
 .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .settings-title { font-size: 1.1rem; font-weight: 700; }

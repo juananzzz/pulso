@@ -4,7 +4,7 @@ export default function InteractiveChart({
   data = [], height = 280, yMax = 100, yMin = 0,
   color = 'var(--text)', accessor = d => d.v,
   timeRange, ranges, onTimeRangeChange,
-  title, onClose,
+  title, onClose, modal,
 }) {
   const ref = useRef(null);
   const [hoverX, setHoverX] = useState(null);
@@ -77,22 +77,24 @@ export default function InteractiveChart({
 
   return (
     <div style={{ position: 'relative' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <button onClick={onClose} style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: 'var(--text-dim)', fontSize: '0.88rem', padding: '4px 0',
-          transition: 'color 0.2s',
-        }} onMouseOver={e => e.target.style.color = 'var(--text)'}
-           onMouseOut={e => e.target.style.color = 'var(--text-dim)'}>
-          ← {title}
-        </button>
-        <div className="range-selector">
-          {ranges.map(r => (
-            <button key={r.value} className={`range-btn${timeRange === r.value ? ' active' : ''}`}
-              onClick={() => onTimeRangeChange(r.value)}>{r.label}</button>
-          ))}
+      {!modal && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <button onClick={onClose} style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--text-dim)', fontSize: '0.88rem', padding: '4px 0',
+            transition: 'color 0.2s',
+          }} onMouseOver={e => e.target.style.color = 'var(--text)'}
+             onMouseOut={e => e.target.style.color = 'var(--text-dim)'}>
+            ← {title}
+          </button>
+          <div className="range-selector">
+            {ranges.map(r => (
+              <button key={r.value} className={`range-btn${timeRange === r.value ? ' active' : ''}`}
+                onClick={() => onTimeRangeChange(r.value)}>{r.label}</button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div ref={ref} style={{ position: 'relative' }}
         onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>

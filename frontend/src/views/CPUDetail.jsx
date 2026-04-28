@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AreaChart from '../charts/AreaChart';
 import InteractiveChart from '../charts/InteractiveChart';
 import { cpuColor, tempColor } from '../utils';
@@ -10,39 +10,78 @@ const RANGES = [
   { label: '24h', value: '24h' },
 ];
 
+function ChartModal({ chart, chartData, chartRange, onTimeRangeChange, onClose }) {
+  const titles = { usage: 'Usage', temp: 'Temperature' };
+  const colors = { usage: 'var(--chart-cpu)', temp: 'var(--chart-temp)' };
+
+  return (
+    <div className="chart-modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="chart-modal">
+        <div className="chart-modal-header">
+          <h2 className="chart-modal-title">{titles[chart]}</h2>
+          <div className="range-selector">
+            {RANGES.map(r => (
+              <button key={r.value}
+                className={`range-btn${chartRange === r.value ? ' active' : ''}`}
+                onClick={() => onTimeRangeChange(r.value)}>{r.label}</button>
+            ))}
+          </div>
+          <button className="chart-modal-close" onClick={onClose}>×</button>
+        </div>
+        <div className="chart-modal-body">
+          <InteractiveChart
+            data={chartData || []}
+            color={colors[chart]}
+            yMax={100}
+            title={titles[chart]}
+            timeRange={chartRange}
+            ranges={RANGES}
+            onTimeRangeChange={onTimeRangeChange}
+            onClose={onClose}
+            modal
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
   const [expandedChart, setExpandedChart] = useState(null);
   const [chartRange, setChartRange] = useState('1h');
   const [chartData, setChartData] = useState(null);
 
-  useEffect(() => {
-    if (!expandedChart) return;
-    if (chartRange === '1m') {
-      const src = expandedChart === 'usage' ? spark?.cpu : spark?.temp;
+  const fetchData = useCallback((chart, range) => {
+    if (range === '1m') {
+      const src = chart === 'usage' ? spark?.cpu : spark?.temp;
       setChartData((src || []).map((v, i) => ({ ts: Date.now() - (src.length - i) * 3000, v })));
       return;
     }
-    fetch(`/api/history?range=${chartRange}`)
+    fetch(`/api/history?range=${range}`)
       .then(r => r.json())
       .then(data => {
-        const field = expandedChart === 'usage' ? 'cpu' : 'temp';
+        const field = chart === 'usage' ? 'cpu' : 'temp';
         setChartData(data.map(d => ({ ts: d.ts * 1000, v: d[field] })));
       })
       .catch(() => setChartData([]));
-  }, [expandedChart, chartRange, spark]);
+  }, [spark]);
+
+  useEffect(() => {
+    if (expandedChart) fetchData(expandedChart, chartRange);
+  }, [expandedChart, chartRange, fetchData]);
 
   const openChart = (chart) => {
     setExpandedChart(chart);
-    if (chart === 'usage' && spark?.cpu) {
-      setChartData(spark.cpu.map((v, i) => ({ ts: Date.now() - (spark.cpu.length - i) * 3000, v })));
-    } else if (chart === 'temp' && spark?.temp) {
-      setChartData(spark.temp.map((v, i) => ({ ts: Date.now() - (spark.temp.length - i) * 3000, v })));
-    }
+    fetchData(chart, chartRange);
   };
 
   const closeChart = () => {
     setExpandedChart(null);
     setChartData(null);
+  };
+
+  const handleRangeChange = (range) => {
+    setChartRange(range);
   };
 
   const top = current?.top_cpu_proc;
@@ -60,27 +99,10 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         <div className="stat-box"><div className="stat-box-label">Load Avg</div><div className="stat-box-val" style={{ fontSize: '1rem', paddingTop: '6px' }}>{current?.load_1} · {current?.load_5} · {current?.load_15}</div></div>
       </div>
 
-      {expandedChart === 'usage' ? (
-        <div className="chart-section">
-          <div className="chart-wrap" style={{ padding: 16 }}>
-            <InteractiveChart
-              data={chartData || []}
-              color="var(--chart-cpu)"
-              yMax={100}
-              title="Usage"
-              timeRange={chartRange}
-              ranges={RANGES}
-              onTimeRangeChange={setChartRange}
-              onClose={closeChart}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('usage')}>
-          <div className="chart-label">Usage · last 60s <span className="chart-unit">%</span></div>
-          <div className="chart-wrap"><AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-cpu)" /></div>
-        </div>
-      )}
+      <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('usage')}>
+        <div className="chart-label">Usage · last 60s <span className="chart-unit">%</span></div>
+        <div className="chart-wrap"><AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-cpu)" /></div>
+      </div>
 
       {top && (
         <div className="chart-section">
@@ -93,27 +115,10 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         </div>
       )}
 
-      {expandedChart === 'temp' ? (
-        <div className="chart-section">
-          <div className="chart-wrap" style={{ padding: 16 }}>
-            <InteractiveChart
-              data={chartData || []}
-              color="var(--chart-temp)"
-              yMax={100}
-              title="Temperature"
-              timeRange={chartRange}
-              ranges={RANGES}
-              onTimeRangeChange={setChartRange}
-              onClose={closeChart}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('temp')}>
-          <div className="chart-label">Temperature · last 60s <span className="chart-unit">°C</span></div>
-          <div className="chart-wrap"><AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-temp)" /></div>
-        </div>
-      )}
+      <div className="chart-section" style={{ cursor: 'pointer' }} onClick={() => openChart('temp')}>
+        <div className="chart-label">Temperature · last 60s <span className="chart-unit">°C</span></div>
+        <div className="chart-wrap"><AreaChart data={spark?.temp?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-temp)" /></div>
+      </div>
 
       {cpuCores.length > 0 && (
         <div className="cores-section">
@@ -128,6 +133,16 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
             ))}
           </div>
         </div>
+      )}
+
+      {expandedChart && (
+        <ChartModal
+          chart={expandedChart}
+          chartData={chartData}
+          chartRange={chartRange}
+          onTimeRangeChange={handleRangeChange}
+          onClose={closeChart}
+        />
       )}
     </div>
   );
