@@ -3,14 +3,6 @@ import AreaChart from '../charts/AreaChart';
 import InteractiveChart from '../charts/InteractiveChart';
 import { cpuColor, tempColor } from '../utils';
 
-function fmtUptime(s) {
-  if (!s) return '—';
-  const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
-  if (d) return `${d}d ${h}h`;
-  if (h) return `${h}h ${m}m`;
-  return `${m}m`;
-}
-
 const RANGES = [
   { label: '1m',  value: '1m' },
   { label: '1h',  value: '1h' },
@@ -104,13 +96,11 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
       <div className="detail-sub">
         {[sysInfo?.cpu_model, sysInfo?.cpu_threads && `${sysInfo.cpu_threads} threads`, current?.cpu_freq_ghz && `${current.cpu_freq_ghz} GHz`].filter(Boolean).join(' · ')}
       </div>
-      <div className="stat-boxes" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+      <div className="stat-boxes">
         <div className="stat-box"><div className="stat-box-label">Usage</div><div className="stat-box-val" style={{ color: cpuColor(current?.cpu_percent) }}>{current?.cpu_percent ?? '—'}<span className="stat-box-unit">%</span></div></div>
         <div className="stat-box"><div className="stat-box-label">Temperature</div><div className="stat-box-val" style={{ color: tempColor(current?.temp_cpu) }}>{current?.temp_cpu ?? '—'}<span className="stat-box-unit">°C</span></div></div>
         <div className="stat-box"><div className="stat-box-label">Frequency</div><div className="stat-box-val">{current?.cpu_freq_ghz ?? '—'}<span className="stat-box-unit">GHz</span></div></div>
         <div className="stat-box"><div className="stat-box-label">Load Avg</div><div className="stat-box-val" style={{ fontSize: '1rem', paddingTop: '6px' }}>{current?.load_1} · {current?.load_5} · {current?.load_15}</div></div>
-        <div className="stat-box"><div className="stat-box-label">Uptime</div><div className="stat-box-val" style={{ fontSize: '1rem', paddingTop: '6px' }}>{fmtUptime(current?.uptime_seconds)}</div></div>
-        <div className="stat-box"><div className="stat-box-label">Top Process</div><div className="stat-box-val" style={{ fontSize: '1rem', paddingTop: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{current?.top_cpu_proc?.name ?? '—'}<span className="stat-box-unit"> {current?.top_cpu_proc?.cpu != null ? `${current.top_cpu_proc.cpu}%` : ''}</span></div></div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--gap)' }}>
@@ -136,7 +126,7 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
             </div>
           </div>
           <div className="chart-wrap" style={{ padding: '6px 8px', cursor: 'pointer' }} onClick={() => openChart('usage')}>
-            <AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} yUnit=" %" height={160} color="var(--chart-cpu)" />
+            <AreaChart data={spark?.cpu?.map(v => ({ v }))} accessor={d => d.v} yMax={100} height={160} color="var(--chart-cpu)" />
           </div>
         </div>
 
