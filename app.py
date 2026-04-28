@@ -30,8 +30,8 @@ _latency_ms: Optional[float] = None
 _cpu_percent: float = 0.0
 _cpu_freq: Optional[float] = None
 _load_avg: tuple = (0.0, 0.0, 0.0)
-_ram: Optional[psutil._pslinux.svirtualmem] = None
-_swap: Optional[psutil._pslinux.sswap] = None
+_ram = None
+_swap = None
 _disk_pct: float = 0.0
 _temp: Optional[float] = None
 _boot_time: float = 0.0
@@ -445,4 +445,8 @@ def api_docker():
         return {"available": False, "containers": []}
 
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+static_dir = "static"
+if not os.path.isdir(static_dir):
+    static_dir = "frontend/static"
+if os.path.isdir(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
