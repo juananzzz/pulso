@@ -31,6 +31,7 @@ export default function App() {
     animations:   ls('p-anim')   !== 'false',
     visualStyle:  ls('p-vstyle') || 'minimal',
     alertBadge:   ls('p-alert-badge') !== 'false',
+    layoutMode:   ls('p-layout') || 'intermediate',
     demoScenario: 'normal',
   });
 
@@ -42,6 +43,7 @@ export default function App() {
     if (key === 'animations')  lss('p-anim', val);
     if (key === 'visualStyle') lss('p-vstyle', val);
     if (key === 'alertBadge')  lss('p-alert-badge', val);
+    if (key === 'layoutMode')  lss('p-layout', val);
   };
 
   useEffect(() => {
@@ -122,6 +124,7 @@ export default function App() {
             sysInfo={sysInfo}
             spark={spark}
             onNavigate={setView}
+            layoutMode={settings.layoutMode}
           />
         )}
         {view === 'cpu'        && <CPUDetail      sysInfo={sysInfo} current={effCurrent} spark={spark} cpuCores={cpuCores} />}

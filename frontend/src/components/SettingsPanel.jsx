@@ -1,5 +1,5 @@
 export default function SettingsPanel({ settings, onChange, onClose, hostname }) {
-  const { theme, density, animations, demoScenario, visualStyle, alertBadge } = settings;
+  const { theme, density, animations, demoScenario, visualStyle, alertBadge, layoutMode } = settings;
   return (
     <div className="settings-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="settings-panel">
@@ -46,6 +46,14 @@ export default function SettingsPanel({ settings, onChange, onClose, hostname })
 
         <hr className="settings-divider" />
         <div className="settings-section-label">Appearance</div>
+        <div className="settings-row">
+          <span className="settings-row-label">Overview Layout</span>
+          <div className="seg-control">
+            <button className={`seg-btn${layoutMode === 'simple' ? ' active' : ''}`} onClick={() => onChange('layoutMode', 'simple')}>Simple</button>
+            <button className={`seg-btn${layoutMode === 'intermediate' ? ' active' : ''}`} onClick={() => onChange('layoutMode', 'intermediate')}>Intermediate</button>
+            <button className={`seg-btn${layoutMode === 'detailed' ? ' active' : ''}`} onClick={() => onChange('layoutMode', 'detailed')}>Detailed</button>
+          </div>
+        </div>
         <div className="settings-row">
           <span className="settings-row-label">Density</span>
           <div className="seg-control">

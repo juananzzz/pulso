@@ -779,7 +779,43 @@ body {
 .ov-middle-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); align-items: stretch; }
 .ov-bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
 .ov-bar-label { font-size: 0.72rem; color: var(--text-dim); font-family: var(--num-font); white-space: nowrap; }
+.ov-bar-detail { display: flex; align-items: center; gap: 6px; }
+.ov-bar-model { font-size: 0.65rem; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px; }
 .ov-mini-chart { margin-top: 6px; opacity: 0.6; }
+.ov-net-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 0.72rem; color: var(--text-dim); }
+
+/* Simple mode */
+.ov-simple-hero {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap);
+}
+.ov-simple-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; box-shadow: var(--shadow);
+  cursor: pointer; display: flex; flex-direction: column;
+  transition: border-color var(--transition);
+}
+.ov-simple-card:hover { border-color: var(--border-strong); }
+.ov-simple-card-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--text-dim); margin-bottom: 8px;
+}
+.ov-simple-card-header svg { color: var(--text-mid); }
+.ov-simple-card-main {
+  font-size: 3rem; font-weight: 800; font-family: var(--num-font);
+  font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -0.03em;
+  margin: 4px 0 2px;
+}
+.ov-simple-unit { font-size: 1.2rem; font-weight: 400; color: var(--text-mid); margin-left: 3px; }
+.ov-simple-card-footer {
+  font-size: 0.82rem; color: var(--text-dim);
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.ov-simple-net-detail {
+  display: flex; gap: 12px; margin: 6px 0;
+  font-size: 0.88rem; font-weight: 600; color: var(--text-mid);
+}
+.ov-hero-card-big { padding: 18px 20px; }
 
 /* ── NETWORK DETAIL ── */
 .net-primary {
