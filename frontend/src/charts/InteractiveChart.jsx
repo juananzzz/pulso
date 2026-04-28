@@ -39,10 +39,13 @@ export default function InteractiveChart({
     : timeRange === '8h' || timeRange === '24h' ? s => s === 0 ? 'now' : `${-s / 3600}h`
     : s => s === 0 ? 'now' : `${-s / 60}m`;
 
+  const ts0 = data.length > 1 ? data[0].ts : 0;
+  const ts1 = data.length > 1 ? data[data.length - 1].ts : 0;
   const xLabels = secLabels.map(sec => {
-    const idx = Math.round(n + sec / ((timeRange === '1m' ? 60 : timeRange === '8h' ? 28800 : timeRange === '24h' ? 86400 : 3600) / n));
-    if (idx < 0 || idx > n) return null;
-    return { x: PL + (idx / n) * cW, label: secFmt(sec) };
+    const target = ts1 + sec * 1000;
+    const ratio = ts1 > ts0 ? (target - ts0) / (ts1 - ts0) : -1;
+    if (ratio < 0 || ratio > 1) return null;
+    return { x: PL + ratio * cW, label: secFmt(sec) };
   }).filter(Boolean);
 
   const nearest = useCallback((clientX) => {
