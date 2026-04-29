@@ -156,7 +156,7 @@ function IntermediateView({ current, disks, spark, onNavigate }) {
         <div className="ov-simple-card-main" style={{ color: diskColor(diskPct) }}>{diskPct}<span className="ov-simple-unit">%</span></div>
         <Bar pct={diskPct} color={diskColor(diskPct)} height={10} />
         <div className="ov-simple-meta" style={{ marginBottom: 8 }}>{fmt(diskUsed)} / {fmt(diskTotal)}</div>
-        {disks.sort((a, b) => b.percent - a.percent).slice(0, 4).map(d => (
+        {disks?.sort((a, b) => b.percent - a.percent).slice(0, 4).map(d => (
           <div key={d.mountpoint} className="ov-storage-disk-row">
             <div className="ov-storage-disk-label">
               <span style={{ color: d.percent >= 85 ? 'var(--alert)' : undefined }}>{d.mountpoint}</span>
@@ -362,7 +362,7 @@ function DetailedView({ current, disks, sysInfo, spark, onNavigate }) {
             <div className="disk-bar-wrap" style={{ height: 8 }}><div className="disk-bar" style={{ width: `${diskPct}%`, background: diskColor(diskPct) }} /></div>
             <span className="ov-bar-label">{fmt(diskUsed)} / {fmt(diskTotal)}</span>
           </div>
-          {disks.sort((a, b) => b.percent - a.percent).map(d => (
+          {disks?.sort((a, b) => b.percent - a.percent).map(d => (
             <div className="disk-row" key={d.mountpoint}>
               <span className="disk-mount" style={{ color: d.percent >= 85 ? 'var(--alert)' : undefined }}>{d.mountpoint}</span>
               <div className="disk-bar-wrap"><div className="disk-bar" style={{ width: `${d.percent}%`, background: diskColor(d.percent) }} /></div>

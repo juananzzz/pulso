@@ -179,7 +179,7 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
         </div>
         <div className="cpu-metric">
           <div className="cpu-metric-label">Cores</div>
-          <div className="cpu-metric-val">{cpuCores.length || sysInfo?.cpu_threads || '—'}</div>
+          <div className="cpu-metric-val">{cpuCores?.length || sysInfo?.cpu_threads || '—'}</div>
         </div>
       </div>
 
@@ -224,7 +224,7 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
       </div>
 
       {/* Per-core horizontal bars */}
-      {cpuCores.length > 0 && (
+      {cpuCores?.length > 0 && (
         <div className="cores-section" style={{ marginTop: 20 }}>
           <div className="chart-label">
             <span>Per Core</span>
@@ -250,7 +250,7 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
       )}
 
       {/* Top CPU processes */}
-      {topProcs.length > 0 && (
+      {topProcs?.length > 0 && (
         <div className="cpu-procs-section">
           <div className="chart-label">Top Processes</div>
           <div className="cpu-procs-grid">

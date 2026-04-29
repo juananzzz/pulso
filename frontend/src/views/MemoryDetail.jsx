@@ -26,7 +26,7 @@ function swapStatus(pct) {
 function ChartModal({ chart, chartData, chartRange, onTimeRangeChange, onClose, ramTotal, swapTotal }) {
   const titles = { ram: 'RAM Usage', swap: 'SWAP Usage' };
   const colors = { ram: 'var(--chart-ram)', swap: 'var(--chart-swap)' };
-  const yMaxs = { ram: ramTotal || 32, swap: swapTotal || 8 };
+  const yMaxs = { ram: 100, swap: swapTotal || 8 };
   return (
     <div className="chart-modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="chart-modal">
@@ -121,7 +121,7 @@ export default function MemoryDetail({ current, spark }) {
     fetch(`/api/history?range=${range}`)
       .then(r => r.json())
       .then(data => {
-        const field = chart === 'ram' ? 'ram_used_gb' : 'swap_used_gb';
+        const field = chart === 'ram' ? 'ram' : 'swap';
         setChartData(data.map(d => ({ ts: d.ts * 1000, v: d[field] })));
       })
       .catch(() => setChartData([]));
@@ -191,7 +191,7 @@ export default function MemoryDetail({ current, spark }) {
         />
       </div>
 
-      {topProcs.length > 0 && (
+      {topProcs?.length > 0 && (
         <div className="mem-procs-section">
           <div className="chart-label">Top Processes by Memory</div>
           <div className="mem-procs-grid">
