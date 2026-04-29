@@ -91,9 +91,9 @@
 [data-vstyle="tech"] .tab-item.active { color: #00d4aa; }
 [data-vstyle="tech"] .tab-item.active::after { background: #00d4aa; }
 
-[data-density="compact"] { --pad: 16px; --gap: 10px; --card-pad: 16px; }
-[data-density="regular"] { --pad: 24px; --gap: 14px; --card-pad: 22px; }
-[data-density="comfy"]   { --pad: 32px; --gap: 18px; --card-pad: 28px; }
+[data-density="compact"] { --pad: 12px; --gap: 8px; --card-pad: 12px; }
+[data-density="regular"] { --pad: 24px; --gap: 14px; --card-pad: 20px; }
+[data-density="comfy"]   { --pad: 40px; --gap: 24px; --card-pad: 32px; }
 [data-anim="false"] * { transition: none !important; }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

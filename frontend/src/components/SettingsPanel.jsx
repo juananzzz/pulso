@@ -55,13 +55,11 @@ export default function SettingsPanel({ settings, onChange, onClose, hostname })
           </div>
         </div>
         <div className="settings-row">
-          <span className="settings-row-label">Density</span>
+          <span className="settings-row-label">Size</span>
           <div className="seg-control">
-            {['compact', 'regular', 'comfy'].map(d => (
-              <button key={d} className={`seg-btn${density === d ? ' active' : ''}`} onClick={() => onChange('density', d)}>
-                {d.charAt(0).toUpperCase() + d.slice(1)}
-              </button>
-            ))}
+            <button className={`seg-btn${density === 'compact' ? ' active' : ''}`} onClick={() => onChange('density', 'compact')}>Small</button>
+            <button className={`seg-btn${density === 'regular' ? ' active' : ''}`} onClick={() => onChange('density', 'regular')}>Medium</button>
+            <button className={`seg-btn${density === 'comfy' ? ' active' : ''}`} onClick={() => onChange('density', 'comfy')}>Large</button>
           </div>
         </div>
         <div className="settings-row">
