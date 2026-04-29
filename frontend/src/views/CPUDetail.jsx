@@ -85,10 +85,6 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
       .catch(() => setTopProcs([]));
   }, []);
 
-  const sortedCores = useMemo(() =>
-    [...cpuCores].sort((a, b) => b.percent - a.percent),
-  [cpuCores]);
-
   const peakIndices = useMemo(() => {
     if (!spark?.cpu) return [];
     return spark.cpu.reduce((acc, v, i) => {
@@ -228,14 +224,14 @@ export default function CPUDetail({ sysInfo, current, spark, cpuCores }) {
       </div>
 
       {/* Per-core horizontal bars */}
-      {sortedCores.length > 0 && (
+      {cpuCores.length > 0 && (
         <div className="cores-section" style={{ marginTop: 20 }}>
           <div className="chart-label">
             <span>Per Core</span>
-            <span className="chart-unit">{sortedCores.length} cores</span>
+            <span className="chart-unit">{cpuCores.length} cores</span>
           </div>
           <div className="cores-hbars">
-            {sortedCores.map(c => (
+            {cpuCores.map(c => (
               <div className="core-hbar" key={c.core}>
                 <div className="core-hbar-label">
                   <span className="core-hbar-num">Core {String(c.core).padStart(2, '0')}</span>
