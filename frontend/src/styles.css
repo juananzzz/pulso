@@ -922,7 +922,7 @@ body {
 .net-metric-unit { font-size: 0.82rem; color: var(--text-mid); margin-left: 2px; }
 
 .net-details-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap);
+  display: flex; flex-direction: column; gap: var(--gap);
   margin-bottom: 24px;
 }
 .net-details-grid .chart-section {

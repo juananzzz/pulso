@@ -84,6 +84,41 @@ export default function NetworkDetail({ current, spark }) {
 
       {/* Level 3: Details */}
       <div className="net-details-grid">
+        {/* Interface card */}
+        <div className="chart-section">
+          <div className="net-iface-card">
+            <div className="card-title-row"><span>Interface</span></div>
+            <div className="net-iface-row">
+              <span className="net-iface-dot" style={{ background: 'var(--ok)' }} />
+              <span className="net-iface-name">{iface || '—'}</span>
+              <span className="net-iface-status" style={{ color: 'var(--ok)' }}>Active</span>
+            </div>
+            <div className="net-iface-speed-row">
+              <span className="net-iface-speed-val" style={{ color: 'var(--chart-net-recv)' }}>
+                ↓ {recv ?? '—'} <span className="net-speed-unit">Mb/s</span>
+              </span>
+              <span className="net-iface-speed-div" />
+              <span className="net-iface-speed-val" style={{ color: 'var(--chart-net-sent)' }}>
+                ↑ {sent ?? '—'} <span className="net-speed-unit">Mb/s</span>
+              </span>
+            </div>
+            <div className="net-iface-detail">
+              <div className="net-iface-detail-row">
+                <span className="net-meta-label">Latency</span>
+                <span className="net-meta-val">{latency ?? '—'} ms</span>
+              </div>
+              <div className="net-iface-detail-row">
+                <span className="net-meta-label">Total DL</span>
+                <span className="net-meta-val">{totalRecv?.toFixed(1) ?? '—'} GB</span>
+              </div>
+              <div className="net-iface-detail-row">
+                <span className="net-meta-label">Total UL</span>
+                <span className="net-meta-val">{totalSent?.toFixed(1) ?? '—'} GB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Dual throughput chart */}
         <div className="chart-section">
           <div className="chart-wrap">
@@ -148,41 +183,6 @@ export default function NetworkDetail({ current, spark }) {
             <div className="net-legend">
               <span className="net-legend-item"><span className="net-legend-line" style={{ background: 'var(--chart-net-recv)' }} /> Download</span>
               <span className="net-legend-item"><span className="net-legend-line" style={{ background: 'var(--chart-net-sent)' }} /> Upload</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Interface card */}
-        <div className="chart-section">
-          <div className="net-iface-card">
-            <div className="card-title-row"><span>Interface</span></div>
-            <div className="net-iface-row">
-              <span className="net-iface-dot" style={{ background: 'var(--ok)' }} />
-              <span className="net-iface-name">{iface || '—'}</span>
-              <span className="net-iface-status" style={{ color: 'var(--ok)' }}>Active</span>
-            </div>
-            <div className="net-iface-speed-row">
-              <span className="net-iface-speed-val" style={{ color: 'var(--chart-net-recv)' }}>
-                ↓ {recv ?? '—'} <span className="net-speed-unit">Mb/s</span>
-              </span>
-              <span className="net-iface-speed-div" />
-              <span className="net-iface-speed-val" style={{ color: 'var(--chart-net-sent)' }}>
-                ↑ {sent ?? '—'} <span className="net-speed-unit">Mb/s</span>
-              </span>
-            </div>
-            <div className="net-iface-detail">
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Latency</span>
-                <span className="net-meta-val">{latency ?? '—'} ms</span>
-              </div>
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Total DL</span>
-                <span className="net-meta-val">{totalRecv?.toFixed(1) ?? '—'} GB</span>
-              </div>
-              <div className="net-iface-detail-row">
-                <span className="net-meta-label">Total UL</span>
-                <span className="net-meta-val">{totalSent?.toFixed(1) ?? '—'} GB</span>
-              </div>
             </div>
           </div>
         </div>
